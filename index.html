@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5G From Scratch — Complete 5G NR Guide with 3GPP References</title>
+<link rel="stylesheet" href="css/main.css">
+<style>
+body { display: block; }
+.index-hero { padding: 80px 80px 48px; }
+.index-hero h1 { font-family: var(--serif); font-size: 54px; font-weight: 700; letter-spacing: -1px; line-height: 1.08; margin-bottom: 20px; color: #eef0f8; }
+.index-hero h1 span { color: var(--blue); font-style: italic; font-weight: 300; }
+.index-hero p { font-size: 18px; color: var(--muted); max-width: 620px; line-height: 1.65; margin-bottom: 32px; }
+.index-badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 48px; }
+.badge { font-family: var(--mono); font-size: 11px; padding: 4px 12px; border-radius: 3px; }
+.badge-blue { background: var(--blue-d); color: var(--blue); border: 1px solid rgba(91,156,246,0.3); }
+.badge-teal { background: var(--teal-d); color: var(--teal); border: 1px solid rgba(45,212,170,0.3); }
+.badge-amber { background: var(--amber-d); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); }
+.index-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px,1fr)); gap: 1px; background: var(--border); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.mod-card { background: var(--bg2); padding: 32px 40px; text-decoration: none; transition: background 0.15s; display: block; position: relative; }
+.mod-card:hover { background: var(--bg3); }
+.mod-card.live { border-left: 3px solid var(--blue); }
+.mod-card .mc-num { font-family: var(--mono); font-size: 10px; color: var(--faint); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+.mod-card .mc-title { font-family: var(--serif); font-size: 20px; font-weight: 600; margin-bottom: 8px; line-height: 1.2; }
+.mod-card.live .mc-title { color: #c8cde8; }
+.mod-card:not(.live) .mc-title { color: var(--faint); }
+.mod-card .mc-desc { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 16px; }
+.mod-card:not(.live) .mc-desc { color: var(--faint); }
+.mc-topics { display: flex; flex-direction: column; gap: 4px; }
+.mc-topic { font-family: var(--mono); font-size: 11px; color: var(--faint); line-height: 1.4; }
+.mod-card.live .mc-topic { color: #3a4a6a; }
+.live-badge { position: absolute; top: 20px; right: 20px; font-family: var(--mono); font-size: 10px; background: var(--blue-d); color: var(--blue); border: 1px solid rgba(91,156,246,0.3); padding: 2px 8px; border-radius: 3px; }
+.footer { padding: 40px 80px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.footer p { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+</style>
+</head>
+<body style="background:var(--bg);">
+
+<div style="border-bottom: 1px solid var(--border);">
+  <div class="index-hero">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;">
+      5G NR — From First Principles
+    </div>
+    <h1>Learn 5G NR<br><span>from scratch.</span></h1>
+    <p>
+      Every concept explained with real numbers, exact 3GPP specification references, and interactive diagrams. From GSCN sweep to RACH — no hand-waving.
+    </p>
+    <div class="index-badges">
+      <span class="badge badge-teal">3GPP Release 17</span>
+      <span class="badge badge-blue">Numerical examples throughout</span>
+      <span class="badge badge-amber">TS 38.211 · 38.212 · 38.213 · 38.331 · 38.304</span>
+    </div>
+  </div>
+</div>
+
+<div class="index-grid">
+
+  <a href="module2/2-1-gscn.html" class="mod-card live">
+    <div class="live-badge">● Live</div>
+    <div class="mc-num">Module 2</div>
+    <div class="mc-title">Cell Search & Synchronization</div>
+    <div class="mc-desc">How the UE finds a cell from nothing — GSCN sweep, PSS/SSS correlation, PCI derivation with real numbers.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">✓ GSCN & Frequency Raster</div>
+      <div class="mc-topic">✓ SSB Structure</div>
+      <div class="mc-topic">✓ PSS Detection</div>
+      <div class="mc-topic">✓ SSS Detection</div>
+      <div class="mc-topic">✓ PCI Derivation</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 0</div>
+    <div class="mc-title">Introduction & Architecture</div>
+    <div class="mc-desc">5G NR overview, architecture, protocol stack, and how to read 3GPP specs.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ What is 5G NR?</div>
+      <div class="mc-topic">○ Architecture Overview</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 1</div>
+    <div class="mc-title">OFDM & Frame Structure</div>
+    <div class="mc-desc">Multicarrier fundamentals, numerology, subcarrier spacing, slots, symbols, and the resource grid.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ OFDM & Multicarrier</div>
+      <div class="mc-topic">○ Numerology & Frame Structure</div>
+      <div class="mc-topic">○ Resource Grid</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 3</div>
+    <div class="mc-title">PBCH & MIB</div>
+    <div class="mc-desc">Polar decoding, DMRS channel estimation, and every field of the MIB parsed bit by bit.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ PBCH Decoding Pipeline</div>
+      <div class="mc-topic">○ MIB — Every Field Explained</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 4</div>
+    <div class="mc-title">CORESET & Search Space</div>
+    <div class="mc-desc">How the UE derives CORESET#0 from MIB bits, and when to monitor for PDCCH.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ CORESET#0 Derivation</div>
+      <div class="mc-topic">○ Search Space#0</div>
+      <div class="mc-topic">○ Blind Decoding</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 5</div>
+    <div class="mc-title">SIB1 & Cell Selection</div>
+    <div class="mc-desc">SIB1 contents, S-criterion calculation, PLMN selection, UAC — and camping on the cell.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ SIB1 Contents</div>
+      <div class="mc-topic">○ S-Criterion</div>
+      <div class="mc-topic">○ PLMN & Access Control</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 6</div>
+    <div class="mc-title">Random Access (RACH)</div>
+    <div class="mc-desc">Preamble selection, Msg1–Msg4 flow, timing advance, contention resolution.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ RACH Overview</div>
+      <div class="mc-topic">○ Msg1 — Preamble Transmission</div>
+      <div class="mc-topic">○ Msg2 — RAR</div>
+      <div class="mc-topic">○ Msg3/4 — RRC Setup</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 7</div>
+    <div class="mc-title">RRC Connection</div>
+    <div class="mc-desc">RRC states, RRCSetup message, SRB establishment, initial UE configuration.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ RRC States</div>
+      <div class="mc-topic">○ RRC Setup</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 8</div>
+    <div class="mc-title">Scheduling & Data</div>
+    <div class="mc-desc">DCI formats, downlink/uplink scheduling, MCS selection, HARQ retransmission.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ DCI Formats</div>
+      <div class="mc-topic">○ Downlink Scheduling</div>
+      <div class="mc-topic">○ Uplink Scheduling</div>
+      <div class="mc-topic">○ HARQ</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 9</div>
+    <div class="mc-title">Protocol Stack</div>
+    <div class="mc-desc">MAC, RLC, PDCP, and SDAP layers — what each does and how they interact.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ MAC Layer</div>
+      <div class="mc-topic">○ RLC Layer</div>
+      <div class="mc-topic">○ PDCP Layer</div>
+      <div class="mc-topic">○ SDAP Layer</div>
+    </div>
+  </a>
+
+  <a href="#" class="mod-card">
+    <div class="mc-num">Module 10</div>
+    <div class="mc-title">Beamforming & MIMO</div>
+    <div class="mc-desc">Massive MIMO fundamentals, SSB beam sweep, TCI states, beam failure recovery.</div>
+    <div class="mc-topics">
+      <div class="mc-topic">○ Massive MIMO Basics</div>
+      <div class="mc-topic">○ SSB Beam Sweep</div>
+      <div class="mc-topic">○ TCI States</div>
+    </div>
+  </a>
+
+</div>
+
+<div class="footer">
+  <p>5G From Scratch — based on 3GPP Release 17 specifications</p>
+  <p>TS 38.211 · TS 38.212 · TS 38.213 · TS 38.304 · TS 38.331</p>
+</div>
+
+</body>
+</html>

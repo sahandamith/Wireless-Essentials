@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSB Structure | 5G From Scratch</title>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="site-wrap">
+<aside class="sidebar" id="sidebar"></aside>
+<main class="main">
+
+<div class="hero">
+  <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.2</div>
+  <div class="module-tag" style="background:var(--blue-d);border:1px solid rgba(91,156,246,0.25);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 2 — Cell Search
+  </div>
+  <h1>SSB —<br><em>Synchronization Signal Block</em></h1>
+  <p class="hero-lead">
+    The SSB is the fundamental unit of 5G cell identification. It is a compact block of 4 OFDM symbols that carries everything a UE needs to synchronize with a cell and start reading system information — PSS, SSS, and PBCH packed into 240 subcarriers.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.211 §7.4.3</span>
+    <span class="spec-pill">TS 38.213 §4.1</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>What is in an SSB?</h2>
+<p>
+  The SSB contains exactly three signals, arranged across 4 OFDM symbols and 240 subcarriers (20 resource blocks). Each signal has a distinct job, and they must be processed in order.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    An SS/PBCH block consists of PSS, SSS and PBCH, including the PBCH DM-RS, and shall be contained in 4 consecutive OFDM symbols. The SS/PBCH block occupies 20 consecutive resource blocks.
+  </div>
+  <div class="gpp-source">3GPP TS 38.211, Section 7.4.3.1</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--blue)">PSS</div>
+    <div class="kc-label">Symbol 0</div>
+    <div class="kc-desc">127 subcarriers. Gives timing + N²_ID</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--amber)">PBCH</div>
+    <div class="kc-label">Symbols 1, 2 sides, 3</div>
+    <div class="kc-desc">Carries MIB (Polar coded, 32 bits)</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--teal)">SSS</div>
+    <div class="kc-label">Symbol 2 center</div>
+    <div class="kc-desc">127 subcarriers. Gives N¹_ID → PCI</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--purple)">DMRS</div>
+    <div class="kc-label">Within PBCH</div>
+    <div class="kc-desc">Every 4th subcarrier. Enables channel estimation</div>
+  </div>
+</div>
+
+<h2>SSB time-frequency structure</h2>
+<p>
+  The exact mapping of each signal to subcarriers is defined precisely in the spec. PSS and SSS each occupy 127 subcarriers in the center of the SSB, with zeros on either side. PBCH fills the remaining subcarriers in symbols 1, 2 (sides only), and 3.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">SSB subcarrier mapping — 4 symbols × 240 subcarriers</span>
+    <span class="ds-ref">TS 38.211 §7.4.3.1</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="ssb-canvas" width="980" height="260" style="width:100%;"></canvas>
+    <div style="margin-top:16px;display:flex;gap:20px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;">
+      <span style="color:var(--blue);">■ PSS (127 subcarriers)</span>
+      <span style="color:var(--teal);">■ SSS (127 subcarriers)</span>
+      <span style="color:var(--amber);">■ PBCH</span>
+      <span style="color:var(--purple);">■ PBCH DMRS</span>
+      <span style="color:var(--faint);">■ Zeros (unused)</span>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>SSB periodicity and beam sweeping</h2>
+<p>
+  The gNB transmits SSBs periodically. The default period assumed by UEs during initial cell search is <strong>20 ms</strong>, though the actual periodicity (5, 10, 20, 40, 80, or 160 ms) is configured by the network and signalled in SIB1.
+</p>
+<p>
+  In 5G NR, beamforming is fundamental — especially in FR2 (mmWave). The gNB transmits multiple SSBs in each burst, each in a different beam direction. A UE measures them all and identifies which beam gives the best signal. This <strong>SSB index</strong> is embedded in the PBCH and used later to link the UE's RACH transmission to the correct beam.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For FR1, the maximum number of SS/PBCH blocks within a half frame is 4 for f ≤ 3 GHz, and 8 for 3 GHz &lt; f ≤ 6 GHz.<br>
+    For FR2, the maximum number of SS/PBCH blocks within a half frame is 64.
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 4.1</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--blue)">8</div>
+    <div class="kc-label">max SSBs per half-frame (FR1, n78)</div>
+    <div class="kc-desc">Each in a different beam direction</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--amber)">64</div>
+    <div class="kc-label">max SSBs per half-frame (FR2)</div>
+    <div class="kc-desc">mmWave requires narrow pencil beams</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--teal)">20 ms</div>
+    <div class="kc-label">default assumed period</div>
+    <div class="kc-desc">UE assumes this during initial search</div>
+  </div>
+</div>
+
+<h2>SSB timing — where in the half-frame?</h2>
+<p>
+  Within each 5 ms half-frame, the positions of the SSB symbols are fixed by the spec. For 30 kHz SCS (our n78 example), the first SSB starts at OFDM symbol 4 of slot 0. Each SSB occupies 4 consecutive symbols.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">SSB positions within half-frame — SCS 30 kHz, n78 (up to 8 SSBs)</span>
+    <span class="ds-ref">TS 38.213 §4.1, Table 4.1-2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="timing-canvas" width="980" height="130" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Symbol durations — our example</h2>
+<p>
+  For 30 kHz SCS, each OFDM symbol has a useful duration of <strong>33.33 μs</strong> (= 1/30000 Hz) plus a <strong>cyclic prefix of 2.34 μs</strong>, giving a total symbol duration of 35.68 μs. The entire SSB therefore takes 4 × 35.68 μs = 142.7 μs.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>SSB timing calculations — SCS = 30 kHz</span><span class="cb-ref">TS 38.211 §4.3</span></div>
+  <pre>Useful symbol duration  = 1 / SCS = 1 / <span class="n">30,000</span> Hz = <span class="r">33.33 μs</span>
+Cyclic prefix (normal) = <span class="n">144</span> / <span class="n">30.72</span>×10⁶ = <span class="r">2.34 μs</span>   <span class="c">(first symbol: 160/30.72MHz)</span>
+Total symbol duration  = <span class="n">33.33</span> + <span class="n">2.34</span> = <span class="r">35.68 μs</span>
+
+In samples (sampling rate = <span class="n">61.44</span> Msps for 100 MHz channel):
+  Useful part = <span class="n">61.44</span>×10⁶ × <span class="n">33.33</span>×10⁻⁶ = <span class="r">2048 samples</span>
+  CP          = <span class="n">61.44</span>×10⁶ × <span class="n">2.34</span>×10⁻⁶  = <span class="r">144 samples</span>
+  Total       = <span class="r">2192 samples per symbol</span>
+
+Full SSB = 4 symbols = <span class="n">4</span> × <span class="n">2192</span> = <span class="r">8768 samples = 142.7 μs</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">SSB — key facts for our n78 example</div>
+  <div class="rb-line">SSB center frequency &nbsp;&nbsp;&nbsp;→ <span class="rb-val">3498.24 MHz</span> (GSCN 7845)</div>
+  <div class="rb-line">SSB bandwidth &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">7.2 MHz</span> (240 subcarriers × 30 kHz)</div>
+  <div class="rb-line">Symbol duration &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">35.68 μs</span> (2192 samples at 61.44 Msps)</div>
+  <div class="rb-line">SSB duration &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">142.7 μs</span> (4 symbols)</div>
+  <div class="rb-line">Max beams per half-frame → <span class="rb-val">8</span> (FR1, f &gt; 3 GHz)</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="2-1-gscn.html">
+    <span class="pn-label">← Previous</span>
+    <span class="pn-title">GSCN & Frequency Raster</span>
+  </a>
+  <a href="2-3-pss.html" class="next">
+    <span class="pn-label">Next →</span>
+    <span class="pn-title">PSS Detection</span>
+  </a>
+</div>
+
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('2-2-ssb.html');
+
+// SSB structure diagram
+(function() {
+  const c = document.getElementById('ssb-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const pad = 60, symGap = 10;
+  const symW = (W - pad*2 - symGap*3) / 4;
+  const symH = 160, startY = 50;
+  const scPerSym = 240;
+
+  const labels = ['Symbol 0', 'Symbol 1', 'Symbol 2', 'Symbol 3'];
+
+  labels.forEach((lbl, si) => {
+    const sx = pad + si * (symW + symGap);
+    // Draw subcarriers as thin bars
+    for (let sc = 0; sc < scPerSym; sc++) {
+      const bx = sx + (sc / scPerSym) * symW;
+      const bw = symW / scPerSym;
+      let color;
+      if (si === 0) {
+        // PSS: center 127 subcarriers (sc 56–182)
+        if (sc >= 56 && sc <= 182) color = '#1a3a6e';
+        else color = '#0d1020';
+      } else if (si === 1 || si === 3) {
+        // PBCH with DMRS every 4th
+        if (sc % 4 === 2) color = '#2d1060'; // DMRS
+        else color = '#2d1d04';
+      } else if (si === 2) {
+        // SSS center + PBCH sides
+        if (sc >= 56 && sc <= 182) color = '#062820';
+        else if (sc % 4 === 2) color = '#2d1060';
+        else color = '#2d1d04';
+      }
+      ctx.fillStyle = color;
+      ctx.fillRect(bx, startY, Math.max(1, bw - 0.2), symH);
+    }
+
+    // Overlay colored regions
+    if (si === 0) {
+      // PSS overlay
+      ctx.fillStyle = 'rgba(91,156,246,0.35)';
+      ctx.fillRect(sx + (56/scPerSym)*symW, startY, (127/scPerSym)*symW, symH);
+      ctx.font = 'bold 14px Fraunces'; ctx.fillStyle = '#5b9cf6';
+      ctx.textAlign = 'center';
+      ctx.fillText('PSS', sx + symW/2, startY + symH/2 - 8);
+      ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a';
+      ctx.fillText('127 subcarriers', sx + symW/2, startY + symH/2 + 10);
+      ctx.fillText('zeros', sx + (28/scPerSym)*symW, startY + symH/2);
+      ctx.fillText('zeros', sx + (211/scPerSym)*symW, startY + symH/2);
+    }
+    if (si === 1 || si === 3) {
+      ctx.fillStyle = 'rgba(245,166,35,0.25)';
+      ctx.fillRect(sx, startY, symW, symH);
+      ctx.font = 'bold 14px Fraunces'; ctx.fillStyle = '#f5a623';
+      ctx.textAlign = 'center';
+      ctx.fillText('PBCH', sx + symW/2, startY + symH/2 - 8);
+      ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#8a6020';
+      ctx.fillText('240 subcarriers', sx + symW/2, startY + symH/2 + 10);
+      // DMRS indicator
+      ctx.fillStyle = '#a78bfa';
+      ctx.font = '10px IBM Plex Mono';
+      ctx.fillText('DMRS every 4th SC', sx + symW/2, startY + symH - 12);
+    }
+    if (si === 2) {
+      // SSS center
+      ctx.fillStyle = 'rgba(45,212,170,0.3)';
+      ctx.fillRect(sx + (56/scPerSym)*symW, startY, (127/scPerSym)*symW, symH);
+      // PBCH sides
+      ctx.fillStyle = 'rgba(245,166,35,0.2)';
+      ctx.fillRect(sx, startY, (56/scPerSym)*symW, symH);
+      ctx.fillRect(sx + (183/scPerSym)*symW, startY, (57/scPerSym)*symW, symH);
+      ctx.font = 'bold 12px Fraunces'; ctx.fillStyle = '#2dd4aa';
+      ctx.textAlign = 'center';
+      ctx.fillText('SSS', sx + symW/2, startY + symH/2 - 8);
+      ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#0a6050';
+      ctx.fillText('127 subcarriers', sx + symW/2, startY + symH/2 + 10);
+      ctx.fillStyle = '#8a6020'; ctx.font = '10px IBM Plex Mono';
+      ctx.fillText('PBCH', sx + (28/scPerSym)*symW, startY + symH/2 - 4);
+      ctx.fillText('48 sc', sx + (28/scPerSym)*symW, startY + symH/2 + 10);
+      ctx.fillText('PBCH', sx + (211/scPerSym)*symW, startY + symH/2 - 4);
+      ctx.fillText('48 sc', sx + (211/scPerSym)*symW, startY + symH/2 + 10);
+    }
+
+    // Symbol border
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+    ctx.strokeRect(sx, startY, symW, symH);
+
+    // Symbol label below
+    ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'center';
+    ctx.fillText(lbl, sx + symW/2, startY + symH + 18);
+  });
+
+  // Freq axis
+  ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'left';
+  ctx.fillText('← 240 subcarriers (20 RBs = 7.2 MHz) →', pad, 38);
+  ctx.textAlign = 'right';
+  ctx.fillText('Frequency →', W - pad, 38);
+})();
+
+// Timing diagram
+(function() {
+  const c = document.getElementById('timing-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  // 5 ms half-frame, 30kHz SCS = 10 slots, 14 symbols/slot = 140 symbols
+  const totalSyms = 140;
+  const pad = 60, barH = 50, startY = 28;
+  const sw = (W - pad*2) / totalSyms;
+
+  // Background slots
+  for (let sl = 0; sl < 10; sl++) {
+    const x = pad + sl * 14 * sw;
+    ctx.fillStyle = sl % 2 === 0 ? '#0a0c18' : '#0d0f1c';
+    ctx.fillRect(x, startY, 14*sw, barH);
+    ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#1a2040'; ctx.textAlign = 'center';
+    ctx.fillText('slot ' + sl, x + 7*sw, startY + barH + 14);
+  }
+
+  // SSB positions for n78, 30kHz (symbols 4,8,16,20,32,36,44,48 within half-frame)
+  const ssbStarts = [4, 8, 16, 20, 32, 36, 44, 48];
+  const colors = ['#1a3a6e','#1a3a6e','#1a3a6e','#1a3a6e','#1a3a6e','#1a3a6e','#1a3a6e','#1a3a6e'];
+
+  ssbStarts.forEach((sym, i) => {
+    const x = pad + sym * sw;
+    const w = 4 * sw;
+    ctx.fillStyle = i === 0 ? 'rgba(91,156,246,0.4)' : 'rgba(91,156,246,0.2)';
+    ctx.fillRect(x, startY, w, barH);
+    ctx.strokeStyle = '#5b9cf6'; ctx.lineWidth = 1;
+    ctx.strokeRect(x, startY, w, barH);
+    ctx.font = '9px IBM Plex Mono'; ctx.fillStyle = '#5b9cf6'; ctx.textAlign = 'center';
+    ctx.fillText('SSB', x + w/2, startY + barH/2 - 4);
+    ctx.fillText(i, x + w/2, startY + barH/2 + 8);
+  });
+
+  // Labels
+  ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'left';
+  ctx.fillText('← Half-frame = 5 ms (slots 0–9) →', pad, startY - 10);
+  ctx.textAlign = 'center';
+  ctx.fillText('Time →', W/2, H - 2);
+})();
+</script>
+</body>
+</html>
