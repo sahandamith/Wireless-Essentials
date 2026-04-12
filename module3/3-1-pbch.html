@@ -10,28 +10,172 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 3 <span>›</span> Section 3.1</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 3 — Coming Soon
+  <div class="breadcrumb">Module 3 <span>›</span> PBCH & MIB <span>›</span> Section 3.1</div>
+  <div class="module-tag" style="background:var(--amber-d);border:1px solid rgba(247,183,49,0.25);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    Module 3 — PBCH & MIB
   </div>
-  <h1>PBCH Decoding</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>PBCH Decoding —<br><em>From raw symbols to MIB bits</em></h1>
+  <p class="hero-lead">
+    With PCI = 442 and symbol timing t = 4523 from PSS/SSS, the UE can now decode the Physical Broadcast Channel. PBCH carries the MIB — the first structured information from the network. This section walks through every step: DMRS generation, channel estimation, equalization, Polar decoding, and CRC.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.212 §7.1</span>
+    <span class="spec-pill">TS 38.211 §7.3.3</span>
+    <span class="spec-pill">TS 38.211 §7.4.1.4</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">PBCH subcarrier mapping (240 subcarriers)</div>
-<div class="topic-item">DMRS generation from PCI (v = PCI mod 4)</div>
-<div class="topic-item">Channel estimation and equalization</div>
-<div class="topic-item">Polar code decoding (SCL decoder)</div>
-<div class="topic-item">CRC check and SSB index extraction</div>
+<div class="prose">
+
+<h2>Where PBCH lives in the SSB</h2>
+<p>
+  PBCH occupies <strong>symbols 1, 2, and 3</strong> of the SSB. In symbol 2, it shares space with SSS — PBCH uses the 48 subcarriers on each side of the SSS center block. Across all three symbols, PBCH has a total of <strong>432 data subcarriers</strong> after removing DMRS positions.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">PBCH subcarrier mapping — symbols 1, 2, 3 of SSB</span>
+    <span class="ds-ref">TS 38.211 §7.3.3.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="pbch-map-canvas" width="920" height="200" style="width:100%;"></canvas>
+    <div style="margin-top:12px;display:flex;gap:20px;font-family:var(--mono);font-size:11px;flex-wrap:wrap;">
+      <span style="color:var(--amber)">■ PBCH data</span>
+      <span style="color:var(--purple)">■ DMRS (every 4th SC, offset v = PCI mod 4 = 2)</span>
+      <span style="color:var(--teal)">■ SSS (center 127 of symbol 2)</span>
     </div>
   </div>
+</div>
+
+<div class="prose">
+<h2>Step 1 — Extract PBCH symbols</h2>
+<p>
+  Using timing t = 4523 from PSS, the UE computes each PBCH symbol start, removes the cyclic prefix (144 samples), and runs a 2048-point FFT to get frequency-domain subcarriers.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>PBCH symbol positions — PCI=442, t_PSS=4523</span><span class="cb-ref">TS 38.211 §7.3.3</span></div>
+  <pre><span class="c">// Symbol timing (symbol length = 2192 samples at 61.44 Msps)</span>
+Symbol 1: t = <span class="n">4523</span> + <span class="n">2192</span>     = <span class="r">6715</span>  → skip CP (144) → FFT samples [6859..8906]
+Symbol 2: t = <span class="n">4523</span> + 2×<span class="n">2192</span>   = <span class="r">8907</span>  → skip CP → FFT samples [9051..11098]
+Symbol 3: t = <span class="n">4523</span> + 3×<span class="n">2192</span>   = <span class="r">11099</span> → skip CP → FFT samples [11243..13290]
+
+<span class="c">// Extract 240 center subcarriers from each 2048-bin FFT output</span>
+<span class="c">// → 240 complex values per symbol = PBCH + DMRS + (SSS in sym 2)</span></pre>
+</div>
+
+<div class="prose">
+<h2>Step 2 — DMRS generation and channel estimation</h2>
+<p>
+  PBCH DMRS is inserted every 4th subcarrier with offset <strong>v = PCI mod 4 = 2</strong>. The UE generates the expected DMRS sequence using the formula below, then uses it to estimate the channel at each DMRS position.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The PBCH DMRS sequence r(n) = (1/√2)(1−2c(2n)) + j(1/√2)(1−2c(2n+1)) where the pseudo-random sequence c(i) is initialised with<br><br>
+    c_init = 2^11·(i_SSB+1)·(⌊N_ID^cell/4⌋+1) + 2^6·(i_SSB+1) + N_ID^cell mod 4
+  </div>
+  <div class="gpp-source">3GPP TS 38.211, Section 7.4.1.4.1</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>DMRS seed and channel estimation — PCI=442, SSB index=3</span><span class="cb-ref">TS 38.211 §7.4.1.4.1</span></div>
+  <pre><span class="c">// DMRS position offset</span>
+v = <span class="n">442</span> mod <span class="n">4</span> = <span class="r">2</span>  → DMRS at SC: 2, 6, 10, 14, 18, ...  (60 per symbol)
+
+<span class="c">// DMRS seed</span>
+c_init = 2^<span class="n">11</span>×(<span class="n">3</span>+<span class="n">1</span>)×(⌊<span class="n">442</span>/<span class="n">4</span>⌋+<span class="n">1</span>) + 2^<span class="n">6</span>×(<span class="n">3</span>+<span class="n">1</span>) + (<span class="n">442</span> mod <span class="n">4</span>)
+      = <span class="n">2048</span>×<span class="n">4</span>×<span class="n">111</span> + <span class="n">256</span> + <span class="n">2</span> = <span class="r">908546</span>
+
+<span class="c">// Channel estimation (at each of 60 DMRS subcarriers):</span>
+H[k] = received[k] / DMRS_known[k]
+
+<span class="c">// Example at k=2:</span>
+received[2]   = <span class="n">0.450</span>+<span class="n">0.380</span>j
+DMRS_known[2] = <span class="n">0.707</span>+<span class="n">0.707</span>j
+H[2] = <span class="r">0.586∠−10°</span>  (amplitude 0.586, phase shift −10°)
+
+<span class="c">// Interpolate H[k] linearly between DMRS positions</span>
+<span class="c">// to estimate channel at all 180 data subcarriers</span>
+H[3]  ≈ (H[2]+H[6])/4×1 = <span class="n">0.5873</span>∠−10.25°
+H[4]  ≈ (H[2]+H[6])/4×2 = <span class="n">0.5885</span>∠−10.50°
+H[5]  ≈ (H[2]+H[6])/4×3 = <span class="n">0.5898</span>∠−10.75°</pre>
+</div>
+
+<div class="prose">
+<h2>Step 3 — Equalization and QPSK demodulation</h2>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>One-tap equalization and QPSK demodulation</span></div>
+  <pre><span class="c">// Remove channel distortion at each data subcarrier:</span>
+data_eq[k] = received[k] / H[k]
+
+<span class="c">// Example at k=4:</span>
+received[4] = <span class="n">0.412</span>-<span class="n">0.089</span>j,  H[4] = <span class="n">0.5885</span>∠−10.50°
+data_eq[4]  = <span class="r">0.707+0.000j</span>  → QPSK symbol: +1+0j → bits <span class="r">10</span>
+
+<span class="c">// QPSK: 2 bits per RE</span>
+Total data REs:  180 (sym1) + ~53 (sym2 sides) + 180 (sym3) = <span class="r">413</span> REs
+Total soft bits: 413 × 2 = <span class="r">826 bits</span>  (+ rate matching padding = 864)</pre>
+</div>
+
+<div class="prose">
+<h2>Step 4 — Descrambling</h2>
+<p>
+  The 864 bits are descrambled by XOR-ing with a pseudorandom sequence seeded by PCI = 442. This reverses the scrambling applied at the gNB.
+</p>
+
+<h2>Step 5 — Rate dematching → Polar decoding</h2>
+<p>
+  5G NR uses <strong>Polar codes</strong> for PBCH. Polar codes are theoretically proven to achieve channel capacity. The decoder uses a <strong>Successive Cancellation List (SCL)</strong> decoder with list size L=8 — it maintains 8 candidate decoding paths simultaneously, selecting the one that passes the CRC.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The PBCH payload including the 24-bit CRC attachment shall be encoded using the Polar code. The encoded bits shall be rate-matched to the number of channel symbols assigned for PBCH transmission.
+  </div>
+  <div class="gpp-source">3GPP TS 38.212, Section 7.1.4</div>
+</div>
+
+<h2>Step 6 — CRC check and payload extraction</h2>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>PBCH payload — 32 bits decoded</span><span class="cb-ref">TS 38.212 §7.1.1</span></div>
+  <pre><span class="c">// Decoded 32-bit payload structure:</span>
+Bits [0..5]   = SFN MSBs (6 bits)           → <span class="n">100011</span>
+Bit  [6]      = subCarrierSpacingCommon      → <span class="n">1</span>  (30 kHz)
+Bits [7..10]  = ssb-SubcarrierOffset (k_SSB) → <span class="n">0010</span> = 2
+Bit  [11]     = dmrs-TypeA-Position          → <span class="n">0</span>  (symbol 2)
+Bits [12..15] = controlResourceSetZero       → <span class="n">0011</span> = 3
+Bits [16..19] = searchSpaceZero              → <span class="n">0010</span> = 2
+Bit  [20]     = cellBarred                   → <span class="n">0</span>  (notBarred)
+Bit  [21]     = intraFreqReselection         → <span class="n">0</span>  (allowed)
+Bits [22..23] = spare                        → <span class="n">00</span>
+Bits [24..31] = overhead (SFN LSBs, SSB idx)
+
+<span class="c">// SFN reconstruction:</span>
+MSBs from MIB [0..5]: <span class="n">100011</span>
+LSBs from overhead:         <span class="n">0101</span>
+Full SFN = <span class="n">1000110101</span>(bin) = <span class="r">565</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">PBCH complete — UE now has:</div>
+  <div class="rb-line">SFN &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">565</span></div>
+  <div class="rb-line">SSB index &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">3</span></div>
+  <div class="rb-line">MIB (24 bits) →  ready to parse field by field</div>
+  <div class="rb-line">Next &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Parse MIB → derive CORESET#0 position</div>
+</div>
+
 </div>
 <div class="page-nav">
   <a href="../module2/2-5-pci.html"><span class="pn-label">← Previous</span><span class="pn-title">PCI Derivation</span></a>
@@ -40,6 +184,41 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('3-1-pbch.html');</script>
+<script>
+buildSidebar('3-1-pbch.html');
+(function(){
+  const c=document.getElementById('pbch-map-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
+  const symbols=[{name:'Symbol 1',type:'full'},{name:'Symbol 2',type:'sss'},{name:'Symbol 3',type:'full'}];
+  const pad=40,gap=10,symH=120,startY=40;
+  const symW=(W-pad*2-gap*2)/3;
+  const scW=symW/240;
+  symbols.forEach((s,si)=>{
+    const sx=pad+si*(symW+gap);
+    for(let sc=0;sc<240;sc++){
+      const x=sx+sc*scW;
+      const isDMRS=sc%4===2;
+      let fill;
+      if(s.type==='sss'&&sc>=56&&sc<=182) fill='#062820';
+      else if(isDMRS) fill='#1a0f3d';
+      else fill='#2d1d04';
+      ctx.fillStyle=fill; ctx.fillRect(x,startY,Math.max(1,scW-0.2),symH);
+    }
+    if(s.type==='sss'){ctx.fillStyle='rgba(61,219,184,0.3)';ctx.fillRect(sx+56*scW,startY,127*scW,symH);}
+    ctx.fillStyle='rgba(247,183,49,0.15)';
+    if(s.type==='full') ctx.fillRect(sx,startY,symW,symH);
+    else{ctx.fillRect(sx,startY,56*scW,symH);ctx.fillRect(sx+183*scW,startY,57*scW,symH);}
+    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.strokeRect(sx,startY,symW,symH);
+    ctx.font='bold 12px Fraunces';ctx.fillStyle='#f7b731';ctx.textAlign='center';
+    ctx.fillText(s.name,sx+symW/2,startY+22);
+    ctx.font='10px IBM Plex Mono';ctx.fillStyle='#6b7090';
+    if(s.type==='full') ctx.fillText('180 data + 60 DMRS',sx+symW/2,startY+44);
+    else ctx.fillText('SSS center + PBCH sides',sx+symW/2,startY+44);
+    ctx.font='10px IBM Plex Mono';ctx.fillStyle='#2a3a5a';ctx.textAlign='center';
+    ctx.fillText(s.name+' of SSB',sx+symW/2,startY+symH+16);
+  });
+})();
+</script>
 </body>
 </html>

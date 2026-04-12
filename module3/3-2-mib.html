@@ -3,36 +3,338 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MIB — Every Field Explained | 5G From Scratch</title>
+<title>MIB — Every Field | 5G From Scratch</title>
 <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 3 <span>›</span> Section 3.2</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 3 — Coming Soon
+  <div class="breadcrumb">Module 3 <span>›</span> PBCH & MIB <span>›</span> Section 3.2</div>
+  <div class="module-tag" style="background:var(--amber-d);border:1px solid rgba(247,183,49,0.25);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    Module 3 — PBCH & MIB
   </div>
-  <h1>MIB — Every Field Explained</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>MIB —<br><em>Every field, every bit</em></h1>
+  <p class="hero-lead">
+    The MIB is 24 bits. Every single bit matters. This section parses each field of our decoded MIB — what it means, what 3GPP says about it, and exactly how the UE uses it to derive CORESET#0, frame timing, and cell selection parameters.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.331 §6.2.2</span>
+    <span class="spec-pill">TS 38.213 §13</span>
+    <span class="spec-pill">TS 38.304 §5.3.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">systemFrameNumber — SFN reconstruction</div>
-<div class="topic-item">subCarrierSpacingCommon — PDCCH SCS</div>
-<div class="topic-item">ssb-SubcarrierOffset (k_SSB) — Point A</div>
-<div class="topic-item">dmrs-TypeA-Position</div>
-<div class="topic-item">pdcch-ConfigSIB1 — CORESET#0 + SS#0</div>
-<div class="topic-item">cellBarred and intraFreqReselection</div>
+<div class="prose">
+
+<h2>MIB structure</h2>
+<p>
+  The MIB is defined in TS 38.331 as an ASN.1 structure. It is 24 bits long and is carried in the 32-bit PBCH payload (the remaining 8 bits carry SFN LSBs and SSB index implicitly).
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    MIB ::= SEQUENCE {<br>
+    &nbsp;&nbsp;systemFrameNumber &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BIT STRING (SIZE (6)),<br>
+    &nbsp;&nbsp;subCarrierSpacingCommon &nbsp;&nbsp;ENUMERATED {scs15or60, scs30or120},<br>
+    &nbsp;&nbsp;ssb-SubcarrierOffset &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INTEGER (0..15),<br>
+    &nbsp;&nbsp;dmrs-TypeA-Position &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENUMERATED {pos2, pos3},<br>
+    &nbsp;&nbsp;pdcch-ConfigSIB1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PDCCH-ConfigSIB1,<br>
+    &nbsp;&nbsp;cellBarred &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENUMERATED {barred, notBarred},<br>
+    &nbsp;&nbsp;intraFreqReselection &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ENUMERATED {allowed, notAllowed},<br>
+    &nbsp;&nbsp;spare &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BIT STRING (SIZE (1))<br>
+    }
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 6.2.2</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">MIB bit layout — our decoded example</span>
+    <span class="ds-ref">TS 38.331 §6.2.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="mib-bits-canvas" width="920" height="130" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+
+<h2>Field 1 — systemFrameNumber (6 bits)</h2>
+<p>
+  <strong>Our value: 100011 (binary)</strong>
+</p>
+<p>
+  These are the 6 <strong>most significant bits</strong> of the 10-bit System Frame Number. The remaining 4 LSBs are extracted from the PBCH payload overhead bits (not the MIB itself). The UE combines both to reconstruct the full SFN.
+</p>
+<p>
+  SFN counts from 0 to 1023, wrapping every 10.24 seconds. It is the master clock for all scheduling, paging, measurement gaps, and system information timing.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>SFN reconstruction</span><span class="cb-ref">TS 38.331 §6.2.2</span></div>
+  <pre><span class="c">// MIB gives 6 MSBs:</span>
+SFN[9:4] = <span class="n">100011</span>
+
+<span class="c">// PBCH overhead gives 4 LSBs:</span>
+SFN[3:2] = half-frame + 1 SFN bit  → <span class="n">01</span>
+SFN[1:0] = SSB index bits           → <span class="n">01</span>
+
+<span class="c">// Full SFN:</span>
+SFN = <span class="n">1000110101</span> (binary)
+    = 2^9 + 2^5 + 2^4 + 2^2 + 2^0
+    = 512 + 32 + 16 + 4 + 1
+    = <span class="r">565</span>
+
+<span class="c">// Current time since SFN=0:</span>
+565 × 10 ms = <span class="r">5650 ms</span> = 5.65 seconds into the 10.24s cycle</pre>
+</div>
+
+<div class="prose">
+
+<h2>Field 2 — subCarrierSpacingCommon (1 bit)</h2>
+<p>
+  <strong>Our value: 1 → 30 kHz (FR1)</strong>
+</p>
+<p>
+  This tells the UE what subcarrier spacing to use when receiving <strong>SIB1, paging, RAR (Random Access Response), and PDCCH in CORESET#0</strong>. It is distinct from the SSB SCS used for synchronization.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    subCarrierSpacingCommon: Subcarrier spacing for SIB1, Msg.2/4 for initial access, paging and broadcast SI-messages. If the UE is in FR1, the value scs15or60 corresponds to 15 kHz and scs30or120 corresponds to 30 kHz.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 6.2.2</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">bit=0</div><div class="kc-label">FR1 → 15 kHz</div><div class="kc-desc">FR2 → 60 kHz</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">bit=1</div><div class="kc-label">FR1 → 30 kHz ← ours</div><div class="kc-desc">FR2 → 120 kHz</div></div>
+</div>
+
+<h2>Field 3 — ssb-SubcarrierOffset / k_SSB (4 bits)</h2>
+<p>
+  <strong>Our value: 0010 = 2 subcarriers</strong>
+</p>
+<p>
+  This is the <strong>frequency offset between the SSB and the common resource block (CRB) grid</strong>, measured in subcarriers. It tells the UE where <strong>Point A</strong> is — the absolute frequency reference from which all RB positions are computed.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Point A derivation from k_SSB = 2</span><span class="cb-ref">TS 38.211 §4.4.4.1</span></div>
+  <pre><span class="c">// k_SSB = offset in subcarriers between SSB and PRB grid</span>
+k_SSB = <span class="n">2</span>
+
+<span class="c">// SSB lowest subcarrier frequency:</span>
+f_SSB_center = <span class="n">3498.24</span> MHz  (GSCN 7845)
+f_SSB_low    = <span class="n">3498.24</span> − 60 × <span class="n">0.030</span> = <span class="n">3496.44</span> MHz
+<span class="c">// (60 subcarriers below SSB center = half of 120 subcarriers)</span>
+
+<span class="c">// Point A = k_SSB subcarriers below SSB lowest edge:</span>
+Point_A = <span class="n">3496.44</span> − <span class="n">2</span> × <span class="n">0.030</span> = <span class="r">3496.38 MHz</span>
+
+<span class="c">// Special case: k_SSB = 31 means "no SIB1 on this cell"</span>
+<span class="c">// UE should not look for CORESET#0</span></pre>
+</div>
+
+<div class="prose">
+
+<h2>Field 4 — dmrs-TypeA-Position (1 bit)</h2>
+<p>
+  <strong>Our value: 0 → position 2</strong>
+</p>
+<p>
+  This tells the UE where the first DMRS symbol is in PDSCH (data channel). DMRS is needed to estimate the channel before decoding data — without knowing its position, the UE cannot decode SIB1.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    dmrs-TypeA-Position: Position of (first) DM-RS for downlink (see TS 38.211). Value pos2 means the DM-RS is located at symbol position 2 and pos3 means symbol position 3.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 6.2.2</div>
+</div>
+
+<p>
+  For our cell: DMRS at symbol 2. This means PDSCH data starts at symbol 3. This is consistent with our 2-symbol CORESET#0 (occupying symbols 0–1).
+</p>
+
+<h2>Field 5 — pdcch-ConfigSIB1 (8 bits)</h2>
+<p>
+  <strong>The most important MIB field.</strong> These 8 bits tell the UE exactly where to look for the PDCCH that schedules SIB1. They are split into two 4-bit indices.
+</p>
+
+<h3>controlResourceSetZero (4 bits)</h3>
+<p>
+  <strong>Our value: 0011 = 3</strong>
+</p>
+<p>
+  This is an index into tables 13-1 through 13-10 in TS 38.213. The table is selected based on SSB SCS and PDCCH SCS combination. The entry gives the CORESET#0 size and position.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Table 13-4 lookup — SSB SCS=30kHz, PDCCH SCS=30kHz, index=3</span>
+    <span class="ds-ref">TS 38.213 §13, Table 13-4</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead>
+        <tr><th>Index</th><th>Num RBs</th><th>Num symbols</th><th>Offset (RBs)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td>24</td><td>2</td><td>0</td></tr>
+        <tr><td>1</td><td>24</td><td>2</td><td>2</td></tr>
+        <tr><td>2</td><td>24</td><td>2</td><td>4</td></tr>
+        <tr class="hl"><td>3 ← ours</td><td class="t-vp">24</td><td class="t-vp">2</td><td class="t-vp">2</td></tr>
+        <tr><td>4</td><td>24</td><td>3</td><td>0</td></tr>
+        <tr><td>5</td><td>24</td><td>3</td><td>2</td></tr>
+        <tr><td>6</td><td>48</td><td>1</td><td>0</td></tr>
+        <tr><td>7</td><td>48</td><td>1</td><td>4</td></tr>
+      </tbody>
+    </table>
+    <div class="code-block" style="margin-top:16px;">
+      <div class="cb-header"><span>CORESET#0 position — from table entry</span></div>
+      <pre><span class="c">// From table: 24 RBs, 2 symbols, offset 2 RBs above Point A</span>
+Point_A = <span class="n">3496.38</span> MHz
+
+CORESET0_start = Point_A + offset × <span class="n">12</span> × SCS
+               = <span class="n">3496.38</span> + <span class="n">2</span> × <span class="n">12</span> × <span class="n">0.030</span>
+               = <span class="n">3496.38</span> + <span class="n">0.720</span>
+               = <span class="r">3497.10 MHz</span>
+
+CORESET0_width = <span class="n">24</span> RBs × <span class="n">12</span> × <span class="n">30</span> kHz = <span class="r">8.64 MHz</span>
+CORESET0_end   = <span class="n">3497.10</span> + <span class="n">8.64</span> = <span class="r">3505.74 MHz</span>
+CORESET0_symbols = <span class="r">2</span> (symbols 0 and 1 of monitoring slot)</pre>
     </div>
   </div>
+</div>
+
+<div class="prose">
+<h3>searchSpaceZero (4 bits)</h3>
+<p>
+  <strong>Our value: 0010 = 2</strong>
+</p>
+<p>
+  This indexes Table 13-11 in TS 38.213 to define Search Space#0 — when the UE must monitor CORESET#0 for PDCCH.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Table 13-11 lookup — index=2, CORESET#0 duration=2</span>
+    <span class="ds-ref">TS 38.213 §13, Table 13-11</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead>
+        <tr><th>Index</th><th>Period (slots)</th><th>Slot offset</th><th>Symbol</th><th>AL4 candidates</th><th>AL8 candidates</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>0</td><td>20</td><td>0</td><td>0</td><td>4</td><td>2</td></tr>
+        <tr><td>1</td><td>20</td><td>0</td><td>0</td><td>4</td><td>2</td></tr>
+        <tr class="hl"><td>2 ← ours</td><td class="t-vp">20</td><td class="t-vp">2</td><td class="t-vp">0</td><td class="t-vp">4</td><td class="t-vp">2</td></tr>
+        <tr><td>3</td><td>20</td><td>2</td><td>0</td><td>4</td><td>2</td></tr>
+        <tr><td>4</td><td>20</td><td>5</td><td>0</td><td>4</td><td>2</td></tr>
+      </tbody>
+    </table>
+    <div class="code-block" style="margin-top:16px;">
+      <div class="cb-header"><span>Search Space#0 monitoring occasions</span></div>
+      <pre><span class="c">// Period=20 slots, offset=2, SCS=30kHz → slot duration=0.5ms</span>
+Monitor at: slot 2, 22, 42, 62, ...  (every 10 ms)
+Symbol:     0 (first symbol of each monitoring slot)
+
+<span class="c">// Blind decoding at each occasion:</span>
+4 candidates at AL=4 (4 CCEs each)
+2 candidates at AL=8 (8 CCEs each)
+Total: <span class="r">6 blind decoding attempts</span> per occasion
+
+<span class="c">// Timing:</span>
+Next occasion: SFN=565, slot=2
+               = 5650 ms + 1 ms = <span class="r">5651 ms</span></pre>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+
+<h2>Field 6 — cellBarred (1 bit)</h2>
+<p>
+  <strong>Our value: 0 → notBarred</strong>
+</p>
+<p>
+  If this bit is 1 (barred), the UE must immediately abandon this cell and start a barring timer. It cannot return to this cell for the duration of T_barred (typically 300 seconds). This is used by operators to shed load from a congested cell or during maintenance.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    If cellBarred is set to barred, the UE is not allowed to camp on the cell. The UE shall apply the cell barring as specified in TS 38.304, i.e. the UE shall consider the cell as barred and start the timer T_barring.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 6.2.2 | TS 38.304, Section 5.3.2</div>
+</div>
+
+<h2>Field 7 — intraFreqReselection (1 bit)</h2>
+<p>
+  <strong>Our value: 0 → allowed</strong>
+</p>
+<p>
+  Only relevant when cellBarred = 1. If this is notAllowed, the UE must not only avoid this specific cell but also avoid <strong>all cells on the same frequency</strong>. This forces the UE to try a different band entirely. Used when the entire frequency layer has a problem.
+</p>
+
+<h2>Field 8 — spare (1 bit)</h2>
+<p>
+  Always set to 0. Reserved for future 3GPP releases. UE ignores this bit.
+</p>
+
+<h2>Complete MIB — bit by bit</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">MIB decoded — all 24 bits</span>
+    <span class="ds-ref">TS 38.331 §6.2.2</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead>
+        <tr><th>Bits</th><th>Field</th><th>Our value</th><th>Decoded meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="t-pos">[0:5]</td><td>systemFrameNumber</td><td style="color:var(--blue);font-family:var(--mono);">100011</td><td style="color:var(--text2);">SFN MSBs → full SFN = 565</td></tr>
+        <tr><td class="t-pos">[6]</td><td>subCarrierSpacingCommon</td><td style="color:var(--amber);font-family:var(--mono);">1</td><td style="color:var(--text2);">30 kHz (FR1)</td></tr>
+        <tr><td class="t-pos">[7:10]</td><td>ssb-SubcarrierOffset</td><td style="color:var(--teal);font-family:var(--mono);">0010</td><td style="color:var(--text2);">k_SSB = 2 → Point A = 3496.38 MHz</td></tr>
+        <tr><td class="t-pos">[11]</td><td>dmrs-TypeA-Position</td><td style="color:var(--purple);font-family:var(--mono);">0</td><td style="color:var(--text2);">DMRS at symbol 2</td></tr>
+        <tr class="hl"><td class="t-pos">[12:15]</td><td>controlResourceSetZero</td><td style="color:var(--amber);font-family:var(--mono);">0011</td><td>idx=3 → 24 RBs, 2 syms, offset 2 RBs</td></tr>
+        <tr class="hl"><td class="t-pos">[16:19]</td><td>searchSpaceZero</td><td style="color:var(--amber);font-family:var(--mono);">0010</td><td>idx=2 → period 20 slots, offset 2</td></tr>
+        <tr><td class="t-pos">[20]</td><td>cellBarred</td><td style="color:var(--green);font-family:var(--mono);">0</td><td style="color:var(--text2);">notBarred ✓ — UE may proceed</td></tr>
+        <tr><td class="t-pos">[21]</td><td>intraFreqReselection</td><td style="color:var(--green);font-family:var(--mono);">0</td><td style="color:var(--text2);">allowed</td></tr>
+        <tr><td class="t-pos">[22:23]</td><td>spare</td><td style="color:var(--faint);font-family:var(--mono);">00</td><td style="color:var(--faint);">ignored</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">MIB fully parsed — UE now knows:</div>
+  <div class="rb-line">Timing &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ SFN = <span class="rb-val">565</span>, slot = <span class="rb-val">to be determined at SS#0 occasion</span></div>
+  <div class="rb-line">Frequency reference &nbsp;→ Point A = <span class="rb-val">3496.38 MHz</span></div>
+  <div class="rb-line">CORESET#0 position &nbsp;&nbsp;→ <span class="rb-val">24 RBs</span> from 3497.10–3505.74 MHz, <span class="rb-val">2 symbols</span></div>
+  <div class="rb-line">SS#0 timing &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ monitor slots <span class="rb-val">2, 22, 42, ...</span> (every 10 ms)</div>
+  <div class="rb-line">Cell status &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">notBarred</span> — proceed with SIB1 acquisition</div>
+  <div class="rb-line">DMRS position &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ symbol <span class="rb-val">2</span> — needed for SIB1 PDSCH decoding</div>
+</div>
+
+<div class="note-box reveal">
+  <strong>The 8-bit efficiency:</strong> The entire CORESET#0 derivation — frequency position, size, and monitoring schedule — is encoded in just 8 bits of the MIB (controlResourceSetZero + searchSpaceZero). This elegant bootstrapping is possible because the tables are fixed and known to every 5G UE worldwide.
+</div>
+
 </div>
 <div class="page-nav">
   <a href="3-1-pbch.html"><span class="pn-label">← Previous</span><span class="pn-title">PBCH Decoding</span></a>
@@ -41,6 +343,61 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('3-2-mib.html');</script>
+<script>
+buildSidebar('3-2-mib.html');
+
+// MIB bit layout canvas
+(function(){
+  const c=document.getElementById('mib-bits-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+
+  const fields = [
+    { bits:6, label:'SFN MSB', val:'100011', color:'#6aabff', dim:'#0d2045' },
+    { bits:1, label:'SCS', val:'1', color:'#f7b731', dim:'#2d1d04' },
+    { bits:4, label:'k_SSB', val:'0010', color:'#3ddbb8', dim:'#062820' },
+    { bits:1, label:'DMRS', val:'0', color:'#b39dfa', dim:'#1a0f3d' },
+    { bits:4, label:'CRSET0', val:'0011', color:'#f7b731', dim:'#2d1d04' },
+    { bits:4, label:'SS0', val:'0010', color:'#f7b731', dim:'#2d1d04' },
+    { bits:1, label:'Barred', val:'0', color:'#5de89a', dim:'#071a0f' },
+    { bits:1, label:'IntraF', val:'0', color:'#5de89a', dim:'#071a0f' },
+    { bits:2, label:'spare', val:'00', color:'#353a58', dim:'#0b0c12' },
+  ];
+
+  const totalBits=24, pad=20;
+  const bitW=(W-pad*2)/totalBits;
+  const boxH=52, startY=28;
+
+  let bitIdx=0;
+  fields.forEach(f=>{
+    const x=pad+bitIdx*bitW;
+    const w=f.bits*bitW;
+
+    // Background
+    ctx.fillStyle=f.dim;
+    ctx.beginPath(); ctx.roundRect(x+1, startY, w-2, boxH, 3); ctx.fill();
+    ctx.strokeStyle=f.color; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.roundRect(x+1, startY, w-2, boxH, 3); ctx.stroke();
+
+    // Value (individual bits or grouped)
+    ctx.font='bold 12px IBM Plex Mono'; ctx.fillStyle=f.color; ctx.textAlign='center';
+    ctx.fillText(f.val, x+w/2, startY+22);
+
+    // Field label
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle='#6b7090';
+    ctx.fillText(f.label, x+w/2, startY+38);
+
+    // Bit positions label below
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle='#353a58'; ctx.textAlign='center';
+    const endBit=bitIdx+f.bits-1;
+    ctx.fillText(bitIdx+(f.bits>1?'–'+endBit:''), x+w/2, startY+boxH+14);
+
+    bitIdx+=f.bits;
+  });
+
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#6b7090'; ctx.textAlign='left';
+  ctx.fillText('Bit position:', pad, startY+boxH+14);
+})();
+</script>
 </body>
 </html>
