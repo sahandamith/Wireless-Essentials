@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GSCN & Frequency Raster | 5G From Scratch</title>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="site-wrap">
+<aside class="sidebar" id="sidebar"></aside>
+<main class="main">
+
+<div class="hero">
+  <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.1</div>
+  <div class="module-tag" style="background:var(--blue-d);border:1px solid rgba(91,156,246,0.25);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 2 — Cell Search
+  </div>
+  <h1>GSCN &<br><em>Frequency Raster</em></h1>
+  <p class="hero-lead">
+    Before a UE can find a cell, it must know where to look. 5G NR can operate on hundreds of different frequencies — sweeping all of them would take minutes. The Global Synchronization Channel Number (GSCN) defines a finite set of pre-defined positions where SSBs must always be placed.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.104 §5.4.3.1</span>
+    <span class="spec-pill">TS 38.101-1 §5.4</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>The problem GSCN solves</h2>
+<p>
+  When a UE powers on, it has no knowledge of which frequency the network is using. In band n78 alone, the operating range spans 500 MHz (3300–3800 MHz). With a subcarrier spacing of 30 kHz, there are over 16,000 possible positions where an SSB could theoretically be placed. Checking each one for 20 ms (the default SSB periodicity) would take over 5 minutes — completely impractical.
+</p>
+<p>
+  The solution is the <strong>synchronization raster</strong>: a set of pre-defined frequencies, spaced far enough apart that the UE only needs to check a small number of positions. SSBs are only ever transmitted at these positions. This reduces the search from thousands of possibilities to a few hundred.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The synchronisation raster specifies the allowed SS/PBCH block positions in the frequency domain. A UE is not required to search for SS/PBCH blocks outside of the synchronisation raster positions within the operating band.
+  </div>
+  <div class="gpp-source">3GPP TS 38.104, Section 5.4.3.1</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--blue)">347</div>
+    <div class="kc-label">positions in n78</div>
+    <div class="kc-desc">vs 16,667 without GSCN</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--teal)">1.44 MHz</div>
+    <div class="kc-label">raster step (FR1 high)</div>
+    <div class="kc-desc">Between each GSCN position</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--amber)">48×</div>
+    <div class="kc-label">fewer checks</div>
+    <div class="kc-desc">Reduction factor for n78</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--coral)">~7 sec</div>
+    <div class="kc-label">worst case sweep</div>
+    <div class="kc-desc">347 × 20 ms dwell time</div>
+  </div>
+</div>
+
+<h2>GSCN formulas</h2>
+<p>
+  The 3GPP specification defines different GSCN formulas for different frequency ranges. For our example (band n78 at 3.5 GHz), we use the FR1 high-band formula.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">GSCN formulas by frequency range</span>
+    <span class="ds-ref">TS 38.104, Table 5.4.3.1-1</span>
+  </div>
+  <div class="ds-body">
+    <div class="code-block" style="margin:0;">
+      <div class="cb-header"><span>FR1 Low (410 MHz – 3000 MHz)</span></div>
+      <pre>f_SSB = N × 1200 kHz + M × 50 kHz,  N = 1..2499,  M ∈ {<span class="n">1, 3, 5</span>}
+GSCN  = 3×(N−1) + (M−1)/2</pre>
+    </div>
+    <div class="code-block" style="margin:12px 0 0;">
+      <div class="cb-header"><span>FR1 High (3000 MHz – 24250 MHz) ← n78 uses this</span></div>
+      <pre>f_SSB = <span class="n">3000</span> MHz + N × <span class="n">1.44</span> MHz,   N = 0..14756
+GSCN  = <span class="n">7499</span> + N</pre>
+    </div>
+    <div class="code-block" style="margin:12px 0 0;">
+      <div class="cb-header"><span>FR2 (24250 MHz – 100000 MHz)</span></div>
+      <pre>f_SSB = <span class="n">24250.08</span> MHz + N × <span class="n">17.28</span> MHz,  N = 0..4383
+GSCN  = <span class="n">22256</span> + N</pre>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Worked example — band n78</h2>
+<p>
+  Our example cell operates on band n78 (3300–3800 MHz) with its SSB at 3498.24 MHz. Let's verify this is a valid GSCN position and derive the GSCN number.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">GSCN derivation — band n78, f_SSB = 3498.24 MHz</span>
+    <span class="ds-ref">TS 38.104 §5.4.3.1</span>
+  </div>
+  <div class="ds-body">
+    <div class="code-block" style="margin:0;">
+      <div class="cb-header"><span>Step-by-step calculation</span></div>
+      <pre><span class="c">// Apply FR1 High formula: f_SSB = 3000 + N × 1.44</span>
+<span class="n">3498.24</span> = <span class="n">3000</span> + N × <span class="n">1.44</span>
+N = (<span class="n">3498.24</span> − <span class="n">3000</span>) / <span class="n">1.44</span>
+N = <span class="n">498.24</span> / <span class="n">1.44</span>
+N = <span class="r">346</span>  (integer — valid GSCN position ✓)
+
+<span class="c">// Compute GSCN number</span>
+GSCN = <span class="n">7499</span> + <span class="n">346</span> = <span class="r">7845</span>
+
+<span class="c">// Verify GSCN range for n78</span>
+N_min = ceil((<span class="n">3300</span>−<span class="n">3000</span>) / <span class="n">1.44</span>) = ceil(<span class="n">208.3</span>) = <span class="n">209</span>  → GSCN_min = <span class="n">7708</span>
+N_max = floor((<span class="n">3800</span>−<span class="n">3000</span>) / <span class="n">1.44</span>) = floor(<span class="n">555.6</span>) = <span class="n">555</span> → GSCN_max = <span class="n">8054</span>
+
+GSCN <span class="r">7845</span> is within [<span class="n">7708</span>, <span class="n">8054</span>] ✓
+Total positions = <span class="n">8054</span> − <span class="n">7708</span> + <span class="n">1</span> = <span class="r">347</span></pre>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>How the UE sweeps GSCN positions</h2>
+<p>
+  The UE does not check GSCN positions blindly in order. It follows a priority system: first trying stored information from the last time it was connected, then known neighbours, and only performing a full sweep when those fail.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — GSCN sweep of band n78</span>
+    <span class="ds-ref">Press Start to animate</span>
+  </div>
+  <div class="ds-body">
+    <div class="ctrl-row">
+      <button onclick="startSweep()" style="background:var(--blue-d);border:1px solid var(--blue);color:var(--blue);padding:6px 16px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;">▶ Start Sweep</button>
+      <button onclick="resetSweep()" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 16px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;">↺ Reset</button>
+      <span style="font-family:var(--mono);font-size:12px;color:var(--muted);">GSCN checked: <span id="gscn-count" style="color:var(--blue);">0</span> / 347</span>
+      <span style="font-family:var(--mono);font-size:12px;color:var(--muted);">Freq: <span id="gscn-freq" style="color:var(--teal);">—</span></span>
+    </div>
+    <canvas id="gscn-canvas" width="980" height="120" style="width:100%;border-radius:6px;background:#040610;"></canvas>
+    <div id="gscn-hit" style="margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--muted);min-height:20px;"></div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>UE sweep priority — stored vs full scan</h2>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left">
+      <div class="step-dot" style="background:var(--green-d);color:var(--green);border:1px solid var(--green);">1</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-title">Try stored GSCN from last session</div>
+      <div class="step-text">UE reads non-volatile memory. Last known GSCN = 7845. Tunes directly to 3498.24 MHz. If PSS found within 20 ms — done. This is why phones reconnect instantly after restart.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left">
+      <div class="step-dot" style="background:var(--amber-d);color:var(--amber);border:1px solid var(--amber);">2</div>
+      <div class="step-line"></div>
+    </div>
+    <div class="step-body">
+      <div class="step-title">Try neighbour GCSNs from last SIB3/SIB4</div>
+      <div class="step-text">If stored GSCN fails (moved location, cell turned off), try the neighbour list received in the last SIB3/SIB4. Typically 3–6 GCSNs to try. Usually succeeds within 2–3 attempts.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left">
+      <div class="step-dot" style="background:var(--coral-d);color:var(--coral);border:1px solid var(--coral);">3</div>
+    </div>
+    <div class="step-body">
+      <div class="step-title">Full sweep — GSCN 7708 → 8054</div>
+      <div class="step-text">New SIM or new location with no stored data. UE sweeps all 347 positions. Modern chipsets use wideband receivers that capture and correlate many GCSNs simultaneously — real sweep time is typically 1–3 seconds, not 7.</div>
+    </div>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">After GSCN sweep — UE knows:</div>
+  <div class="rb-line">SSB frequency &nbsp;→ <span class="rb-val">f_SSB = 3498.24 MHz</span> (GSCN 7845)</div>
+  <div class="rb-line">SSB exists &nbsp;&nbsp;&nbsp;&nbsp;→ confirmed (PSS correlation peaked)</div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ PSS correlation to get timing + N²_ID</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="../index.html">
+    <span class="pn-label">← Back</span>
+    <span class="pn-title">Home</span>
+  </a>
+  <a href="2-2-ssb.html" class="next">
+    <span class="pn-label">Next →</span>
+    <span class="pn-title">SSB Structure</span>
+  </a>
+</div>
+
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('2-1-gscn.html');
+
+// GSCN sweep animation
+const canvas = document.getElementById('gscn-canvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+let sweepTimer = null, idx = 0;
+const total = 347, startX = 20, barW = (W - 40) / total;
+
+function drawGSCN(n, hit) {
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#040610'; ctx.fillRect(0, 0, W, H);
+  // Axis labels
+  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'left';
+  ctx.fillText('GSCN 7708 = 3300.96 MHz', startX, H - 6);
+  ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'right';
+  ctx.fillText('GSCN 8054 = 3799.74 MHz', W - startX, H - 6);
+  // Draw bars
+  for (let i = 0; i < n; i++) {
+    const x = startX + i * barW;
+    const isHit = i === 346;
+    ctx.fillStyle = isHit ? '#f5a623' : 'rgba(91,156,246,0.4)';
+    ctx.fillRect(x, 20, Math.max(1, barW - 0.5), H - 38);
+  }
+  // Scanner line
+  if (n < total) {
+    const sx = startX + n * barW;
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillRect(sx, 18, 2, H - 36);
+  }
+  // Hit annotation
+  if (hit) {
+    const hx = startX + 346 * barW;
+    ctx.strokeStyle = '#f5a623'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(hx + barW/2, 18); ctx.lineTo(hx + barW/2, 8); ctx.stroke();
+    ctx.fillStyle = '#f5a623'; ctx.font = 'bold 10px IBM Plex Mono'; ctx.textAlign = 'center';
+    ctx.fillText('7845', hx + barW/2, 6);
+  }
+}
+
+drawGSCN(0, false);
+
+function startSweep() {
+  if (sweepTimer) return;
+  sweepTimer = setInterval(() => {
+    idx = Math.min(idx + 4, total);
+    const freq = (3300.96 + (idx-1) * 1.44).toFixed(2);
+    document.getElementById('gscn-count').textContent = idx;
+    document.getElementById('gscn-freq').textContent = freq + ' MHz';
+    drawGSCN(idx, idx >= total);
+    if (idx >= total) {
+      clearInterval(sweepTimer); sweepTimer = null;
+      document.getElementById('gscn-hit').innerHTML =
+        '<span style="color:var(--amber)">● PSS PEAK detected at GSCN 7845 = 3498.24 MHz → proceed to SSS</span>';
+    }
+  }, 30);
+}
+
+function resetSweep() {
+  clearInterval(sweepTimer); sweepTimer = null; idx = 0;
+  document.getElementById('gscn-count').textContent = '0';
+  document.getElementById('gscn-freq').textContent = '—';
+  document.getElementById('gscn-hit').textContent = '';
+  drawGSCN(0, false);
+}
+</script>
+</body>
+</html>

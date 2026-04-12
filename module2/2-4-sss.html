@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSS Detection | 5G From Scratch</title>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="site-wrap">
+<aside class="sidebar" id="sidebar"></aside>
+<main class="main">
+
+<div class="hero">
+  <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.4</div>
+  <div class="module-tag" style="background:var(--teal-d);border:1px solid rgba(45,212,170,0.25);color:var(--teal);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;"></span>
+    Module 2 — Cell Search
+  </div>
+  <h1>SSS Detection —<br><em>Finding N¹_ID</em></h1>
+  <p class="hero-lead">
+    With symbol timing from PSS (t = 4523), the UE can now locate SSB symbol 2 exactly. The Secondary Synchronization Signal lives there. Correlating against 336 Gold sequences gives N¹_ID — the second and final component needed to compute the full Physical Cell ID.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.211 §7.4.2.3</span>
+    <span class="spec-pill">TS 38.211 §7.4.2.1</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>What is SSS?</h2>
+<p>
+  The <strong>Secondary Synchronization Signal (SSS)</strong> is a 127-element <strong>Gold sequence</strong> transmitted in the center 127 subcarriers of SSB symbol 2. While PSS uses a single m-sequence cyclically shifted (3 possibilities), SSS uses the product of two m-sequences to generate 336 distinct sequences — one per possible N¹_ID value.
+</p>
+<p>
+  Because the UE already has accurate symbol timing from PSS, it does not need to slide a template across the buffer. Instead, it directly extracts symbol 2, runs an FFT, and correlates in the frequency domain against all 336 SSS sequences. Whichever gives the strongest correlation identifies N¹_ID.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The sequence d(n) used for the secondary synchronisation signal is defined by<br><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;d(n) = [1 − 2x₀((n+m₀) mod 127)] · [1 − 2x₁((n+m₁) mod 127)]<br><br>
+    where m₀ = 15·⌊N¹_ID / 112⌋ + 5·N²_ID &nbsp;&nbsp; and &nbsp;&nbsp; m₁ = N¹_ID mod 112
+  </div>
+  <div class="gpp-source">3GPP TS 38.211, Section 7.4.2.3, Equation 7.4.2.3-1</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">336</div><div class="kc-label">SSS sequences</div><div class="kc-desc">N¹_ID ∈ {0, 1, ..., 335}</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">Symbol 2</div><div class="kc-label">SSB position</div><div class="kc-desc">Center 127 of 240 subcarriers</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">Gold</div><div class="kc-label">sequence type</div><div class="kc-desc">Product of two m-sequences x₀, x₁</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--purple)">1008</div><div class="kc-label">total PCIs</div><div class="kc-desc">336 × 3 = 1008 unique cell IDs</div></div>
+</div>
+
+<h2>SSS sequence generation</h2>
+<p>
+  SSS uses two different m-sequences, x₀ and x₁, with different feedback polynomials. Their element-wise product creates the Gold sequence. The shifts m₀ and m₁ depend on both N¹_ID and N²_ID — so SSS encodes N¹_ID while also incorporating N²_ID (already known from PSS) into its structure.
+</p>
+
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">SSS generation — two m-sequences</span>
+    <span class="ds-ref">TS 38.211 §7.4.2.3</span>
+  </div>
+  <div class="ds-body">
+    <div class="code-block" style="margin:0;">
+      <div class="cb-header"><span>x₀ and x₁ recurrences</span></div>
+      <pre>x₀(i+7) = (x₀(i+4) + x₀(i)) mod 2  <span class="c">← same as PSS m-sequence</span>
+x₁(i+7) = (x₁(i+1) + x₁(i)) mod 2  <span class="c">← different polynomial</span>
+
+Both initialized with: x(0..6) = [<span class="n">1,0,0,0,0,0,0</span>]
+
+<span class="c">// Shifts for our example: N¹_ID=147, N²_ID=1</span>
+m₀ = 15 × ⌊<span class="n">147</span>/<span class="n">112</span>⌋ + 5 × <span class="n">1</span> = 15×<span class="n">1</span> + <span class="n">5</span> = <span class="r">20</span>
+m₁ = <span class="n">147</span> mod <span class="n">112</span> = <span class="r">35</span>
+
+<span class="c">// Gold sequence: element-wise product</span>
+d(n) = [1−2·x₀((n+<span class="n">20</span>) mod 127)] × [1−2·x₁((n+<span class="n">35</span>) mod 127)]
+
+<span class="c">// First 4 values (N¹_ID=147, N²_ID=1):</span>
+d(0) = [1−2·x₀(20)] × [1−2·x₁(35)] = [1−2·<span class="n">1</span>] × [1−2·<span class="n">0</span>] = <span class="op">−1</span>×<span class="r">+1</span> = <span class="op">−1</span>
+d(1) = [1−2·x₀(21)] × [1−2·x₁(36)] = [1−2·<span class="n">0</span>] × [1−2·<span class="n">1</span>] = <span class="r">+1</span>×<span class="op">−1</span> = <span class="op">−1</span>
+d(2) = [1−2·x₀(22)] × [1−2·x₁(37)] = [1−2·<span class="n">0</span>] × [1−2·<span class="n">0</span>] = <span class="r">+1</span>×<span class="r">+1</span> = <span class="r">+1</span>
+d(3) = [1−2·x₀(23)] × [1−2·x₁(38)] = [1−2·<span class="n">1</span>] × [1−2·<span class="n">1</span>] = <span class="op">−1</span>×<span class="op">−1</span> = <span class="r">+1</span></pre>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>How the UE finds SSS</h2>
+<p>
+  Since timing is already known from PSS, the UE jumps directly to SSB symbol 2. It removes the cyclic prefix (144 samples), runs an FFT on the 2048 useful samples, and extracts the 127 center subcarriers. Then it correlates against all 336 pre-computed SSS sequences.
+</p>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-d);color:var(--blue);border:1px solid var(--blue);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Jump to SSB symbol 2</div>
+      <div class="step-text">SSS starts at sample 4523 + 2×2192 = <strong style="color:var(--text)">8907</strong>. Skip CP (samples 8907–9050). Useful part: samples <strong style="color:var(--text)">9051–11098</strong> (2048 samples).</div>
+      <div class="code-block" style="margin-top:12px;">
+        <div class="cb-header"><span>Symbol 2 extraction</span></div>
+        <pre>t_SSS  = <span class="n">4523</span> + 2×<span class="n">2192</span> = <span class="r">8907</span>  <span class="c">← SSS symbol start</span>
+CP     = samples <span class="n">8907</span>..<span class="n">9050</span>     <span class="c">← discard (144 samples)</span>
+Useful = samples <span class="r">9051</span>..<span class="r">11098</span>    <span class="c">← 2048 samples → FFT input</span></pre>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-d);color:var(--teal);border:1px solid var(--teal);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">FFT → extract 127 SSS subcarriers</div>
+      <div class="step-text">2048-point FFT gives 2048 frequency bins. SSS occupies bins 56–182 (127 bins in center, same as PSS). Extract these into SSS_received[0..126].</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--amber-d);color:var(--amber);border:1px solid var(--amber);">3</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Correlate against all 336 SSS sequences</div>
+      <div class="step-text">For each candidate N¹_ID from 0 to 335, compute the correlation magnitude. The correct one gives a large peak; all others give noise-level values.</div>
+      <div class="code-block" style="margin-top:12px;">
+        <div class="cb-header"><span>SSS correlation — selected results</span></div>
+        <pre>corr(N¹_ID=<span class="n">0</span>)   = <span class="op">0.41</span>
+corr(N¹_ID=<span class="n">1</span>)   = <span class="op">0.88</span>
+...
+corr(N¹_ID=<span class="n">146</span>) = <span class="op">2.31</span>
+corr(N¹_ID=<span class="r">147</span>) = <span class="r">72.4</span>  <span class="c">← PEAK</span>
+corr(N¹_ID=<span class="n">148</span>) = <span class="op">1.95</span>
+...
+corr(N¹_ID=<span class="n">335</span>) = <span class="op">0.67</span>
+
+→ N¹_ID = <span class="r">147</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">SSS correlation output — all 336 candidates</span>
+    <span class="ds-ref">Our example: N¹_ID = 147</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="sss-corr-canvas" width="980" height="200" style="width:100%;border-radius:6px;background:#040610;"></canvas>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">SSS complete — UE now knows:</div>
+  <div class="rb-line">N¹_ID &nbsp;→ <span class="rb-val">147</span> (index of SSS correlation peak)</div>
+  <div class="rb-line">N²_ID &nbsp;→ <span class="rb-val">1</span> (from PSS, section 2.3)</div>
+  <div class="rb-line">PCI &nbsp;&nbsp;&nbsp;→ 3 × 147 + 1 = <span class="rb-val">442</span> (next section)</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="2-3-pss.html">
+    <span class="pn-label">← Previous</span>
+    <span class="pn-title">PSS Detection</span>
+  </a>
+  <a href="2-5-pci.html" class="next">
+    <span class="pn-label">Next →</span>
+    <span class="pn-title">PCI Derivation</span>
+  </a>
+</div>
+
+</main>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('2-4-sss.html');
+
+// SSS correlation bar chart
+(function() {
+  const c = document.getElementById('sss-corr-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const PAD = {l:50,r:20,t:20,b:30}, gW=W-PAD.l-PAD.r, gH=H-PAD.t-PAD.b;
+  ctx.fillStyle='#040610'; ctx.fillRect(0,0,W,H);
+  const N=336, maxVal=80;
+  // Draw bars
+  const bw = gW/N;
+  for(let i=0;i<N;i++){
+    const x=PAD.l+i*bw;
+    const isHit = i===147;
+    const val = isHit ? 72.4 : Math.random()*2.5+0.3;
+    const bh = (val/maxVal)*gH;
+    ctx.fillStyle = isHit ? '#f5a623' : 'rgba(91,156,246,0.3)';
+    ctx.fillRect(x, PAD.t+gH-bh, Math.max(1,bw-0.3), bh);
+  }
+  // Peak annotation
+  const px = PAD.l + 147*bw + bw/2;
+  ctx.strokeStyle='#f5a623'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(px, PAD.t); ctx.lineTo(px, PAD.t+gH); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font='bold 11px IBM Plex Mono'; ctx.fillStyle='#f5a623'; ctx.textAlign='center';
+  ctx.fillText('N¹_ID = 147', px, PAD.t+12);
+  ctx.fillText('corr = 72.4', px, PAD.t+26);
+  // Axes
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#2a3a5a';
+  ctx.textAlign='left'; ctx.fillText('0',PAD.l,H-4);
+  ctx.textAlign='center'; ctx.fillText('168',PAD.l+gW/2,H-4);
+  ctx.textAlign='right'; ctx.fillText('335',W-PAD.r,H-4);
+  ctx.textAlign='center'; ctx.fillText('N¹_ID candidate →', W/2, H-4);
+  ctx.textAlign='right'; ctx.fillText('corr',PAD.l-4,PAD.t+8);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCI Derivation | 5G From Scratch</title>
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="site-wrap">
+<aside class="sidebar" id="sidebar"></aside>
+<main class="main">
+
+<div class="hero">
+  <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.5</div>
+  <div class="module-tag" style="background:var(--amber-d);border:1px solid rgba(245,166,35,0.25);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    Module 2 — Cell Search
+  </div>
+  <h1>PCI —<br><em>Physical Cell Identity</em></h1>
+  <p class="hero-lead">
+    With N²_ID = 1 from PSS and N¹_ID = 147 from SSS, the UE computes the Physical Cell Identity using a single formula. PCI = 442. This number seeds every reference signal, scrambling sequence, and DMRS pattern used in the cell. It is the DNA of the cell.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.211 §7.4.2.1</span>
+    <span class="spec-pill">TS 38.211 §7.4.1</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>The PCI formula</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The physical-layer cell identity N<sup>cell</sup><sub>ID</sub> is defined by<br><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;N<sup>cell</sup><sub>ID</sub> = 3·N¹<sub>ID</sub> + N²<sub>ID</sub><br><br>
+    where N¹<sub>ID</sub> ∈ {0,1,...,335} is the physical-layer cell-identity group and N²<sub>ID</sub> ∈ {0,1,2} is the physical-layer identity within the cell-identity group.
+  </div>
+  <div class="gpp-source">3GPP TS 38.211, Section 7.4.2.1, Equation 7.4.2.1-1</div>
+</div>
+
+<p>
+  Applying this to our example:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">PCI calculation — our example</span>
+    <span class="ds-ref">TS 38.211 §7.4.2.1</span>
+  </div>
+  <div class="ds-body">
+    <div class="code-block" style="margin:0;">
+      <div class="cb-header"><span>Step by step</span></div>
+      <pre>From PSS: N²_ID = <span class="n">1</span>    <span class="c">← sequence index that gave correlation peak</span>
+From SSS: N¹_ID = <span class="n">147</span>  <span class="c">← candidate index that gave correlation peak</span>
+
+PCI = 3 × N¹_ID + N²_ID
+    = 3 × <span class="n">147</span>  + <span class="n">1</span>
+    = <span class="n">441</span>     + <span class="n">1</span>
+    = <span class="r">442</span>
+
+<span class="c">// Reverse check:</span>
+N²_ID = <span class="r">442</span> mod 3 = <span class="n">1</span>  ✓
+N¹_ID = ⌊<span class="r">442</span> / 3⌋  = <span class="n">147</span> ✓</pre>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Why 1008 PCIs?</h2>
+<p>
+  With N¹_ID ranging over 336 values and N²_ID over 3 values, the total number of unique PCIs is 336 × 3 = <strong>1008</strong>. This is not arbitrary — it is a careful engineering trade-off between network planning flexibility and UE processing complexity.
+</p>
+<p>
+  In dense urban deployments, nearby cells must have different PCIs to avoid PSS collision (same N²_ID would confuse UE timing), SSS collision (same N¹_ID causes interference in SSS detection), and reference signal collision (same PCI means identical scrambling seeds — DMRS interfere coherently). With 1008 PCIs and typical cell density, the reuse distance is large enough that interference is negligible.
+</p>
+<p>
+  Each N¹_ID value "owns" exactly 3 consecutive PCIs, one per N²_ID:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">PCI space — 336 groups × 3 = 1008 unique PCIs</span>
+    <span class="ds-ref">TS 38.211 §7.4.2.1</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="pci-canvas" width="980" height="180" style="width:100%;"></canvas>
+    <div style="margin-top:14px;display:flex;gap:20px;font-family:var(--mono);font-size:11px;flex-wrap:wrap;">
+      <span style="color:var(--blue)">■ N²_ID = 0</span>
+      <span style="color:var(--teal)">■ N²_ID = 1</span>
+      <span style="color:var(--amber)">■ N²_ID = 2</span>
+      <span style="color:var(--coral)">● Our cell: PCI 442 (N¹_ID=147, N²_ID=1)</span>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>PCI seeds everything in the cell</h2>
+<p>
+  Once PCI = 442 is known, the UE can generate every reference signal in the cell. The PCI is used as a seed for pseudorandom sequence generators that scramble PBCH, PDCCH, PDSCH, and all DMRS signals. Two neighbouring cells with the same PCI would have identical reference signals — they would coherently interfere with each other, making reception impossible.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">What PCI = 442 seeds</span>
+    <span class="ds-ref">TS 38.211 §7.4.1, §7.3.3</span>
+  </div>
+  <div class="ds-body">
+    <div class="code-block" style="margin:0;">
+      <div class="cb-header"><span>Signals derived from PCI = 442</span></div>
+      <pre><span class="c">// PBCH DMRS scrambling (TS 38.211 §7.4.1.4.1)</span>
+v = PCI mod 4 = <span class="n">442</span> mod 4 = <span class="r">2</span>  <span class="c">← DMRS subcarrier offset</span>
+
+<span class="c">// PBCH scrambling seed (TS 38.211 §7.3.3.1)</span>
+c_init = PCI = <span class="r">442</span>
+
+<span class="c">// PDCCH DMRS (TS 38.211 §7.4.1.3.1)</span>
+n_ID = PCI = <span class="r">442</span>  (unless overridden by higher layer)
+
+<span class="c">// SSS sequence parameters (already used)</span>
+m₀ = 15×⌊<span class="n">147</span>/<span class="n">112</span>⌋ + 5×<span class="n">1</span> = <span class="r">20</span>
+m₁ = <span class="n">147</span> mod <span class="n">112</span>          = <span class="r">35</span>
+
+<span class="c">// CSI-RS, SRS, PUSCH DMRS — all seeded by PCI when not overridden</span></pre>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Interactive PCI calculator</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">PCI ↔ N¹_ID / N²_ID calculator</span>
+    <span class="ds-ref">TS 38.211 §7.4.2.1</span>
+  </div>
+  <div class="ds-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;max-width:700px;">
+      <div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:12px;">From N²_ID + N¹_ID → PCI</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <label style="font-family:var(--mono);font-size:12px;color:var(--muted);width:60px;">N²_ID</label>
+            <input type="number" id="nid2-in" min="0" max="2" value="1" oninput="calcPCI()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-family:var(--mono);font-size:13px;width:80px;">
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <label style="font-family:var(--mono);font-size:12px;color:var(--muted);width:60px;">N¹_ID</label>
+            <input type="number" id="nid1-in" min="0" max="335" value="147" oninput="calcPCI()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-family:var(--mono);font-size:13px;width:80px;">
+          </div>
+          <div style="font-family:var(--mono);font-size:20px;color:var(--amber);margin-top:8px;">
+            PCI = <span id="pci-out">442</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:12px;">From PCI → N²_ID + N¹_ID</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <label style="font-family:var(--mono);font-size:12px;color:var(--muted);width:40px;">PCI</label>
+            <input type="number" id="pci-in" min="0" max="1007" value="442" oninput="calcNID()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:4px;font-family:var(--mono);font-size:13px;width:90px;">
+          </div>
+          <div style="font-family:var(--mono);font-size:15px;color:var(--teal);margin-top:8px;line-height:1.9;">
+            N²_ID = <span id="nid2-out">1</span><br>
+            N¹_ID = <span id="nid1-out">147</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Module 2 complete — full cell search result</div>
+  <div class="rb-line">GSCN &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">7845</span> (f_SSB = 3498.24 MHz)</div>
+  <div class="rb-line">N²_ID &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">1</span> (from PSS, t_peak = 4523 samples)</div>
+  <div class="rb-line">N¹_ID &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">147</span> (from SSS, corr = 72.4)</div>
+  <div class="rb-line">PCI &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">442</span> (= 3×147 + 1)</div>
+  <div class="rb-line">SCS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">30 kHz</span></div>
+  <div class="rb-line">Next step &nbsp;→ PBCH decoding → MIB → CORESET#0 → SIB1</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="2-4-sss.html">
+    <span class="pn-label">← Previous</span>
+    <span class="pn-title">SSS Detection</span>
+  </a>
+  <a href="../module3/3-1-pbch.html" class="next">
+    <span class="pn-label">Next →</span>
+    <span class="pn-title">PBCH Decoding</span>
+  </a>
+</div>
+
+</main>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('2-5-pci.html');
+
+function calcPCI() {
+  const n2 = parseInt(document.getElementById('nid2-in').value)||0;
+  const n1 = parseInt(document.getElementById('nid1-in').value)||0;
+  document.getElementById('pci-out').textContent = 3*n1+n2;
+}
+function calcNID() {
+  const pci = parseInt(document.getElementById('pci-in').value)||0;
+  document.getElementById('nid2-out').textContent = pci%3;
+  document.getElementById('nid1-out').textContent = Math.floor(pci/3);
+}
+
+// PCI space visualization
+(function() {
+  const c = document.getElementById('pci-canvas');
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle='#040610'; ctx.fillRect(0,0,W,H);
+  const cols=['rgba(91,156,246,0.5)','rgba(45,212,170,0.5)','rgba(245,166,35,0.5)'];
+  const N=336, bw=(W-60)/N, startX=30, barH=80, startY=40;
+  for(let i=0;i<N;i++){
+    for(let j=0;j<3;j++){
+      const x=startX+i*bw, y=startY+j*(barH/3+2);
+      const isHit=(i===147&&j===1);
+      ctx.fillStyle=isHit?'#f5a623':cols[j];
+      ctx.fillRect(x,y,Math.max(1,bw-0.3),barH/3);
+    }
+  }
+  // Our cell marker
+  const hx=startX+147*bw;
+  ctx.strokeStyle='#f06b6b'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(hx+bw/2,startY-8); ctx.lineTo(hx+bw/2,startY+barH+8); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#f06b6b'; ctx.textAlign='center';
+  ctx.fillText('PCI 442', hx+bw/2, startY-12);
+  // Axis
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#2a3a5a'; ctx.textAlign='left';
+  ctx.fillText('PCI 0', startX, H-6);
+  ctx.textAlign='center'; ctx.fillText('PCI 503', W/2, H-6);
+  ctx.textAlign='right'; ctx.fillText('PCI 1007', W-30, H-6);
+  // N1 group labels
+  ctx.fillStyle='#2a3a5a'; ctx.textAlign='center';
+  ctx.fillText('N¹_ID = 0', startX+1.5*bw, startY+barH+20);
+  ctx.fillText('N¹_ID = 147', hx+bw/2, startY+barH+20);
+  ctx.fillText('N¹_ID = 335', startX+335*bw, startY+barH+20);
+  // Row labels
+  ctx.textAlign='right';
+  ['N²=0','N²=1','N²=2'].forEach((l,i)=>{
+    ctx.fillText(l, startX-4, startY+i*(barH/3+2)+barH/6+4);
+  });
+})();
+</script>
+</body>
+</html>
