@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5G From Scratch — Complete 5G NR Guide</title>
+<link rel="stylesheet" href="css/main.css">
+<style>
+body { padding-top: 52px; }
+
+.landing {
+  min-height: calc(100vh - 52px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+/* LEFT — hero */
+.landing-left {
+  padding: 80px 72px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.landing-left h1 {
+  font-family: var(--serif);
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1.06;
+  margin-bottom: 24px;
+  color: var(--text);
+}
+.landing-left h1 em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--blue);
+}
+.landing-left p {
+  font-size: 17px;
+  color: var(--text2);
+  line-height: 1.7;
+  max-width: 480px;
+  margin-bottom: 32px;
+}
+.landing-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; }
+.badge { font-family: var(--mono); font-size: 11px; padding: 4px 12px; border-radius: 3px; }
+.badge-blue { background: var(--blue-d); color: var(--blue); border: 1px solid rgba(106,171,255,0.25); }
+.badge-teal { background: var(--teal-d); color: var(--teal); border: 1px solid rgba(61,219,184,0.25); }
+.badge-amber { background: var(--amber-d); color: var(--amber); border: 1px solid rgba(247,183,49,0.25); }
+
+.start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--blue);
+  color: #0b0c12;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 7px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  align-self: flex-start;
+}
+.start-btn:hover { opacity: 0.88; }
+.start-btn .arrow { font-size: 18px; }
+
+/* RIGHT — module list */
+.landing-right {
+  overflow-y: auto;
+  padding: 48px 56px;
+  background: var(--bg2);
+}
+.landing-right h2 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.module-list { display: flex; flex-direction: column; gap: 2px; }
+
+.module-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.12s;
+  position: relative;
+}
+.module-row:hover { background: var(--bg3); }
+.module-row.live:hover { background: var(--blue-d); }
+
+.mr-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--faint);
+  width: 24px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.mr-content { flex: 1; }
+.mr-title {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.module-row.live .mr-title { color: var(--text); }
+.module-row:not(.live) .mr-title { color: var(--faint); }
+
+.mr-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.mr-topic {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+}
+.module-row.live .mr-topic {
+  background: var(--bg4);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+.module-row:not(.live) .mr-topic {
+  color: var(--faint);
+}
+
+.mr-status {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+.status-live { background: var(--blue-d); color: var(--blue); border: 1px solid rgba(106,171,255,0.3); }
+.status-soon { color: var(--faint); }
+
+/* top nav for index — slightly different */
+.top-nav-index {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: rgba(11,12,18,0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  z-index: 200;
+  padding: 0 32px;
+  justify-content: space-between;
+}
+.top-nav-index .logo {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+.top-nav-index .nav-links {
+  display: flex;
+  gap: 0;
+  height: 52px;
+  align-items: stretch;
+}
+.top-nav-index .nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 13px;
+  color: var(--text3);
+  text-decoration: none;
+  border-left: 1px solid var(--border);
+  transition: all 0.12s;
+}
+.top-nav-index .nav-link:hover { color: var(--text); background: var(--bg3); }
+.top-nav-index .nav-link.cta {
+  color: var(--blue);
+  background: var(--blue-d);
+}
+.top-nav-index .nav-link.cta:hover { background: rgba(106,171,255,0.15); }
+</style>
+</head>
+<body>
+
+<!-- Simplified top nav for landing page -->
+<nav class="top-nav-index">
+  <a href="index.html" class="logo">5G From Scratch</a>
+  <div class="nav-links">
+    <a href="module2/2-1-gscn.html" class="nav-link cta">Start with Module 2 →</a>
+  </div>
+</nav>
+
+<div class="landing">
+
+  <!-- LEFT: HERO -->
+  <div class="landing-left">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">
+      3GPP NR — Complete Guide
+    </div>
+
+    <h1>Learn 5G NR<br><em>from scratch.</em></h1>
+
+    <p>
+      Every concept explained with exact 3GPP specification references, real numerical examples, and interactive diagrams. No hand-waving. You will be able to derive every number yourself.
+    </p>
+
+    <div class="landing-badges">
+      <span class="badge badge-teal">3GPP Release 17</span>
+      <span class="badge badge-blue">Step-by-step examples</span>
+      <span class="badge badge-amber">TS 38.211 · 38.212 · 38.213</span>
+    </div>
+
+    <a href="module2/2-1-gscn.html" class="start-btn">
+      Start reading <span class="arrow">→</span>
+    </a>
+
+    <div style="margin-top:40px;padding-top:32px;border-top:1px solid var(--border);">
+      <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:16px;letter-spacing:0.5px;">What makes this different</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <span style="color:var(--teal);font-family:var(--mono);font-size:13px;flex-shrink:0;">✓</span>
+          <span style="font-size:14px;color:var(--text2);line-height:1.5;">Every claim linked to an exact TS section and equation number</span>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <span style="color:var(--teal);font-family:var(--mono);font-size:13px;flex-shrink:0;">✓</span>
+          <span style="font-size:14px;color:var(--text2);line-height:1.5;">Worked examples with real numbers — not "e.g." but exact values</span>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <span style="color:var(--teal);font-family:var(--mono);font-size:13px;flex-shrink:0;">✓</span>
+          <span style="font-size:14px;color:var(--text2);line-height:1.5;">Interactive diagrams — change SNR, see correlation peak move</span>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <span style="color:var(--teal);font-family:var(--mono);font-size:13px;flex-shrink:0;">✓</span>
+          <span style="font-size:14px;color:var(--text2);line-height:1.5;">Sequential — each section builds on the previous, no gaps</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: MODULE LIST -->
+  <div class="landing-right">
+    <h2>All modules</h2>
+
+    <div class="module-list">
+
+      <a href="module2/2-1-gscn.html" class="module-row live">
+        <div class="mr-num">02</div>
+        <div class="mr-content">
+          <div class="mr-title">Cell Search & Synchronization</div>
+          <div class="mr-topics">
+            <span class="mr-topic">GSCN</span>
+            <span class="mr-topic">SSB</span>
+            <span class="mr-topic">PSS</span>
+            <span class="mr-topic">SSS</span>
+            <span class="mr-topic">PCI</span>
+          </div>
+        </div>
+        <div class="mr-status status-live">● Live</div>
+      </a>
+
+      <div class="module-row">
+        <div class="mr-num">00</div>
+        <div class="mr-content">
+          <div class="mr-title">Introduction & Architecture</div>
+          <div class="mr-topics"><span class="mr-topic">5G NR overview</span><span class="mr-topic">Architecture</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">01</div>
+        <div class="mr-content">
+          <div class="mr-title">OFDM & Frame Structure</div>
+          <div class="mr-topics"><span class="mr-topic">OFDM</span><span class="mr-topic">Numerology</span><span class="mr-topic">Resource Grid</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">03</div>
+        <div class="mr-content">
+          <div class="mr-title">PBCH & MIB</div>
+          <div class="mr-topics"><span class="mr-topic">Polar decoding</span><span class="mr-topic">MIB fields</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">04</div>
+        <div class="mr-content">
+          <div class="mr-title">CORESET & Search Space</div>
+          <div class="mr-topics"><span class="mr-topic">CORESET#0</span><span class="mr-topic">SS#0</span><span class="mr-topic">Blind decoding</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">05</div>
+        <div class="mr-content">
+          <div class="mr-title">SIB1 & Cell Selection</div>
+          <div class="mr-topics"><span class="mr-topic">SIB1</span><span class="mr-topic">S-criterion</span><span class="mr-topic">PLMN</span><span class="mr-topic">UAC</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">06</div>
+        <div class="mr-content">
+          <div class="mr-title">Random Access (RACH)</div>
+          <div class="mr-topics"><span class="mr-topic">Preamble</span><span class="mr-topic">RAR</span><span class="mr-topic">Msg3/4</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">07</div>
+        <div class="mr-content">
+          <div class="mr-title">RRC Connection</div>
+          <div class="mr-topics"><span class="mr-topic">RRC states</span><span class="mr-topic">RRCSetup</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">08</div>
+        <div class="mr-content">
+          <div class="mr-title">Scheduling & Data</div>
+          <div class="mr-topics"><span class="mr-topic">DCI formats</span><span class="mr-topic">PDSCH</span><span class="mr-topic">PUSCH</span><span class="mr-topic">HARQ</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">09</div>
+        <div class="mr-content">
+          <div class="mr-title">Protocol Stack</div>
+          <div class="mr-topics"><span class="mr-topic">MAC</span><span class="mr-topic">RLC</span><span class="mr-topic">PDCP</span><span class="mr-topic">SDAP</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+      <div class="module-row">
+        <div class="mr-num">10</div>
+        <div class="mr-content">
+          <div class="mr-title">Beamforming & MIMO</div>
+          <div class="mr-topics"><span class="mr-topic">Massive MIMO</span><span class="mr-topic">Beam sweep</span><span class="mr-topic">TCI states</span></div>
+        </div>
+        <div class="mr-status status-soon">Coming soon</div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- landing -->
+
+</body>
+</html>
