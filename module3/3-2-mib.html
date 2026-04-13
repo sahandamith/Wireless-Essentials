@@ -13,7 +13,7 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 3 <span>›</span> PBCH & MIB <span>›</span> Section 3.2</div>
-  <div class="module-tag" style="background:var(--amber-d);border:1px solid rgba(247,183,49,0.25);color:var(--amber);">
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid var(--amber-m);color:var(--amber);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
     Module 3 — PBCH & MIB
   </div>
@@ -384,7 +384,7 @@ buildSidebar('3-2-mib.html');
     ctx.fillText(f.val, x+w/2, startY+22);
 
     // Field label
-    ctx.font='9px IBM Plex Mono'; ctx.fillStyle='#6b7090';
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted;
     ctx.fillText(f.label, x+w/2, startY+38);
 
     // Bit positions label below
@@ -395,7 +395,7 @@ buildSidebar('3-2-mib.html');
     bitIdx+=f.bits;
   });
 
-  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#6b7090'; ctx.textAlign='left';
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
   ctx.fillText('Bit position:', pad, startY+boxH+14);
 })();
 </script>

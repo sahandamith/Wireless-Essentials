@@ -10,29 +10,201 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 5 <span>›</span> Section 5.3</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 5 — Coming Soon
+  <div class="breadcrumb">Module 5 <span>›</span> SIB1 & Camp <span>›</span> Section 5.3</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 5 — SIB1 & Camp
   </div>
-  <h1>PLMN & Access Control</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>PLMN & Access Control —<br><em>Are you allowed on this cell?</em></h1>
+  <p class="hero-lead">
+    Even if signal is strong enough, the UE must verify it is on the right operator's network and that it is permitted to access it. This section covers PLMN matching, the priority order for network selection, cell barring, and the 5G Unified Access Control (UAC) mechanism introduced in Release 15.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.304 §5.2.4</span>
+    <span class="spec-pill">TS 23.122</span>
+    <span class="spec-pill">TS 22.261</span>
+    <span class="spec-pill">TS 38.331 §5.3.14</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">RPLMN, EPLMN, HPLMN priority</div>
-<div class="topic-item">PLMN matching against USIM</div>
-<div class="topic-item">cellBarred behaviour</div>
-<div class="topic-item">UAC — access categories and barring</div>
-<div class="topic-item">Camped state</div>
-    </div>
+<div class="prose">
+
+<h2>PLMN selection — which network to use</h2>
+<p>
+  A PLMN (Public Land Mobile Network) is identified by a <strong>Mobile Country Code (MCC)</strong> and <strong>Mobile Network Code (MNC)</strong>. The UE's SIM card contains the home PLMN (HPLMN) and optionally a list of preferred and forbidden PLMNs. SIB1 provides up to 12 PLMNs that this cell serves.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The UE shall select a PLMN according to the following priority: 1) RPLMN, 2) EPLMN list, 3) HPLMN or EHPLMN, 4) PLMN of higher priority for roaming, 5) other PLMNs in random order.
+  </div>
+  <div class="gpp-source">3GPP TS 23.122, Section 4.4.3</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">PLMN priority order — TS 23.122</span>
+    <span class="ds-ref">TS 23.122 §4.4.3</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Priority</th><th>Type</th><th>Description</th><th>Our case</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">1st</td><td>RPLMN</td><td style="color:var(--text2)">Last registered PLMN (from NV memory)</td><td>244-05 ← match ✓</td></tr>
+        <tr><td class="t-pos">2nd</td><td>EPLMN</td><td style="color:var(--text2)">Equivalent PLMNs (from previous registration)</td><td style="color:var(--text3)">244-91 (if stored)</td></tr>
+        <tr><td class="t-pos">3rd</td><td>HPLMN</td><td style="color:var(--text2)">Home PLMN from IMSI (MCC+MNC on SIM)</td><td style="color:var(--text3)">244-05</td></tr>
+        <tr><td class="t-pos">4th</td><td>User list</td><td style="color:var(--text2)">PLMNs in user-defined preferred list</td><td style="color:var(--text3)">—</td></tr>
+        <tr><td class="t-pos">5th</td><td>Any VPLMN</td><td style="color:var(--text2)">Any available PLMN (roaming)</td><td style="color:var(--text3)">—</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
+<div class="prose">
+<h2>PLMN matching — our example</h2>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>PLMN matching — SIB1 list vs SIM card</span><span class="cb-ref">TS 38.304 §5.2.4</span></div>
+  <pre><span class="c">// SIB1 PLMN list (from our cell):</span>
+Entry 1: MCC=<span class="n">244</span>, MNC=<span class="n">05</span>  → 244-05  (Elisa Finland)
+Entry 2: MCC=<span class="n">244</span>, MNC=<span class="n">91</span>  → 244-91  (Elisa MVNO)
+
+<span class="c">// UE SIM card:</span>
+HPLMN: MCC=<span class="n">244</span>, MNC=<span class="n">05</span>   → 244-05
+
+<span class="c">// Match check:</span>
+SIB1 entry 1 (244-05) == HPLMN (244-05)  → <span class="r">MATCH ✓</span>
+
+<span class="c">// Cell accepted for camping</span>
+
+<span class="c">// Roaming example — UE with UK SIM (MCC=234, MNC=30):</span>
+SIB1 entry 1 (244-05) ≠ HPLMN (234-30)
+SIB1 entry 2 (244-91) ≠ HPLMN (234-30)
+→ No match → <span class="op">Cell rejected for this UE</span></pre>
+</div>
+
+<div class="prose">
+<h2>Cell barring — MIB and SIB1 checks</h2>
+<p>
+  Before PLMN matching, the UE already checked <code>cellBarred</code> in the MIB. There are additional access restrictions in SIB1:
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    If the UE receives cellBarred = barred, the UE is not allowed to camp on the cell. The UE shall consider the cell as barred and start the timer T_barring. The UE shall not re-select this cell for the duration of T_barring.
+  </div>
+  <div class="gpp-source">3GPP TS 38.304, Section 5.3.2</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Cell barring decision tree</span>
+    <span class="ds-ref">TS 38.304 §5.3.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="barring-canvas" width="900" height="220" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Unified Access Control (UAC)</h2>
+<p>
+  5G NR introduced <strong>UAC</strong> — a unified barring mechanism that replaces the patchwork of access barring schemes from LTE. UAC allows the network to control access at a fine granularity based on <strong>access categories</strong> and <strong>access identities</strong>.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The Unified Access Control (UAC) mechanism allows the network to control the number of access attempts made by UEs. A UE shall perform access barring check prior to establishing an RRC connection or resuming a suspended RRC connection.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 5.3.14.1</div>
+</div>
+
+<h3>Access categories</h3>
+<p>
+  Each access attempt is assigned an access category (0–9+) and one or more access identities (0–15). The network broadcasts barring information per category in SIB1.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">UAC access categories — TS 22.261</span>
+    <span class="ds-ref">TS 22.261 §6.22, TS 38.331 §5.3.14</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Category</th><th>Access type</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">0</td><td style="color:var(--text2)">Emergency</td><td style="color:var(--text3)">Emergency calls — never barred</td></tr>
+        <tr><td class="t-pos">1</td><td style="color:var(--text2)">Exception (high priority)</td><td style="color:var(--text3)">MT-IMS voice, location services</td></tr>
+        <tr><td class="t-pos">2</td><td style="color:var(--text2)">MO-signalling</td><td style="color:var(--text3)">RRC connection for signalling</td></tr>
+        <tr class="hl"><td class="t-pos">3</td><td>MO-data</td><td>RRC connection for user data ← our case</td></tr>
+        <tr><td class="t-pos">4</td><td style="color:var(--text2)">MO-IMS registration</td><td style="color:var(--text3)">VoNR registration</td></tr>
+        <tr><td class="t-pos">5</td><td style="color:var(--text2)">MO-V2X</td><td style="color:var(--text3)">Vehicle-to-X communication</td></tr>
+        <tr><td class="t-pos">7</td><td style="color:var(--text2)">SMS</td><td style="color:var(--text3)">SMS over NAS</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h3>UAC barring check procedure</h3>
+<p>
+  For each access category, the network broadcasts a <strong>barring factor p</strong> (0 to 1) and a <strong>barring time T</strong>. The UE draws a random number and compares:
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>UAC barring check — access category 3 (MO-data)</span><span class="cb-ref">TS 38.331 §5.3.14.5</span></div>
+  <pre><span class="c">// From SIB1 for access category 3:</span>
+barringFactor = <span class="n">p95</span>   <span class="c">← 95% probability of access allowed</span>
+barringTime   = <span class="n">s4</span>    <span class="c">← 4 seconds if barred</span>
+
+<span class="c">// UE draws random number rand ∈ [0, 1):</span>
+rand = <span class="n">0.43</span>
+
+<span class="c">// Check:</span>
+rand = <span class="n">0.43</span> &lt; barringFactor = <span class="n">0.95</span>
+→ <span class="r">ACCESS ALLOWED ✓</span>
+
+<span class="c">// Barred case (rand = 0.97):</span>
+rand = <span class="n">0.97</span> ≥ barringFactor = <span class="n">0.95</span>
+→ <span class="op">ACCESS BARRED</span>
+→ UE starts timer: T_barring = <span class="n">4</span> × (0.7 + 0.6×rand2) = ~3.9 seconds
+→ After timer: retry barring check</pre>
+</div>
+
+<div class="prose">
+<h2>Camped state — what it means</h2>
+<p>
+  After passing all checks — S-criterion, PLMN, cell barring, UAC — the UE is <strong>camped</strong> on the cell. In the camped state:
+</p>
+<p>
+  The UE monitors <strong>paging occasions</strong> (derived from SFN and IMSI) to detect incoming calls or network-initiated connections. It also checks for a new TAC: our cell's TAC = 500. If this differs from the UE's last registered TAC, the UE must perform a <strong>Registration procedure</strong> with the AMF before it can receive or make calls.
+</p>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Cell selection complete — camped state reached</div>
+  <div class="rb-line">PLMN &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">244-05 matched</span> (Elisa Finland)</div>
+  <div class="rb-line">Cell barring &nbsp;→ <span class="rb-val">notBarred</span> (MIB + SIB1)</div>
+  <div class="rb-line">UAC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">rand=0.43 &lt; p=0.95 → allowed</span></div>
+  <div class="rb-line">TAC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">500</span> (new → Registration required)</div>
+  <div class="rb-line">State &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">RRC_IDLE, camped on PCI 442</span></div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;→ RACH → Registration with AMF (Module 6)</div>
+</div>
+
+<div class="note-box reveal">
+  <strong>End of the cell search journey.</strong> From powering on (Module 1) through GSCN sweep, PSS, SSS, PCI, PBCH, MIB, CORESET#0, Search Space#0, SIB1, S-criterion, PLMN, and UAC — the UE is now camped. Every number along the way was derivable from first principles using 3GPP specifications.
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="5-2-s-criterion.html"><span class="pn-label">← Previous</span><span class="pn-title">S-Criterion</span></a>
   <a href="../module6/6-1-rach-overview.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">RACH Overview</span></a>
@@ -40,6 +212,55 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('5-3-plmn.html');</script>
+<script>
+buildSidebar('5-3-plmn.html');
+
+// Barring decision tree
+(function(){
+  const c=document.getElementById('barring-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  function box(x,y,w,h,label,sub,fill,stroke){
+    ctx.fillStyle=fill; roundRect(ctx,x,y,w,h,6); ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=1.5; roundRect(ctx,x,y,w,h,6); ctx.stroke();
+    ctx.font='bold 12px Fraunces'; ctx.fillStyle=stroke; ctx.textAlign='center';
+    ctx.fillText(label,x+w/2,y+h/2-(sub?6:0));
+    if(sub){ ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.fillText(sub,x+w/2,y+h/2+10); }
+  }
+  function arrow(x1,y1,x2,y2,label){
+    ctx.strokeStyle=C.text3; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    // arrowhead
+    const ang=Math.atan2(y2-y1,x2-x1);
+    ctx.beginPath(); ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-10*Math.cos(ang-0.3),y2-10*Math.sin(ang-0.3));
+    ctx.lineTo(x2-10*Math.cos(ang+0.3),y2-10*Math.sin(ang+0.3));
+    ctx.closePath(); ctx.fillStyle=C.text3; ctx.fill();
+    if(label){ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center'; ctx.fillText(label,(x1+x2)/2+8,(y1+y2)/2-4);}
+  }
+
+  // Boxes
+  box(350,10,200,44,'cellBarred (MIB)','notBarred / barred',C.bg2,C.text3);
+  box(100,90,180,44,'Barred','start T_barring timer',C.coralL,C.coral);
+  box(440,90,180,44,'Continue','PLMN check next',C.bg2,C.text3);
+  box(440,164,180,44,'PLMN match','244-05 ✓',C.greenL,C.green);
+  box(650,164,160,44,'No match','reject cell',C.coralL,C.coral);
+
+  // Arrows
+  arrow(450,54,200,90,'barred');
+  arrow(550,54,530,90,'notBarred');
+  arrow(530,134,530,164);
+  arrow(620,186,650,186,'no match');
+  arrow(530,186,530,208);
+
+  // Camped label
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.green; ctx.textAlign='center';
+  ctx.fillText('→ Camp ✓',530,218);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

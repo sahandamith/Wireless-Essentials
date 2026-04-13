@@ -16,7 +16,7 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.3</div>
-  <div class="module-tag" style="background:var(--blue-d);border:1px solid rgba(91,156,246,0.25);color:var(--blue);">
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
     Module 2 — Cell Search
   </div>
@@ -347,7 +347,7 @@ function drawCorr() {
   ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=0.5;
   for(let i=1;i<4;i++){const y=PL.t+gH*i/4;ctx.beginPath();ctx.moveTo(PL.l,y);ctx.lineTo(W-PL.r,y);ctx.stroke();}
   // Y labels
-  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#2a3a5a'; ctx.textAlign='right';
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='right';
   [0,0.5,1].forEach(f=>{const y=PL.t+gH*(1-f);ctx.fillText((maxC*f).toFixed(0),PL.l-4,y+4);});
   ctx.fillText('C(t)',PL.l-4,PL.t);
   // Noise
@@ -364,10 +364,10 @@ function drawCorr() {
     const grd=ctx.createRadialGradient(px,py,0,px,py,60);
     grd.addColorStop(0,'rgba(245,166,35,0.2)'); grd.addColorStop(1,'rgba(245,166,35,0)');
     ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(px,py,60,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.strokeStyle='#f5a623'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.strokeStyle=C.amber; ctx.lineWidth=2;
     ctx.moveTo(px,PL.t+gH); ctx.lineTo(px,py); ctx.stroke();
-    ctx.beginPath(); ctx.fillStyle='#f5a623'; ctx.arc(px,py,5,0,Math.PI*2); ctx.fill();
-    ctx.font='bold 11px IBM Plex Mono'; ctx.fillStyle='#f5a623'; ctx.textAlign='left';
+    ctx.beginPath(); ctx.fillStyle=C.amber; ctx.arc(px,py,5,0,Math.PI*2); ctx.fill();
+    ctx.font='bold 11px IBM Plex Mono'; ctx.fillStyle=C.amber; ctx.textAlign='left';
     ctx.fillText(peak.toFixed(1),px+8,py+4);
     ctx.font='10px IBM Plex Mono'; ctx.fillText('t=4523, N²_ID=1',px+8,py+18);
   } else {
@@ -381,7 +381,7 @@ function drawCorr() {
   ctx.font='10px IBM Plex Mono'; ctx.fillStyle='rgba(240,107,107,0.5)'; ctx.textAlign='left';
   ctx.fillText('threshold',PL.l+4,ty-4);
   // X labels
-  ctx.fillStyle='#2a3a5a'; ctx.textAlign='left';
+  ctx.fillStyle=C.text3; ctx.textAlign='left';
   ctx.fillText('0',PL.l,H-4);
   ctx.textAlign='center'; ctx.fillText('t=4523',PL.l+0.6*gW,H-4);
   ctx.textAlign='right'; ctx.fillText('307,200',W-PL.r,H-4);

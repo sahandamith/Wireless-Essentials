@@ -10,30 +10,210 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 5 <span>›</span> Section 5.1</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 5 — Coming Soon
+  <div class="breadcrumb">Module 5 <span>›</span> SIB1 & Camp <span>›</span> Section 5.1</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 5 — SIB1 & Cell Selection
   </div>
-  <h1>SIB1 Contents</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>SIB1 —<br><em>The cell's first real message</em></h1>
+  <p class="hero-lead">
+    SIB1 is the first structured message a UE receives from the network after MIB. While MIB was 24 bits giving only enough to find PDCCH, SIB1 is the full cell introduction — operator identity, signal thresholds, bandwidth configuration, and critically, how to perform RACH to connect.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.331 §6.2.2</span>
+    <span class="spec-pill">TS 38.213 §13</span>
+    <span class="spec-pill">TS 38.304 §5.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">PLMN identity list</div>
-<div class="topic-item">cellIdentity and TAC</div>
-<div class="topic-item">cellSelectionInfo (q-RxLevMin, q-QualMin)</div>
-<div class="topic-item">initialDownlinkBWP configuration</div>
-<div class="topic-item">RACH configuration (full detail)</div>
-<div class="topic-item">SI-SchedulingInfo</div>
-    </div>
+<div class="prose">
+
+<h2>What SIB1 is and how it arrives</h2>
+<p>
+  System Information Block 1 (SIB1) is carried on <strong>PDSCH</strong>, scheduled by DCI 1_0 with SI-RNTI. We just decoded that DCI in the previous section: SIB1 is at RBs 24–38, symbols 2–12, of slot 2, using MCS 5 (QPSK, code rate 0.38).
+</p>
+<p>
+  SIB1 is transmitted <strong>periodically every 160 ms</strong> (default), with up to 8 repetitions within that period for coverage. A UE that misses one can catch the next repetition without waiting the full 160 ms.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    SIB1 contains information relevant when evaluating if a UE is allowed to access a cell and defines the scheduling of other system information. It is broadcast on PDSCH scheduled by PDCCH with CRC scrambled by SI-RNTI.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 5.2.1</div>
+</div>
+
+<h2>SIB1 top-level structure</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">SIB1 ASN.1 structure — key fields</span>
+    <span class="ds-ref">TS 38.331 §6.2.2</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Field</th><th>Our value</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">cellSelectionInfo</td><td style="font-family:var(--mono);color:var(--text2);">q-RxLevMin = −70</td><td style="color:var(--text2)">Minimum signal level to camp</td></tr>
+        <tr><td class="t-pos">cellAccessRelatedInfo</td><td style="font-family:var(--mono);color:var(--text2);">PLMN 244-05</td><td style="color:var(--text2)">Operator identity</td></tr>
+        <tr><td class="t-pos">connectToOtherAMF</td><td style="font-family:var(--mono);color:var(--text2);">—</td><td style="color:var(--text2)">AMF selection hints</td></tr>
+        <tr><td class="t-pos">trackingAreaCode</td><td style="font-family:var(--mono);color:var(--text2);">0x1F4 = 500</td><td style="color:var(--text2)">TAC for registration/paging</td></tr>
+        <tr><td class="t-pos">cellIdentity</td><td style="font-family:var(--mono);color:var(--text2);">0x1A2B3C4</td><td style="color:var(--text2)">Unique 28-bit cell ID</td></tr>
+        <tr><td class="t-pos">servingCellConfigCommon</td><td style="font-family:var(--mono);color:var(--text2);">various</td><td style="color:var(--text2)">BWP, RACH, DL config</td></tr>
+        <tr><td class="t-pos">si-SchedulingInfo</td><td style="font-family:var(--mono);color:var(--text2);">SIB2–SIB9</td><td style="color:var(--text2)">When/where other SIBs appear</td></tr>
+        <tr><td class="t-pos">ue-TimersAndConstants</td><td style="font-family:var(--mono);color:var(--text2);">T300=ms1000</td><td style="color:var(--text2)">RRC procedure timers</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
+<div class="prose">
+<h2>Field 1 — cellSelectionInfo</h2>
+<p>
+  This is the most important field for determining whether the UE can camp on the cell. It provides the threshold values used in the S-criterion (covered in the next section).
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    q-RxLevMin: Minimum required Rx level in the cell (dBm). The actual value is (IE value × 2) dBm.<br>
+    q-QualMin: Minimum required quality level in the cell (dB). Only applicable for RSRQ-based cell selection.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 6.3.2</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>cellSelectionInfo — decoded values</span><span class="cb-ref">TS 38.331 §6.3.2</span></div>
+  <pre><span class="c">// From SIB1 for our cell:</span>
+q-RxLevMin  = <span class="n">−70</span>     <span class="c">← actual value = −70 × 2 = −140 dBm</span>
+q-QualMin   = <span class="n">−20</span>     <span class="c">← actual value = −20 dB (RSRQ)</span>
+
+<span class="c">// UE measures:</span>
+RSRP (measured) = <span class="n">−85</span> dBm  <span class="c">← reference signal received power</span>
+RSRQ (measured) = <span class="n">−10</span> dB   <span class="c">← reference signal received quality</span>
+
+<span class="c">// S-criterion (TS 38.304):</span>
+Srxlev = RSRP − q-RxLevMin = <span class="n">−85</span> − (<span class="n">−140</span>) = <span class="r">+55 dB</span>  &gt; 0 ✓
+Squal  = RSRQ − q-QualMin  = <span class="n">−10</span> − (<span class="n">−20</span>)  = <span class="r">+10 dB</span>  &gt; 0 ✓
+<span class="c">// Both positive → cell is suitable</span></pre>
+</div>
+
+<div class="prose">
+<h2>Field 2 — cellAccessRelatedInfo</h2>
+<p>
+  This field carries the <strong>PLMN identity list</strong> — which mobile operators this cell serves. A UE checks this against its SIM card to verify it is on a valid network.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>cellAccessRelatedInfo — our cell</span><span class="cb-ref">TS 38.331 §6.3.2</span></div>
+  <pre><span class="c">// PLMN list (up to 12 entries):</span>
+PLMN 1:  MCC = <span class="n">244</span>,  MNC = <span class="n">05</span>   <span class="c">← Finland, Elisa</span>
+PLMN 2:  MCC = <span class="n">244</span>,  MNC = <span class="n">91</span>   <span class="c">← Elisa MVNO</span>
+
+<span class="c">// UE SIM card:</span>
+HPLMN: MCC = <span class="n">244</span>, MNC = <span class="n">05</span>      <span class="c">← matches PLMN 1 ✓</span>
+
+<span class="c">// Additional identifiers:</span>
+trackingAreaCode = <span class="n">0x1F4</span> = <span class="r">500</span>
+cellIdentity     = <span class="n">0x1A2B3C4</span> = <span class="r">27,471,812</span>  (28-bit cell ID)</pre>
+</div>
+
+<div class="prose">
+<h2>Field 3 — servingCellConfigCommon</h2>
+<p>
+  This is the largest SIB1 field. It configures the UE's initial downlink BWP and provides the complete RACH configuration — the information the UE needs to send Msg1 and actually connect to the network.
+</p>
+
+<h3>Initial Downlink BWP</h3>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>initialDownlinkBWP — SIB1 configured</span><span class="cb-ref">TS 38.331 §6.3.2</span></div>
+  <pre><span class="c">// Initial DL BWP (active immediately after SIB1 decoding):</span>
+locationAndBandwidth:
+  startRB = <span class="n">0</span>    <span class="c">← starts at Point A (CRB 0 = 3496.38 MHz)</span>
+  numRBs  = <span class="n">52</span>   <span class="c">← 52 × 360 kHz = 18.72 MHz</span>
+
+subcarrierSpacing = <span class="n">30</span> kHz  <span class="c">← matches subCarrierSpacingCommon in MIB</span>
+
+<span class="c">// Frequency range:</span>
+BWP_start = <span class="n">3496.38</span> MHz  (Point A)
+BWP_end   = <span class="n">3496.38</span> + <span class="n">52</span> × <span class="n">0.360</span> = <span class="r">3515.10 MHz</span></pre>
+</div>
+
+<div class="prose">
+<h3>RACH Configuration</h3>
+<p>
+  The RACH configuration tells the UE exactly how to send its first uplink message to the gNB. Without this, the UE cannot connect. Key parameters:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">rach-ConfigCommon — SIB1 RACH parameters</span>
+    <span class="ds-ref">TS 38.331 §6.3.2, TS 38.213 §8</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Parameter</th><th>Our value</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">prach-ConfigIndex</td><td style="font-family:var(--mono);color:var(--text2);">16</td><td style="color:var(--text2)">Preamble format 0, long sequence</td></tr>
+        <tr><td class="t-pos">msg1-FrequencyStart</td><td style="font-family:var(--mono);color:var(--text2);">4 RBs</td><td style="color:var(--text2)">PRACH frequency offset from BWP start</td></tr>
+        <tr><td class="t-pos">msg1-FDM</td><td style="font-family:var(--mono);color:var(--text2);">1</td><td style="color:var(--text2)">Number of PRACH occasions in frequency</td></tr>
+        <tr><td class="t-pos">zeroCorrelationZoneConfig</td><td style="font-family:var(--mono);color:var(--text2);">13</td><td style="color:var(--text2)">Preamble sequence guard zone</td></tr>
+        <tr><td class="t-pos">preambleReceivedTargetPower</td><td style="font-family:var(--mono);color:var(--text2);">−110 dBm</td><td style="color:var(--text2)">Target received preamble power at gNB</td></tr>
+        <tr><td class="t-pos">powerRampingStep</td><td style="font-family:var(--mono);color:var(--text2);">4 dB</td><td style="color:var(--text2)">Power increase per RACH retry</td></tr>
+        <tr><td class="t-pos">ra-ResponseWindow</td><td style="font-family:var(--mono);color:var(--text2);">sl10</td><td style="color:var(--text2)">UE waits up to 10 slots for Msg2</td></tr>
+        <tr><td class="t-pos">preambleTransMax</td><td style="font-family:var(--mono);color:var(--text2);">7</td><td style="color:var(--text2)">Max preamble retries before failure</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Field 4 — si-SchedulingInfo</h2>
+<p>
+  SIB1 also tells the UE how to find SIB2 through SIB9 — the other system information blocks. Each is scheduled periodically and the UE only reads them if needed.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Other SIBs — what each carries</span>
+    <span class="ds-ref">TS 38.331 §6.2.2</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>SIB</th><th>Content</th><th>When needed</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">SIB2</td><td style="color:var(--text2)">Intra-frequency cell reselection parameters</td><td style="color:var(--text2)">Cell reselection in IDLE</td></tr>
+        <tr><td class="t-pos">SIB3</td><td style="color:var(--text2)">Intra-frequency neighbour cell list</td><td style="color:var(--text2)">Mobility in IDLE</td></tr>
+        <tr><td class="t-pos">SIB4</td><td style="color:var(--text2)">Inter-frequency neighbour cells</td><td style="color:var(--text2)">Inter-frequency reselection</td></tr>
+        <tr><td class="t-pos">SIB5</td><td style="color:var(--text2)">Inter-RAT (LTE, WCDMA) neighbours</td><td style="color:var(--text2)">Multi-RAT reselection</td></tr>
+        <tr><td class="t-pos">SIB6/7</td><td style="color:var(--text2)">ETWS earthquake/tsunami warning</td><td style="color:var(--text2)">Emergency broadcast</td></tr>
+        <tr><td class="t-pos">SIB9</td><td style="color:var(--text2)">GPS/UTC time synchronisation</td><td style="color:var(--text2)">Timing-sensitive applications</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">SIB1 decoded — UE now knows:</div>
+  <div class="rb-line">Operator &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">PLMN 244-05 (Elisa Finland)</span></div>
+  <div class="rb-line">Location &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ TAC = <span class="rb-val">500</span>, Cell ID = <span class="rb-val">0x1A2B3C4</span></div>
+  <div class="rb-line">Signal threshold &nbsp;&nbsp;&nbsp;&nbsp;→ q-RxLevMin = <span class="rb-val">−140 dBm</span></div>
+  <div class="rb-line">Initial DL BWP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">52 RBs</span>, 3496.38–3515.10 MHz</div>
+  <div class="rb-line">RACH config &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">ready to compute Msg1</span></div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ S-criterion check → camp decision</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="../module4/4-3-blind-decoding.html"><span class="pn-label">← Previous</span><span class="pn-title">Blind Decoding</span></a>
   <a href="5-2-s-criterion.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">S-Criterion</span></a>

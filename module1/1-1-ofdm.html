@@ -13,7 +13,7 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 1 <span>›</span> Fundamentals <span>›</span> Section 1.1</div>
-  <div class="module-tag" style="background:var(--purple-d);border:1px solid rgba(179,157,250,0.25);color:var(--purple);">
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
     Module 1 — Fundamentals
   </div>
@@ -32,37 +32,30 @@
 
 <h2>The fundamental problem — multipath</h2>
 <p>
-  In wireless communication, a transmitted signal does not travel along a single direct path. It reflects off buildings, the ground, and other objects. Multiple copies of the same signal arrive at the receiver at slightly different times. This is called <strong>multipath propagation</strong>.
+  In wireless communication, a transmitted signal does not travel along a single direct path. It reflects off buildings, the ground, and other objects. Multiple copies of the same signal arrive at the receiver at slightly different times — this is called <strong>multipath propagation</strong>.
 </p>
 <p>
-  The time difference between the first arriving copy and the last is called the <strong>delay spread</strong>. In a typical urban environment, delay spread is 1–5 μs. In large cells it can reach 10–20 μs.
+  The time difference between the first and last arriving copy is the <strong>delay spread</strong>. In a typical urban environment this is 1–5 μs. In large cells it can reach 10–20 μs. When a single wideband carrier is used, delayed copies overlap with the current symbol and corrupt it — this is <strong>Inter-Symbol Interference (ISI)</strong>.
 </p>
 </div>
 
 <div class="diagram-section reveal">
   <div class="ds-header">
-    <span class="ds-title">Multipath propagation — multiple copies arrive at different times</span>
+    <span class="ds-title">Multipath propagation — multiple delayed copies arrive at UE</span>
     <span class="ds-ref">Physical channel model</span>
   </div>
   <div class="ds-body">
-    <canvas id="multipath-canvas" width="920" height="200" style="width:100%;"></canvas>
+    <canvas id="multipath-canvas" width="900" height="200" style="width:100%;"></canvas>
   </div>
 </div>
 
 <div class="prose">
-<p>
-  When a single carrier waveform is transmitted, delayed copies of it arrive and overlap with the current symbol, corrupting it. This is called <strong>Inter-Symbol Interference (ISI)</strong>. The faster you transmit (higher data rate → shorter symbols), the worse ISI becomes because each symbol is shorter than the delay spread.
-</p>
-<p>
-  The traditional fix — an equalizer — works well for narrow channels but becomes extremely complex for the wide bandwidths (100 MHz+) that 5G requires.
-</p>
-
 <h2>The OFDM solution</h2>
 <p>
-  Instead of one wideband carrier, <strong>OFDM splits the bandwidth into hundreds of narrow subcarriers</strong>, each carrying a low-rate signal. A subcarrier narrow enough to have a symbol duration much longer than the delay spread experiences flat fading (not frequency-selective), which a single tap equalizer can handle trivially.
+  Instead of one wideband carrier, <strong>OFDM splits the bandwidth into hundreds of narrow subcarriers</strong>, each carrying a low-rate signal. A subcarrier narrow enough has a symbol duration much longer than the delay spread — it experiences flat fading that a single-tap equalizer handles trivially.
 </p>
 <p>
-  For 5G NR with 30 kHz subcarrier spacing: symbol duration = 33.33 μs — roughly 10–30× longer than typical urban delay spread. Each subcarrier sees a nearly constant channel across its symbol.
+  For 5G NR with 30 kHz SCS, symbol duration = 33.33 μs — roughly 10–30× longer than typical urban delay spread.
 </p>
 
 <div class="gpp-quote reveal">
@@ -75,67 +68,38 @@
 <div class="key-callout reveal">
   <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">3276</div><div class="kc-label">max subcarriers (100 MHz)</div><div class="kc-desc">Each carrying its own low-rate stream</div></div>
   <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">33.33 μs</div><div class="kc-label">symbol duration (30 kHz)</div><div class="kc-desc">≫ typical delay spread of 1–5 μs</div></div>
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">1 tap</div><div class="kc-label">equalizer per subcarrier</div><div class="kc-desc">Divide by H[k] — trivial computation</div></div>
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--coral)">FFT</div><div class="kc-label">modulation method</div><div class="kc-desc">Transmit: IFFT. Receive: FFT.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">1 tap</div><div class="kc-label">equalizer per subcarrier</div><div class="kc-desc">Divide by H[k] — trivially simple</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--purple)">FFT</div><div class="kc-label">modulation method</div><div class="kc-desc">Transmit: IFFT. Receive: FFT.</div></div>
 </div>
 
 <h2>Orthogonality — why subcarriers don't interfere</h2>
 <p>
-  With hundreds of subcarriers occupying overlapping spectrum, why don't they interfere with each other? The key is <strong>orthogonality</strong>. Two sinusoids at frequencies f₁ and f₂ are orthogonal if their inner product over one symbol period T is zero:
+  With hundreds of overlapping subcarriers, why don't they interfere? Two sinusoids at frequencies f₁ and f₂ are orthogonal if their inner product over one symbol period T equals zero. This holds when subcarrier spacing Δf = 1/T exactly.
 </p>
 </div>
 
 <div class="code-block reveal">
-  <div class="cb-header"><span>Orthogonality condition</span><span class="cb-ref">TS 38.211 §4.2</span></div>
-  <pre><span class="c">// Integral of product of two subcarriers over symbol period T:</span>
+  <div class="cb-header"><span>Orthogonality condition — Δf = 1/T</span><span class="cb-ref">TS 38.211 §4.2</span></div>
+  <pre><span class="c">// Inner product of subcarriers k and m over symbol period T:</span>
 (1/T) × ∫₀ᵀ e^(j2π·k·Δf·t) × e^(−j2π·m·Δf·t) dt
 
-= (1/T) × ∫₀ᵀ e^(j2π·(k−m)·Δf·t) dt
+= { <span class="r">1</span>   if k = m   (same subcarrier)
+  { <span class="op">0</span>   if k ≠ m   (orthogonal — zero crosstalk) ✓
 
-= { <span class="r">1</span>   if k = m  (same subcarrier)
-  { <span class="op">0</span>   if k ≠ m  (different subcarriers) ✓
-
-<span class="c">// This holds ONLY when subcarrier spacing Δf = 1/T</span>
-<span class="c">// For 30 kHz SCS: T = 1/30000 = 33.33 μs  ← exactly one symbol period</span></pre>
+<span class="c">// This holds ONLY when Δf = 1/T</span>
+<span class="c">// For 30 kHz SCS: T = 1/30,000 = 33.33 μs ← exactly one symbol</span>
+<span class="c">// At FFT receiver: each bin captures ONLY its own subcarrier</span></pre>
 </div>
 
 <div class="prose">
+<h2>Cyclic prefix — eliminating ISI between symbols</h2>
 <p>
-  This is why subcarrier spacing <strong>must equal exactly 1/T</strong>. In 5G NR with 30 kHz SCS, the symbol useful duration is exactly 33.33 μs = 1/30,000 s. The subcarriers are spaced 30 kHz apart — the minimum spacing that preserves orthogonality.
-</p>
-<p>
-  In the frequency domain, each subcarrier's spectrum is a sinc function. Its nulls fall exactly on all other subcarrier center frequencies. At the receiver FFT, each bin captures only energy from its own subcarrier.
-</p>
-
-<h2>The OFDM signal — transmitter</h2>
-<p>
-  At the transmitter, data symbols (QPSK, 16-QAM, 64-QAM, 256-QAM, or 1024-QAM) are mapped to frequency-domain subcarriers. The time-domain waveform is generated by an <strong>Inverse Fast Fourier Transform (IFFT)</strong>.
-</p>
-</div>
-
-<div class="diagram-section reveal">
-  <div class="ds-header">
-    <span class="ds-title">OFDM transmitter chain</span>
-    <span class="ds-ref">TS 38.211 §5.3.1</span>
-  </div>
-  <div class="ds-body">
-    <canvas id="tx-chain-canvas" width="920" height="100" style="width:100%;"></canvas>
-  </div>
-</div>
-
-<div class="prose">
-
-<h2>Cyclic prefix — solving the remaining multipath problem</h2>
-<p>
-  Even though each subcarrier's symbol is long, multipath still causes the <strong>end of one symbol to overlap with the start of the next</strong> at the receiver. This ISI between adjacent OFDM symbols destroys the orthogonality we just established.
-</p>
-<p>
-  The solution is the <strong>cyclic prefix (CP)</strong>: copy the last N_CP samples of each OFDM symbol and prepend them as a guard interval. At the receiver, the CP is discarded. If the CP is longer than the channel delay spread, no ISI occurs.
+  Even with long symbols, multipath causes the end of one OFDM symbol to overlap with the next. The <strong>cyclic prefix (CP)</strong> fixes this: copy the last N_CP samples of each symbol and prepend them as a guard interval. If CP duration &gt; delay spread, no ISI occurs. The receiver simply discards the CP before the FFT.
 </p>
 
 <div class="gpp-quote reveal">
   <div class="gpp-text">
-    The time-continuous signal sl,μ(t) on antenna port p in OFDM symbol l in one subframe is defined as:<br><br>
+    The time-continuous signal on antenna port p in OFDM symbol l is:<br><br>
     s(t) = Σₖ aₖ · e^(j2π(k+½)Δf(t−N_u·κ·Tc))&nbsp;&nbsp;&nbsp;&nbsp;−N_CP·κ·Tc ≤ t &lt; N_u·κ·Tc<br><br>
     where N_CP is the cyclic prefix length and N_u is the FFT size.
   </div>
@@ -145,248 +109,163 @@
 
 <div class="diagram-section reveal">
   <div class="ds-header">
-    <span class="ds-title">Cyclic prefix — guard interval prevents ISI</span>
+    <span class="ds-title">Cyclic prefix — CP duration must exceed delay spread</span>
     <span class="ds-ref">TS 38.211 §5.3.1</span>
   </div>
   <div class="ds-body">
-    <canvas id="cp-canvas" width="920" height="160" style="width:100%;"></canvas>
+    <canvas id="cp-canvas" width="900" height="150" style="width:100%;"></canvas>
   </div>
 </div>
 
 <div class="prose">
-<h2>OFDM numbers for 30 kHz SCS — our example</h2>
-<p>
-  For band n78 with 100 MHz channel bandwidth and 30 kHz subcarrier spacing:
-</p>
+<h2>OFDM parameters — 30 kHz SCS, 100 MHz bandwidth</h2>
 </div>
 
 <div class="code-block reveal">
-  <div class="cb-header"><span>OFDM parameters — SCS = 30 kHz, 100 MHz BW</span><span class="cb-ref">TS 38.211 §4.2, TS 38.104</span></div>
+  <div class="cb-header"><span>OFDM numbers — SCS = 30 kHz, 100 MHz BW, band n78</span><span class="cb-ref">TS 38.211 §4.2, TS 38.104</span></div>
   <pre><span class="c">// Subcarrier spacing and symbol duration</span>
 Δf           = <span class="n">30,000</span> Hz
-T_useful     = 1/Δf = <span class="r">33.333 μs</span>   (2048 samples at 61.44 Msps)
+T_useful     = 1/Δf = <span class="r">33.333 μs</span>
 
-<span class="c">// Cyclic prefix (normal CP, TS 38.211 Table 5.3.1-1)</span>
-N_CP_first   = <span class="n">160</span> samples  → <span class="r">2.604 μs</span>  (first symbol of each slot)
-N_CP_normal  = <span class="n">144</span> samples  → <span class="r">2.344 μs</span>  (symbols 1–13)
+<span class="c">// Cyclic prefix (TS 38.211 Table 5.3.1-1)</span>
+N_CP_first   = <span class="n">160</span> samples → <span class="r">2.604 μs</span>  (symbol 0 of each slot)
+N_CP_normal  = <span class="n">144</span> samples → <span class="r">2.344 μs</span>  (symbols 1–13)
 
-<span class="c">// Total symbol duration</span>
-T_sym_first  = (2048+160) / 61.44×10⁶ = <span class="r">35.94 μs</span>
-T_sym_normal = (2048+144) / 61.44×10⁶ = <span class="r">35.68 μs</span>
+<span class="c">// FFT size and sampling rate</span>
+N_FFT        = <span class="r">4096</span>
+Sampling rate = N_FFT × Δf × 2 = <span class="r">122.88 Msps</span>
 
-<span class="c">// Active subcarriers in 100 MHz channel</span>
-N_active     = <span class="n">3276</span> subcarriers  (273 RBs × 12)
-Total BW     = 3276 × 30 kHz = <span class="r">98.28 MHz</span>  (guard bands on edges)
+<span class="c">// Active subcarriers in 100 MHz</span>
+N_active     = <span class="n">273</span> RBs × <span class="n">12</span> = <span class="r">3276</span> subcarriers
+Active BW    = <span class="n">3276</span> × <span class="n">30</span> kHz = <span class="r">98.28 MHz</span>
 
-<span class="c">// FFT size</span>
-N_FFT        = <span class="r">4096</span>  (next power of 2 above 3276)
-Sampling rate = N_FFT × Δf = 4096 × 30000 = <span class="r">122.88 Msps</span></pre>
-</div>
-
-<div class="prose">
-<h2>OFDM receiver — the FFT</h2>
-<p>
-  At the receiver, after removing the cyclic prefix, an FFT converts the time-domain samples back to frequency-domain symbols. For a channel with flat response on each subcarrier, the received symbol on subcarrier k is:
-</p>
-</div>
-
-<div class="code-block reveal">
-  <div class="cb-header"><span>OFDM reception and equalization</span></div>
-  <pre><span class="c">// After FFT, received symbol on subcarrier k:</span>
+<span class="c">// One-tap equalization:</span>
 Y[k] = H[k] × X[k] + N[k]
-
-<span class="c">// Where:</span>
-H[k]  = complex channel gain on subcarrier k  (estimated via DMRS)
-X[k]  = transmitted data symbol
-N[k]  = noise
-
-<span class="c">// One-tap equalization (trivially simple):</span>
-X̂[k] = Y[k] / H[k]
-      = X[k] + N[k]/H[k]
-
-<span class="c">// Compare to single-carrier: requires Nᵢ-tap FIR equalizer</span>
-<span class="c">// where Nᵢ = delay_spread / sample_period</span>
-<span class="c">// For 100 MHz BW: Nᵢ ≈ 5μs × 100MHz = 500 taps → complex!</span>
-<span class="c">// OFDM: always 1 tap regardless of bandwidth → elegant.</span></pre>
+X̂[k] = Y[k] / H[k]   <span class="c">← trivially simple, regardless of bandwidth</span></pre>
 </div>
 
 <div class="result-box reveal">
   <div class="rb-title">OFDM key facts — 30 kHz SCS, 100 MHz BW</div>
-  <div class="rb-line">Symbol duration &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">33.33 μs</span> (useful) + 2.34 μs CP</div>
-  <div class="rb-line">Active subcarriers &nbsp;→ <span class="rb-val">3276</span> (273 RBs × 12)</div>
-  <div class="rb-line">FFT size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">4096</span></div>
-  <div class="rb-line">Sampling rate &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">122.88 Msps</span></div>
-  <div class="rb-line">Equalization &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">1 tap per subcarrier</span> (divide by H[k])</div>
+  <div class="rb-line">Symbol duration &nbsp;→ <span class="rb-val">33.33 μs</span> useful + 2.34 μs CP</div>
+  <div class="rb-line">Subcarriers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">3276</span> active (273 RBs)</div>
+  <div class="rb-line">FFT size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">4096</span></div>
+  <div class="rb-line">Sampling rate &nbsp;&nbsp;→ <span class="rb-val">122.88 Msps</span></div>
+  <div class="rb-line">Equalization &nbsp;&nbsp;&nbsp;→ <span class="rb-val">1 complex division</span> per subcarrier</div>
 </div>
 
-</div><!-- content -->
+</div>
 
 <div class="page-nav">
-  <a href="../index.html">
-    <span class="pn-label">← Back</span>
-    <span class="pn-title">Home</span>
-  </a>
-  <a href="1-2-numerology.html" class="next">
-    <span class="pn-label">Next →</span>
-    <span class="pn-title">Numerology & Frame Structure</span>
-  </a>
+  <a href="../index.html"><span class="pn-label">← Back</span><span class="pn-title">Home</span></a>
+  <a href="1-2-numerology.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Numerology & Frame Structure</span></a>
 </div>
 
 </main>
 </div>
-
 <script src="../js/main.js"></script>
 <script>
 buildSidebar('1-1-ofdm.html');
 
 // Multipath diagram
 (function(){
-  const c = document.getElementById('multipath-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
+  const c=document.getElementById('multipath-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
 
-  // gNB tower
-  ctx.fillStyle = '#2a3a5a';
-  ctx.fillRect(60, 40, 12, 120);
-  ctx.fillStyle = '#5b9cf6';
-  ctx.beginPath(); ctx.moveTo(54,40); ctx.lineTo(66,40); ctx.lineTo(60,28); ctx.closePath(); ctx.fill();
-  ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#6aabff'; ctx.textAlign = 'center';
-  ctx.fillText('gNB', 66, 178);
-
-  // UE
-  ctx.fillStyle = '#2a3a5a';
-  roundRect(ctx, 820, 70, 50, 80, 6); ctx.fill();
-  ctx.strokeStyle = '#3ddbb8'; ctx.lineWidth = 1.5;
-  roundRect(ctx, 820, 70, 50, 80, 6); ctx.stroke();
-  ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#3ddbb8'; ctx.textAlign = 'center';
-  ctx.fillText('UE', 845, 178);
+  // gNB
+  ctx.fillStyle=C.bg3; ctx.fillRect(58,40,12,130);
+  ctx.fillStyle=C.blue;
+  ctx.beginPath(); ctx.moveTo(52,40); ctx.lineTo(64,40); ctx.lineTo(58,26); ctx.closePath(); ctx.fill();
+  ctx.font='11px IBM Plex Mono'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('gNB',64,185);
 
   // Building
-  ctx.fillStyle = '#1a1e2e';
-  ctx.fillRect(400, 60, 80, 120);
-  ctx.strokeStyle = '#2a3a5a'; ctx.lineWidth = 1;
-  ctx.strokeRect(400, 60, 80, 120);
+  ctx.fillStyle=C.bg3; ctx.strokeStyle=C.border2; ctx.lineWidth=1;
+  ctx.fillRect(390,55,80,125); ctx.strokeRect(390,55,80,125);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+  ctx.fillText('building',430,195);
 
-  // Path 1 — direct (blue)
-  ctx.strokeStyle = '#6aabff'; ctx.lineWidth = 2;
-  ctx.setLineDash([]);
-  ctx.beginPath(); ctx.moveTo(72, 90); ctx.lineTo(820, 100); ctx.stroke();
-  ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#6aabff'; ctx.textAlign = 'center';
-  ctx.fillText('Direct path (τ₁ = 0 μs)', 440, 86);
+  // UE
+  ctx.fillStyle=C.bg2; ctx.strokeStyle=C.teal; ctx.lineWidth=2;
+  roundRect(ctx,820,70,46,80,6); ctx.fill(); ctx.stroke();
+  ctx.font='11px IBM Plex Mono'; ctx.fillStyle=C.teal; ctx.textAlign='center';
+  ctx.fillText('UE',843,185);
 
-  // Path 2 — reflected off building top (amber)
-  ctx.strokeStyle = '#f7b731'; ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 3]);
-  ctx.beginPath(); ctx.moveTo(72, 90); ctx.lineTo(390, 55); ctx.lineTo(820, 110); ctx.stroke();
-  ctx.fillStyle = '#f7b731';
-  ctx.fillText('Reflected (τ₂ ≈ 1.2 μs)', 280, 46);
+  // Direct path
+  ctx.strokeStyle=C.blue; ctx.lineWidth=2; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(70,92); ctx.lineTo(820,105); ctx.stroke();
+  ctx.font='11px IBM Plex Mono'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('Direct path  τ₁ = 0 μs',380,82);
 
-  // Path 3 — reflected off ground (coral)
-  ctx.strokeStyle = '#ff7b7b'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(72, 90); ctx.lineTo(450, 168); ctx.lineTo(820, 120); ctx.stroke();
-  ctx.fillStyle = '#ff7b7b';
-  ctx.fillText('Ground bounce (τ₃ ≈ 3.1 μs)', 350, 165);
+  // Reflected path 1
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1.5; ctx.setLineDash([5,3]);
+  ctx.beginPath(); ctx.moveTo(70,92); ctx.lineTo(383,50); ctx.lineTo(820,115); ctx.stroke();
+  ctx.fillStyle=C.amber; ctx.textAlign='left';
+  ctx.fillText('Reflected  τ₂ ≈ 1.2 μs',200,42);
 
+  // Ground bounce
+  ctx.strokeStyle=C.coral; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(70,92); ctx.lineTo(440,168); ctx.lineTo(820,125); ctx.stroke();
+  ctx.fillStyle=C.coral; ctx.textAlign='center';
+  ctx.fillText('Ground bounce  τ₃ ≈ 3.1 μs',380,162);
   ctx.setLineDash([]);
 
   // Delay spread annotation
-  ctx.strokeStyle = '#5de89a'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(810, 140); ctx.lineTo(810, 155); ctx.stroke();
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#5de89a'; ctx.textAlign = 'right';
-  ctx.fillText('Delay spread ≈ 3.1 μs', 808, 152);
+  ctx.strokeStyle=C.green; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(808,140); ctx.lineTo(808,158); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.green; ctx.textAlign='right';
+  ctx.fillText('Delay spread ≈ 3.1 μs',806,155);
 
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
-  }
-})();
-
-// TX chain
-(function(){
-  const c = document.getElementById('tx-chain-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
-  const boxes = [
-    { x:30,  label:'Data bits', sub:'QAM map', col:'#1a0f3d', stroke:'#b39dfa' },
-    { x:200, label:'Subcarrier', sub:'mapping', col:'#0d2045', stroke:'#6aabff' },
-    { x:370, label:'IFFT', sub:'N_FFT = 4096', col:'#062820', stroke:'#3ddbb8' },
-    { x:540, label:'Add CP', sub:'144 samples', col:'#2d1d04', stroke:'#f7b731' },
-    { x:710, label:'RF / DAC', sub:'3498.24 MHz', col:'#2d0c0c', stroke:'#ff7b7b' },
-  ];
-  const bw = 130, bh = 60, by = 20;
-  boxes.forEach((b, i) => {
-    ctx.fillStyle = b.col;
-    roundRect(ctx, b.x, by, bw, bh, 6); ctx.fill();
-    ctx.strokeStyle = b.stroke; ctx.lineWidth = 1.5;
-    roundRect(ctx, b.x, by, bw, bh, 6); ctx.stroke();
-    ctx.font = 'bold 13px Fraunces'; ctx.fillStyle = b.stroke; ctx.textAlign = 'center';
-    ctx.fillText(b.label, b.x+bw/2, by+24);
-    ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#6b7090';
-    ctx.fillText(b.sub, b.x+bw/2, by+42);
-    if (i < boxes.length-1) {
-      ctx.strokeStyle = '#2a3a5a'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(b.x+bw+2, by+bh/2); ctx.lineTo(b.x+bw+36, by+bh/2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(b.x+bw+30, by+bh/2-5); ctx.lineTo(b.x+bw+38, by+bh/2); ctx.lineTo(b.x+bw+30, by+bh/2+5); ctx.stroke();
-    }
-  });
   function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 })();
 
 // CP diagram
 (function(){
-  const c = document.getElementById('cp-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
-  const cpW = 100, usefulW = 600, pad = 60, y = 40, h = 70;
+  const c=document.getElementById('cp-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
 
-  // Previous symbol (faded)
-  ctx.fillStyle = '#0a0c18';
-  roundRect(ctx, pad-80, y, 80, h, 4); ctx.fill();
-  ctx.strokeStyle = '#2a3a5a'; ctx.lineWidth = 1;
-  roundRect(ctx, pad-80, y, 80, h, 4); ctx.stroke();
-  ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'center';
-  ctx.fillText('Prev symbol', pad-40, y+h/2+4);
+  const cpW=80, usefulW=580, pad=60, y=35, h=68;
 
-  // CP
-  ctx.fillStyle = '#0d2045';
-  roundRect(ctx, pad, y, cpW, h, 4); ctx.fill();
-  ctx.strokeStyle = '#6aabff'; ctx.lineWidth = 2;
-  roundRect(ctx, pad, y, cpW, h, 4); ctx.stroke();
-  ctx.font = 'bold 12px Fraunces'; ctx.fillStyle = '#6aabff'; ctx.textAlign = 'center';
-  ctx.fillText('CP', pad+cpW/2, y+26);
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#3a5080';
-  ctx.fillText('144 samples', pad+cpW/2, y+44);
-  ctx.fillText('2.34 μs', pad+cpW/2, y+58);
+  // CP block
+  ctx.fillStyle=C.blueL;
+  roundRect(ctx,pad,y,cpW,h,5); ctx.fill();
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1.5;
+  roundRect(ctx,pad,y,cpW,h,5); ctx.stroke();
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('CP',pad+cpW/2,y+26);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+  ctx.fillText('144 samples',pad+cpW/2,y+44);
+  ctx.fillText('2.34 μs',pad+cpW/2,y+58);
 
-  // Useful
-  ctx.fillStyle = '#062820';
-  roundRect(ctx, pad+cpW+4, y, usefulW, h, 4); ctx.fill();
-  ctx.strokeStyle = '#3ddbb8'; ctx.lineWidth = 2;
-  roundRect(ctx, pad+cpW+4, y, usefulW, h, 4); ctx.stroke();
-  ctx.font = 'bold 13px Fraunces'; ctx.fillStyle = '#3ddbb8'; ctx.textAlign = 'center';
-  ctx.fillText('Useful part — 2048 samples = 33.33 μs', pad+cpW+4+usefulW/2, y+30);
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#3a6050';
-  ctx.fillText('IFFT output — carries the actual data', pad+cpW+4+usefulW/2, y+50);
+  // Useful block
+  ctx.fillStyle=C.tealL;
+  roundRect(ctx,pad+cpW+6,y,usefulW,h,5); ctx.fill();
+  ctx.strokeStyle=C.teal; ctx.lineWidth=1.5;
+  roundRect(ctx,pad+cpW+6,y,usefulW,h,5); ctx.stroke();
+  ctx.font='bold 13px Fraunces'; ctx.fillStyle=C.teal; ctx.textAlign='center';
+  ctx.fillText('Useful part — 2048 samples — 33.33 μs',pad+cpW+6+usefulW/2,y+28);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+  ctx.fillText('Contains the actual data (FFT output)',pad+cpW+6+usefulW/2,y+48);
 
-  // Arrow: CP = copy of end
-  const tailX = pad+cpW+4+usefulW-100;
-  ctx.strokeStyle = '#6b7090'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+  // Arrow showing CP = copy of tail
+  const tailX=pad+cpW+6+usefulW-90;
+  ctx.strokeStyle=C.muted; ctx.lineWidth=1; ctx.setLineDash([3,3]);
   ctx.beginPath();
-  ctx.moveTo(tailX+50, y);
-  ctx.quadraticCurveTo(tailX+50, y-22, pad+cpW/2, y-22);
-  ctx.lineTo(pad+cpW/2, y);
+  ctx.moveTo(tailX+45,y);
+  ctx.quadraticCurveTo(tailX+45,y-20,pad+cpW/2,y-20);
+  ctx.lineTo(pad+cpW/2,y);
   ctx.stroke(); ctx.setLineDash([]);
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#6b7090'; ctx.textAlign = 'center';
-  ctx.fillText('CP = copy of last 144 samples', (tailX+50+pad+cpW/2)/2, y-26);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('CP = copy of last 144 samples',300,y-23);
 
-  // Below label
-  ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = '#5de89a'; ctx.textAlign = 'left';
-  ctx.fillText('→ If delay spread < CP duration (2.34 μs): zero ISI guaranteed', pad, y+h+22);
-  ctx.fillStyle = '#6b7090';
-  ctx.fillText('→ Receiver discards CP before FFT', pad, y+h+38);
+  // Labels below
+  ctx.textAlign='left'; ctx.fillStyle=C.green; ctx.font='11px IBM Plex Mono';
+  ctx.fillText('→ If CP duration (2.34 μs) > delay spread: zero ISI guaranteed',pad,y+h+20);
+  ctx.fillStyle=C.text3;
+  ctx.fillText('→ Receiver discards CP before FFT — orthogonality preserved',pad,y+h+36);
 
   function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 })();

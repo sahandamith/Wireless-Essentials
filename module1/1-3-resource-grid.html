@@ -13,17 +13,16 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 1 <span>›</span> Fundamentals <span>›</span> Section 1.3</div>
-  <div class="module-tag" style="background:var(--purple-d);border:1px solid rgba(179,157,250,0.25);color:var(--purple);">
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
     Module 1 — Fundamentals
   </div>
   <h1>Resource Grid —<br><em>The time-frequency canvas</em></h1>
   <p class="hero-lead">
-    Everything transmitted in 5G NR — data, control, reference signals — is mapped onto a two-dimensional grid of time and frequency. Understanding this resource grid is essential before reading any scheduling, CORESET, or PDSCH documentation. This section defines every unit from Resource Element up to Bandwidth Part.
+    Everything in 5G NR — data, control signals, reference signals — is mapped onto a two-dimensional grid of time and frequency. Understanding this resource grid is essential before reading any scheduling, CORESET, or PDSCH documentation.
   </p>
   <div class="spec-pills">
     <span class="spec-pill">TS 38.211 §4.4</span>
-    <span class="spec-pill">TS 38.211 §4.5</span>
     <span class="spec-pill">TS 38.213 §12</span>
   </div>
 </div>
@@ -33,39 +32,43 @@
 
 <h2>Resource Element — the smallest unit</h2>
 <p>
-  A <strong>Resource Element (RE)</strong> is defined as one subcarrier in one OFDM symbol. It is the smallest unit of the resource grid. Each RE carries one complex modulation symbol — BPSK, QPSK, 16-QAM, 64-QAM, 256-QAM, or 1024-QAM.
+  A <strong>Resource Element (RE)</strong> is one subcarrier in one OFDM symbol — the smallest addressable unit of the resource grid. Each RE carries one complex modulation symbol. For 30 kHz SCS, one RE spans 30 kHz × 33.33 μs.
 </p>
+
+<h2>Resource Block — the scheduling unit</h2>
 <p>
-  For 30 kHz SCS, one RE spans 30 kHz in frequency and 33.33 μs in time (the useful symbol duration, not including CP).
+  A <strong>Resource Block (RB)</strong> is 12 consecutive subcarriers in the frequency domain. It spans one slot (14 symbols) in time. The scheduler assigns frequency resources to UEs in units of RBs. For 30 kHz SCS: 1 RB = 12 × 30 kHz = <strong>360 kHz</strong>.
 </p>
 
 <div class="gpp-quote reveal">
   <div class="gpp-text">
-    One resource element (RE) is the basic unit of the resource grid, defined as one OFDM subcarrier during one OFDM symbol. The resource grid is defined for a given numerology μ and antenna port p as a set of resource elements indexed by (k, l) where k is the subcarrier index and l is the OFDM symbol index within a subframe.
+    One resource element (RE) is the basic unit of the resource grid, defined as one OFDM subcarrier during one OFDM symbol, indexed by (k, l) where k is the subcarrier index and l is the OFDM symbol index within a subframe. A resource block (RB) is defined as 12 consecutive subcarriers in the frequency domain.
   </div>
   <div class="gpp-source">3GPP TS 38.211, Section 4.4.1</div>
 </div>
 
-<h2>Resource Block — the scheduling unit</h2>
-<p>
-  A <strong>Resource Block (RB)</strong> is defined as <strong>12 consecutive subcarriers</strong> in the frequency domain. It spans exactly one slot in time (14 symbols). RBs are the granularity at which the scheduler assigns frequency resources to UEs.
-</p>
-<p>
-  For 30 kHz SCS, one RB = 12 × 30 kHz = <strong>360 kHz</strong> in bandwidth.
-</p>
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">RE</div><div class="kc-label">1 subcarrier × 1 symbol</div><div class="kc-desc">Carries 1 QAM symbol = 1–10 bits</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">RB</div><div class="kc-label">12 subcarriers × 1 slot</div><div class="kc-desc">168 REs. Scheduling granularity.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">273</div><div class="kc-label">RBs in 100 MHz (30 kHz)</div><div class="kc-desc">= 3276 active subcarriers</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--purple)">BWP</div><div class="kc-label">Bandwidth Part</div><div class="kc-desc">Subset of RBs a UE monitors</div></div>
+</div>
 </div>
 
-<div class="key-callout reveal">
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">RE</div><div class="kc-label">1 subcarrier × 1 symbol</div><div class="kc-desc">Smallest unit. Carries 1–10 bits depending on MCS.</div></div>
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">RB</div><div class="kc-label">12 subcarriers × 1 slot</div><div class="kc-desc">12 × 14 = 168 REs. Scheduling granularity.</div></div>
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">273</div><div class="kc-label">RBs in 100 MHz (30 kHz)</div><div class="kc-desc">273 × 12 = 3276 active subcarriers.</div></div>
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--coral)">BWP</div><div class="kc-label">Bandwidth Part</div><div class="kc-desc">Subset of RBs a UE actively monitors.</div></div>
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Resource grid — time × frequency structure</span>
+    <span class="ds-ref">TS 38.211 §4.4</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="grid-canvas" width="900" height="300" style="width:100%;"></canvas>
+  </div>
 </div>
 
 <div class="prose">
 <h2>Channel bandwidth and RB counts</h2>
 <p>
-  Not all subcarriers in the channel bandwidth carry data. Guard bands at the edges prevent interference with adjacent channels. The number of active RBs depends on channel bandwidth and SCS.
+  Guard bands at the channel edges prevent interference with adjacent channels. The number of active RBs is less than the total channel bandwidth divided by RB width.
 </p>
 </div>
 
@@ -77,14 +80,14 @@
   <div class="ds-body" style="padding:16px 20px;">
     <table class="seq-table">
       <thead>
-        <tr><th>Channel BW</th><th>Active RBs (30 kHz)</th><th>Active subcarriers</th><th>Active BW</th><th>Guard (each side)</th></tr>
+        <tr><th>Channel BW</th><th>Active RBs</th><th>Active subcarriers</th><th>Active BW</th><th>Guard (each side)</th></tr>
       </thead>
       <tbody>
         <tr><td>5 MHz</td><td>11</td><td>132</td><td>3.96 MHz</td><td>0.52 MHz</td></tr>
         <tr><td>10 MHz</td><td>24</td><td>288</td><td>8.64 MHz</td><td>0.68 MHz</td></tr>
         <tr><td>20 MHz</td><td>51</td><td>612</td><td>18.36 MHz</td><td>0.82 MHz</td></tr>
         <tr><td>40 MHz</td><td>106</td><td>1272</td><td>38.16 MHz</td><td>0.92 MHz</td></tr>
-        <tr class="hl"><td>100 MHz</td><td class="t-vp">273</td><td class="t-vp">3276</td><td class="t-vp">98.28 MHz</td><td>0.86 MHz ← our case</td></tr>
+        <tr class="hl"><td>100 MHz</td><td class="t-vp">273</td><td class="t-vp">3276</td><td class="t-vp">98.28 MHz</td><td>0.86 MHz ← our cell</td></tr>
       </tbody>
     </table>
   </div>
@@ -93,252 +96,152 @@
 <div class="prose">
 <h2>Point A — the absolute frequency reference</h2>
 <p>
-  All RB positions in 5G NR are defined relative to a reference point called <strong>Point A</strong>. Point A is the center of subcarrier 0 of RB 0. It is not necessarily the lowest edge of the channel — it is an abstract reference from which all resource positions are computed.
-</p>
-<p>
-  The MIB field <code>ssb-SubcarrierOffset</code> (k_SSB) defines the offset between Point A and the SSB's lowest subcarrier. This allows the UE to calculate Point A from the SSB position, then compute all other resource positions from Point A.
+  All RB positions are defined relative to <strong>Point A</strong> — the center of subcarrier 0 of RB 0. The MIB field <code>ssb-SubcarrierOffset</code> (k_SSB = 2) defines how far the SSB sits above Point A, allowing the UE to calculate Point A from the known SSB frequency.
 </p>
 
 <div class="gpp-quote reveal">
   <div class="gpp-text">
-    Point A is the reference point for resource block grid and is located at the centre of the subcarrier 0 of the resource block 0 in the common resource block grid. The common resource block numbering starts at subcarrier 0 of common resource block 0 at Point A.
+    Point A is the reference point for resource block grid and is located at the centre of subcarrier 0 of common resource block 0. The common resource block numbering starts at subcarrier 0 of common resource block 0 at Point A.
   </div>
   <div class="gpp-source">3GPP TS 38.211, Section 4.4.4.1</div>
 </div>
 
-<h2>CRB, PRB, VRB — three flavours of resource block</h2>
-<p>
-  3GPP defines three types of resource blocks that can be confusing:
-</p>
-</div>
-
-<div class="diagram-section reveal">
-  <div class="ds-header">
-    <span class="ds-title">RB types — CRB vs PRB vs VRB</span>
-    <span class="ds-ref">TS 38.211 §4.4.4</span>
-  </div>
-  <div class="ds-body" style="padding:16px 20px;">
-    <table class="seq-table">
-      <thead>
-        <tr><th>Type</th><th>Full name</th><th>Numbering reference</th><th>Used for</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="t-pos">CRB</td>
-          <td>Common Resource Block</td>
-          <td>Absolute, from Point A</td>
-          <td style="color:var(--text2)">System-level positioning (CORESET#0, BWP)</td>
-        </tr>
-        <tr>
-          <td class="t-pos">PRB</td>
-          <td>Physical Resource Block</td>
-          <td>Relative to BWP start</td>
-          <td style="color:var(--text2)">PDSCH/PUSCH resource assignment within a BWP</td>
-        </tr>
-        <tr>
-          <td class="t-pos">VRB</td>
-          <td>Virtual Resource Block</td>
-          <td>Same numbering as PRB</td>
-          <td style="color:var(--text2)">Interleaved mapping — VRBs map to non-consecutive PRBs for frequency diversity</td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="note-box" style="margin-top:16px;">
-      <strong>Practical rule:</strong> DCI resource assignments are in PRBs (relative to BWP start). CORESET and BWP positions are in CRBs (relative to Point A). When computing absolute frequencies, always convert back through Point A.
-    </div>
-  </div>
-</div>
-
-<div class="prose">
 <h2>Bandwidth Parts (BWP)</h2>
 <p>
-  A <strong>Bandwidth Part</strong> is a contiguous set of physical resource blocks configured for a specific UE. A UE does not need to receive the full 100 MHz channel at all times. Instead, it can be configured with a narrower BWP, saving power during periods of low activity.
+  A UE does not need to receive the full 100 MHz at all times. A <strong>Bandwidth Part</strong> is a configured subset of RBs. Up to 4 DL BWPs can be configured; only 1 is active at a time. BWP switching saves power during low-activity periods.
 </p>
-<p>
-  Up to 4 DL BWPs and 4 UL BWPs can be configured per UE. Only one DL and one UL BWP are <strong>active</strong> at any time. BWP switching is triggered by DCI or inactivity timer.
-</p>
-
-<div class="gpp-quote reveal">
-  <div class="gpp-text">
-    For a UE configured with bandwidth part bwp-Id, the active bandwidth part is defined by startRB and numRBs within the common resource block grid. The UE shall not expect the active bandwidth part to exceed the UE channel bandwidth capability.
-  </div>
-  <div class="gpp-source">3GPP TS 38.213, Section 12</div>
-</div>
-</div>
-
-<div class="diagram-section reveal">
-  <div class="ds-header">
-    <span class="ds-title">Resource grid overview — full picture</span>
-    <span class="ds-ref">TS 38.211 §4.4</span>
-  </div>
-  <div class="ds-body">
-    <canvas id="grid-canvas" width="920" height="300" style="width:100%;"></canvas>
-  </div>
-</div>
-
-<div class="prose">
-<h2>Resource Grid — our n78 example</h2>
 </div>
 
 <div class="code-block reveal">
   <div class="cb-header"><span>Resource grid numbers — n78, 100 MHz, 30 kHz SCS</span><span class="cb-ref">TS 38.211 §4.4, TS 38.101-1</span></div>
   <pre><span class="c">// Frequency domain</span>
-Channel bandwidth     = <span class="n">100</span> MHz
-Active RBs (N_RB)    = <span class="r">273</span>
-Active subcarriers   = <span class="n">273</span> × <span class="n">12</span> = <span class="r">3276</span>
-Subcarrier bandwidth = <span class="n">30</span> kHz
-Active BW            = <span class="n">3276</span> × <span class="n">30</span> kHz = <span class="r">98.28 MHz</span>
-Guard bands          = (<span class="n">100</span> − <span class="n">98.28</span>) / <span class="n">2</span> = <span class="r">0.86 MHz</span> each side
+Active RBs       = <span class="r">273</span>
+Active subcarriers = <span class="n">273</span> × <span class="n">12</span> = <span class="r">3276</span>
+Active BW        = <span class="n">3276</span> × <span class="n">30</span> kHz = <span class="r">98.28 MHz</span>
+Guard bands      = (<span class="n">100</span> − <span class="n">98.28</span>) / <span class="n">2</span> = <span class="r">0.86 MHz</span> each side
 
-<span class="c">// Time domain (per slot)</span>
-Symbols per slot     = <span class="r">14</span>
-REs per slot per RB  = <span class="n">14</span> × <span class="n">12</span> = <span class="r">168</span>
-Total REs per slot   = <span class="n">273</span> × <span class="n">168</span> = <span class="r">45,864</span>
-
-<span class="c">// Point A for our cell (from k_SSB=2)</span>
-f_SSB_low   = <span class="n">3498.24</span> − <span class="n">60</span> × <span class="n">0.030</span> = <span class="n">3496.44</span> MHz
-Point A     = <span class="n">3496.44</span> − <span class="n">2</span> × <span class="n">0.030</span> = <span class="r">3496.38 MHz</span>
+<span class="c">// Point A derivation (from k_SSB=2)</span>
+f_SSB_center = <span class="n">3498.24</span> MHz
+f_SSB_low    = <span class="n">3498.24</span> − <span class="n">60</span> × <span class="n">0.030</span> = <span class="n">3496.44</span> MHz
+Point_A      = <span class="n">3496.44</span> − <span class="n">2</span> × <span class="n">0.030</span> = <span class="r">3496.38 MHz</span>
 
 <span class="c">// Initial DL BWP (from SIB1)</span>
-BWP start   = CRB 0     → <span class="r">3496.38 MHz</span>
-BWP width   = 52 RBs    → <span class="r">52 × 360 kHz = 18.72 MHz</span>  (≈ 20 MHz equivalent)</pre>
+BWP start = CRB 0 = <span class="n">3496.38</span> MHz
+BWP width = <span class="n">52</span> RBs = <span class="n">52</span> × <span class="n">360</span> kHz = <span class="r">18.72 MHz</span>
+
+<span class="c">// REs per slot</span>
+Per RB per slot  = <span class="n">12</span> × <span class="n">14</span> = <span class="n">168</span> REs
+Total per slot   = <span class="n">273</span> × <span class="n">168</span> = <span class="r">45,864 REs</span></pre>
 </div>
 
 <div class="result-box reveal">
   <div class="rb-title">Resource grid summary</div>
-  <div class="rb-line">RE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 1 subcarrier × 1 symbol = <span class="rb-val">smallest unit</span></div>
-  <div class="rb-line">RB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">12 subcarriers</span> = 360 kHz (at 30 kHz SCS)</div>
-  <div class="rb-line">Channel &nbsp;&nbsp;→ <span class="rb-val">273 RBs</span> active in 100 MHz</div>
-  <div class="rb-line">Point A &nbsp;&nbsp;→ <span class="rb-val">3496.38 MHz</span> (absolute frequency reference)</div>
-  <div class="rb-line">BWP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ subset of RBs, only <span class="rb-val">1 active</span> per direction at a time</div>
+  <div class="rb-line">RE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">1 SC × 1 symbol</span> — smallest unit</div>
+  <div class="rb-line">RB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">12 SC</span> = 360 kHz at 30 kHz SCS</div>
+  <div class="rb-line">Channel &nbsp;→ <span class="rb-val">273 active RBs</span> in 100 MHz</div>
+  <div class="rb-line">Point A &nbsp;→ <span class="rb-val">3496.38 MHz</span> — absolute reference</div>
+  <div class="rb-line">BWP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ subset of RBs, <span class="rb-val">1 active</span> per direction</div>
 </div>
 
-</div><!-- content -->
+</div>
 
 <div class="page-nav">
-  <a href="1-2-numerology.html">
-    <span class="pn-label">← Previous</span>
-    <span class="pn-title">Numerology & Frame Structure</span>
-  </a>
-  <a href="../module2/2-1-gscn.html" class="next">
-    <span class="pn-label">Next →</span>
-    <span class="pn-title">GSCN & Frequency Raster</span>
-  </a>
+  <a href="1-2-numerology.html"><span class="pn-label">← Previous</span><span class="pn-title">Numerology & Frame Structure</span></a>
+  <a href="../module2/2-1-gscn.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">GSCN & Frequency Raster</span></a>
 </div>
 
 </main>
 </div>
-
 <script src="../js/main.js"></script>
 <script>
 buildSidebar('1-3-resource-grid.html');
 
-// Resource grid overview diagram
 (function(){
-  const c = document.getElementById('grid-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
+  const c=document.getElementById('grid-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
 
-  const freqPad = 80, timePad = 40;
-  const gridW = W - freqPad - 20;
-  const gridH = H - timePad - 40;
-  const startX = freqPad, startY = 40;
-
-  const nRB_show = 8, nSym = 14;
-  const rbW = gridW / (nRB_show + 0.5);
-  const symH = gridH / nSym;
-  const reW = rbW / 12;
+  const freqPad=60, timePad=36;
+  const gridW=W-freqPad-60, gridH=H-timePad-40;
+  const startX=freqPad, startY=36;
+  const nRB=8, nSym=14;
+  const rbW=gridW/nRB, symH=gridH/nSym;
+  const reW=rbW/12;
 
   // Draw REs
-  for (let rb = 0; rb < nRB_show; rb++) {
-    for (let sym = 0; sym < nSym; sym++) {
-      for (let sc = 0; sc < 12; sc++) {
-        const x = startX + rb*rbW + sc*reW;
-        const y = startY + sym*symH;
-        // Color coding
-        let fill = '#0f1118';
-        if (rb === 2 && sym >= 0 && sym <= 1) fill = '#0d2045'; // CORESET
-        if (rb === 3 && sym === 2 && sc % 4 === 1) fill = '#1a0f3d'; // DMRS
-        if (rb >= 1 && rb <= 4 && sym >= 2 && sym <= 13) {
-          if (sc % 4 === 0) fill = '#062010'; // data DMRS
-          else fill = '#062820'; // PDSCH data
-        }
-        if (rb === 0 && sym >= 4 && sym <= 7) fill = '#2d0c0c'; // reference signal
-
-        ctx.fillStyle = fill;
-        ctx.fillRect(x+0.3, y+0.3, reW-0.6, symH-0.6);
+  for(let rb=0;rb<nRB;rb++){
+    for(let sym=0;sym<nSym;sym++){
+      for(let sc=0;sc<12;sc++){
+        const x=startX+rb*rbW+sc*reW, y=startY+sym*symH;
+        let fill=C.bg2;
+        if(rb===1&&sym<=1) fill=C.blueL;           // CORESET
+        if(rb>=2&&rb<=5&&sym>=2&&sym<=13) fill=C.tealL; // PDSCH
+        if((rb===2||rb===3)&&sym>=2&&sym<=13&&sc%4===1) fill=C.purpleL; // DMRS
+        if(rb===0&&sym>=4&&sym<=7) fill=C.coralL;  // reference signal
+        ctx.fillStyle=fill; ctx.fillRect(x+0.3,y+0.3,reW-0.6,symH-0.6);
       }
     }
   }
 
   // RB borders
-  for (let rb = 0; rb <= nRB_show; rb++) {
-    const x = startX + rb * rbW;
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, startY); ctx.lineTo(x, startY+gridH); ctx.stroke();
+  for(let rb=0;rb<=nRB;rb++){
+    const x=startX+rb*rbW;
+    ctx.strokeStyle=C.border2; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(x,startY); ctx.lineTo(x,startY+gridH); ctx.stroke();
   }
   // Symbol borders
-  for (let sym = 0; sym <= nSym; sym++) {
-    const y = startY + sym * symH;
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(startX+gridW, y); ctx.stroke();
+  for(let sym=0;sym<=nSym;sym++){
+    const y=startY+sym*symH;
+    ctx.strokeStyle=C.border; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(startX,y); ctx.lineTo(startX+gridW,y); ctx.stroke();
   }
 
-  // Highlight one RE
-  ctx.strokeStyle = '#f7b731'; ctx.lineWidth = 2;
-  const reHighX = startX + 5*rbW + 3*reW;
-  const reHighY = startY + 5*symH;
-  ctx.strokeRect(reHighX, reHighY, reW, symH);
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#f7b731'; ctx.textAlign = 'left';
-  ctx.fillText('1 RE', reHighX + reW + 4, reHighY + symH/2 + 3);
+  // Highlight 1 RE
+  const reHX=startX+5*rbW+2*reW, reHY=startY+6*symH;
+  ctx.strokeStyle=C.amber; ctx.lineWidth=2;
+  ctx.strokeRect(reHX,reHY,reW,symH);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.amber; ctx.textAlign='left';
+  ctx.fillText('1 RE',reHX+reW+4,reHY+symH/2+3);
 
-  // Highlight one RB
-  ctx.strokeStyle = '#3ddbb8'; ctx.lineWidth = 1.5;
-  const rbHighX = startX + 6*rbW;
-  ctx.strokeRect(rbHighX, startY + 8*symH, rbW, 14*symH - 8*symH);
-  // Wait — show full 14 sym height for one RB
-  ctx.strokeRect(rbHighX+rbW, startY, rbW, gridH);
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#3ddbb8'; ctx.textAlign = 'left';
-  ctx.fillText('1 RB', rbHighX + rbW + 4, startY + gridH/2);
-  ctx.fillText('= 12 SC', rbHighX + rbW + 4, startY + gridH/2 + 13);
+  // Highlight 1 RB
+  ctx.strokeStyle=C.teal; ctx.lineWidth=1.5;
+  ctx.strokeRect(startX+6*rbW,startY,rbW,gridH);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.teal; ctx.textAlign='left';
+  ctx.fillText('1 RB',startX+7*rbW+4,startY+gridH/2);
+  ctx.fillText('12 SC',startX+7*rbW+4,startY+gridH/2+13);
 
   // Axes
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#6b7090';
-  // Frequency axis (vertical)
-  ctx.save(); ctx.translate(12, startY + gridH/2); ctx.rotate(-Math.PI/2);
-  ctx.textAlign = 'center';
-  ctx.fillText('← Frequency (subcarriers) →', 0, 0);
-  ctx.restore();
-  // Time axis (horizontal)
-  ctx.textAlign = 'center';
-  ctx.fillText('← Time (OFDM symbols, 1 slot = 14) →', startX + gridW/2, startY + gridH + 18);
+  ctx.save(); ctx.translate(14,startY+gridH/2); ctx.rotate(-Math.PI/2);
+  ctx.font='11px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('← Frequency (subcarriers) →',0,0); ctx.restore();
+  ctx.font='11px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('← Time (symbols, 1 slot = 14) →',startX+gridW/2,startY+gridH+18);
 
   // RB labels
-  for (let i = 0; i < nRB_show; i++) {
-    ctx.font = '9px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'center';
-    ctx.fillText('RB'+i, startX + i*rbW + rbW/2, startY - 6);
+  for(let i=0;i<nRB;i++){
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+    ctx.fillText('RB'+i,startX+i*rbW+rbW/2,startY-6);
   }
   // Symbol labels
-  for (let i = 0; i < nSym; i++) {
-    ctx.font = '9px IBM Plex Mono'; ctx.fillStyle = '#2a3a5a'; ctx.textAlign = 'right';
-    ctx.fillText(i, startX - 6, startY + i*symH + symH/2 + 3);
+  for(let i=0;i<nSym;i++){
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='right';
+    ctx.fillText(i,startX-5,startY+i*symH+symH/2+3);
   }
 
   // Legend
-  const legX = startX + nRB_show*rbW + 20, legY = startY + 10;
-  const items = [
-    { col:'#0d2045', stroke:'#6aabff', label:'PDCCH (CORESET)' },
-    { col:'#062820', stroke:'#3ddbb8', label:'PDSCH (data)' },
-    { col:'#1a0f3d', stroke:'#b39dfa', label:'DMRS' },
-    { col:'#2d0c0c', stroke:'#ff7b7b', label:'Reference signal' },
+  const legX=startX+gridW+12, legY=startY+10;
+  const items=[
+    {col:C.blueL,stroke:C.blue,label:'CORESET (PDCCH)'},
+    {col:C.tealL,stroke:C.teal,label:'PDSCH (data)'},
+    {col:C.purpleL,stroke:C.purple,label:'DMRS'},
+    {col:C.coralL,stroke:C.coral,label:'Reference signal'},
   ];
-  items.forEach((it, i) => {
-    ctx.fillStyle = it.col;
-    ctx.fillRect(legX, legY + i*22, 14, 12);
-    ctx.strokeStyle = it.stroke; ctx.lineWidth = 1;
-    ctx.strokeRect(legX, legY + i*22, 14, 12);
-    ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#8c91b0'; ctx.textAlign = 'left';
-    ctx.fillText(it.label, legX + 18, legY + i*22 + 9);
+  items.forEach((it,i)=>{
+    ctx.fillStyle=it.col; ctx.fillRect(legX,legY+i*22,14,12);
+    ctx.strokeStyle=it.stroke; ctx.lineWidth=1; ctx.strokeRect(legX,legY+i*22,14,12);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text2; ctx.textAlign='left';
+    ctx.fillText(it.label,legX+18,legY+i*22+9);
   });
 })();
 </script>

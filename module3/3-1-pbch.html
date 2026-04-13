@@ -13,7 +13,7 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 3 <span>›</span> PBCH & MIB <span>›</span> Section 3.1</div>
-  <div class="module-tag" style="background:var(--amber-d);border:1px solid rgba(247,183,49,0.25);color:var(--amber);">
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid var(--amber-m);color:var(--amber);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
     Module 3 — PBCH & MIB
   </div>
@@ -209,13 +209,13 @@ buildSidebar('3-1-pbch.html');
     ctx.fillStyle='rgba(247,183,49,0.15)';
     if(s.type==='full') ctx.fillRect(sx,startY,symW,symH);
     else{ctx.fillRect(sx,startY,56*scW,symH);ctx.fillRect(sx+183*scW,startY,57*scW,symH);}
-    ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.strokeRect(sx,startY,symW,symH);
-    ctx.font='bold 12px Fraunces';ctx.fillStyle='#f7b731';ctx.textAlign='center';
+    ctx.strokeStyle=C.border;ctx.lineWidth=1;ctx.strokeRect(sx,startY,symW,symH);
+    ctx.font='bold 12px Fraunces';ctx.fillStyle=C.amber;ctx.textAlign='center';
     ctx.fillText(s.name,sx+symW/2,startY+22);
-    ctx.font='10px IBM Plex Mono';ctx.fillStyle='#6b7090';
+    ctx.font='10px IBM Plex Mono';ctx.fillStyle=C.muted;
     if(s.type==='full') ctx.fillText('180 data + 60 DMRS',sx+symW/2,startY+44);
     else ctx.fillText('SSS center + PBCH sides',sx+symW/2,startY+44);
-    ctx.font='10px IBM Plex Mono';ctx.fillStyle='#2a3a5a';ctx.textAlign='center';
+    ctx.font='10px IBM Plex Mono';ctx.fillStyle=C.text3;ctx.textAlign='center';
     ctx.fillText(s.name+' of SSB',sx+symW/2,startY+symH+16);
   });
 })();

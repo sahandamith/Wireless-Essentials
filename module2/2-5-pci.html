@@ -13,7 +13,7 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.5</div>
-  <div class="module-tag" style="background:var(--amber-d);border:1px solid rgba(245,166,35,0.25);color:var(--amber);">
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid var(--amber-m);color:var(--amber);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
     Module 2 — Cell Search
   </div>
@@ -220,7 +220,7 @@ function calcNID() {
   const c = document.getElementById('pci-canvas');
   const ctx = c.getContext('2d');
   const W=c.width, H=c.height;
-  ctx.fillStyle='#040610'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=C.codeBg; ctx.fillRect(0,0,W,H);
   const cols=['rgba(91,156,246,0.5)','rgba(45,212,170,0.5)','rgba(245,166,35,0.5)'];
   const N=336, bw=(W-60)/N, startX=30, barH=80, startY=40;
   for(let i=0;i<N;i++){
@@ -233,17 +233,17 @@ function calcNID() {
   }
   // Our cell marker
   const hx=startX+147*bw;
-  ctx.strokeStyle='#f06b6b'; ctx.lineWidth=1.5;
+  ctx.strokeStyle=C.coral; ctx.lineWidth=1.5;
   ctx.beginPath(); ctx.moveTo(hx+bw/2,startY-8); ctx.lineTo(hx+bw/2,startY+barH+8); ctx.stroke();
-  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#f06b6b'; ctx.textAlign='center';
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.coral; ctx.textAlign='center';
   ctx.fillText('PCI 442', hx+bw/2, startY-12);
   // Axis
-  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#2a3a5a'; ctx.textAlign='left';
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
   ctx.fillText('PCI 0', startX, H-6);
   ctx.textAlign='center'; ctx.fillText('PCI 503', W/2, H-6);
   ctx.textAlign='right'; ctx.fillText('PCI 1007', W-30, H-6);
   // N1 group labels
-  ctx.fillStyle='#2a3a5a'; ctx.textAlign='center';
+  ctx.fillStyle=C.text3; ctx.textAlign='center';
   ctx.fillText('N¹_ID = 0', startX+1.5*bw, startY+barH+20);
   ctx.fillText('N¹_ID = 147', hx+bw/2, startY+barH+20);
   ctx.fillText('N¹_ID = 335', startX+335*bw, startY+barH+20);

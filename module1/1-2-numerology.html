@@ -13,13 +13,13 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 1 <span>›</span> Fundamentals <span>›</span> Section 1.2</div>
-  <div class="module-tag" style="background:var(--purple-d);border:1px solid rgba(179,157,250,0.25);color:var(--purple);">
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
     Module 1 — Fundamentals
   </div>
   <h1>Numerology &<br><em>Frame Structure</em></h1>
   <p class="hero-lead">
-    5G NR does not use a single fixed subcarrier spacing. It defines five numerologies — μ = 0 through 4 — each doubling the SCS of the previous. This section explains what numerology is, why different values exist, and how the 10 ms radio frame is divided into slots, symbols, and subframes.
+    5G NR defines five numerologies — μ = 0 through 4 — each doubling the subcarrier spacing of the previous. This section explains what numerology is, why different values exist for different scenarios, and how the 10 ms radio frame divides into subframes, slots, and symbols.
   </p>
   <div class="spec-pills">
     <span class="spec-pill">TS 38.211 §4.2</span>
@@ -32,7 +32,7 @@
 
 <h2>What is numerology?</h2>
 <p>
-  In 5G NR, <strong>numerology</strong> refers to the subcarrier spacing (SCS) and its consequences — symbol duration, CP length, slot duration, and number of slots per subframe. All of these scale together based on a single parameter: <strong>μ (mu)</strong>.
+  In 5G NR, <strong>numerology</strong> refers to the subcarrier spacing and all quantities that scale with it — symbol duration, CP length, and slot duration. All are controlled by a single parameter <strong>μ (mu)</strong>. Doubling μ doubles the SCS and halves the symbol duration.
 </p>
 
 <div class="gpp-quote reveal">
@@ -41,10 +41,6 @@
   </div>
   <div class="gpp-source">3GPP TS 38.211, Section 4.2</div>
 </div>
-
-<p>
-  Each increase in μ doubles the subcarrier spacing, which halves the symbol duration. This scales all time-domain quantities together while keeping the FFT structure consistent.
-</p>
 </div>
 
 <div class="diagram-section reveal">
@@ -55,41 +51,14 @@
   <div class="ds-body" style="padding:16px 20px;">
     <table class="seq-table">
       <thead>
-        <tr>
-          <th>μ</th>
-          <th>SCS (kHz)</th>
-          <th>Symbol duration</th>
-          <th>CP duration (normal)</th>
-          <th>Slot duration</th>
-          <th>Slots/subframe</th>
-          <th>Use case</th>
-        </tr>
+        <tr><th>μ</th><th>SCS (kHz)</th><th>Symbol duration</th><th>CP (normal)</th><th>Slot duration</th><th>Slots/subframe</th><th>Typical use</th></tr>
       </thead>
       <tbody>
-        <tr>
-          <td class="t-pos">0</td><td>15</td><td>66.67 μs</td><td>4.69 μs</td><td>1 ms</td><td>1</td>
-          <td style="color:var(--text3);">LTE compat, FR1 data</td>
-        </tr>
-        <tr class="hl">
-          <td class="t-pos">1</td><td style="color:var(--amber)">30</td>
-          <td style="color:var(--amber)">33.33 μs</td>
-          <td style="color:var(--amber)">2.34 μs</td>
-          <td style="color:var(--amber)">0.5 ms</td>
-          <td style="color:var(--amber)">2</td>
-          <td style="color:var(--amber)">← our example (n78)</td>
-        </tr>
-        <tr>
-          <td class="t-pos">2</td><td>60</td><td>16.67 μs</td><td>1.17 μs</td><td>0.25 ms</td><td>4</td>
-          <td style="color:var(--text3);">FR1 high BW, FR2</td>
-        </tr>
-        <tr>
-          <td class="t-pos">3</td><td>120</td><td>8.33 μs</td><td>0.59 μs</td><td>0.125 ms</td><td>8</td>
-          <td style="color:var(--text3);">FR2 (mmWave) data</td>
-        </tr>
-        <tr>
-          <td class="t-pos">4</td><td>240</td><td>4.17 μs</td><td>0.29 μs</td><td>0.0625 ms</td><td>16</td>
-          <td style="color:var(--text3);">FR2 reference signals only</td>
-        </tr>
+        <tr><td class="t-pos">0</td><td>15</td><td>66.67 μs</td><td>4.69 μs</td><td>1 ms</td><td>1</td><td style="color:var(--text3)">LTE-compatible, FR1</td></tr>
+        <tr class="hl"><td class="t-pos">1</td><td>30</td><td>33.33 μs</td><td>2.34 μs</td><td>0.5 ms</td><td>2</td><td>← our example (n78)</td></tr>
+        <tr><td class="t-pos">2</td><td>60</td><td>16.67 μs</td><td>1.17 μs</td><td>0.25 ms</td><td>4</td><td style="color:var(--text3)">FR1 high BW, FR2</td></tr>
+        <tr><td class="t-pos">3</td><td>120</td><td>8.33 μs</td><td>0.59 μs</td><td>0.125 ms</td><td>8</td><td style="color:var(--text3)">FR2 mmWave data</td></tr>
+        <tr><td class="t-pos">4</td><td>240</td><td>4.17 μs</td><td>0.29 μs</td><td>0.0625 ms</td><td>16</td><td style="color:var(--text3)">FR2 reference signals</td></tr>
       </tbody>
     </table>
   </div>
@@ -98,25 +67,22 @@
 <div class="prose">
 <h2>Why different numerologies?</h2>
 <p>
-  No single SCS is optimal for all scenarios. The choice involves a trade-off between two competing requirements:
+  The choice of SCS is a trade-off between two competing factors:
 </p>
 <p>
-  <strong>Large cells (sub-6 GHz, wide coverage):</strong> Long delay spreads (up to 10–20 μs) require a long CP, which means long symbols (low SCS, μ=0 or 1). Phase noise is low at these frequencies, so narrow subcarriers are fine.
+  <strong>Large cells, low frequencies (FR1):</strong> Delay spreads can reach 10–20 μs. A long CP is needed, which means long symbols (low SCS). Phase noise is low at these frequencies, so narrow subcarriers work fine.
 </p>
 <p>
-  <strong>mmWave (FR2, small cells):</strong> Delay spreads are short (0.1–1 μs) but <strong>phase noise</strong> is severe. Phase noise rotates subcarriers and causes inter-carrier interference — the fix is wider subcarriers (higher SCS, μ=3 or 4). Wider subcarriers also mean shorter symbols, which reduces latency.
+  <strong>mmWave, small cells (FR2):</strong> Delay spreads are tiny (0.1–1 μs) but <strong>phase noise</strong> is severe. Phase noise rotates subcarriers causing inter-carrier interference — wider SCS reduces this effect. Shorter symbols also mean lower latency.
 </p>
 
 <div class="key-callout reveal">
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">Low μ</div><div class="kc-label">large cells, low freq</div><div class="kc-desc">Long CP absorbs delay spread. Low phase noise tolerates narrow SCS.</div></div>
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">μ = 1</div><div class="kc-label">our example (n78)</div><div class="kc-desc">30 kHz SCS. 0.5 ms slots. Good balance for 3.5 GHz FR1.</div></div>
-  <div class="key-callout-item"><div class="kc-num" style="color:var(--coral)">High μ</div><div class="kc-label">mmWave (FR2)</div><div class="kc-desc">Wide SCS tolerates phase noise. Short CP ok — delay spread is tiny.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">Low μ</div><div class="kc-label">large cells, FR1</div><div class="kc-desc">Long CP absorbs delay spread. Low phase noise tolerates narrow SCS.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">μ = 1</div><div class="kc-label">our example (n78)</div><div class="kc-desc">30 kHz. 0.5 ms slots. Good balance for 3.5 GHz.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--coral)">High μ</div><div class="kc-label">mmWave FR2</div><div class="kc-desc">Wide SCS tolerates phase noise. Short CP is fine — tiny delay spread.</div></div>
 </div>
 
 <h2>Radio frame structure</h2>
-<p>
-  The 5G NR time axis is organized into a hierarchy of fixed-duration units. The <strong>radio frame</strong> is the top level, always 10 ms, regardless of numerology.
-</p>
 
 <div class="gpp-quote reveal">
   <div class="gpp-text">
@@ -128,218 +94,171 @@
 
 <div class="diagram-section reveal">
   <div class="ds-header">
-    <span class="ds-title">Frame hierarchy — μ = 1 (30 kHz SCS), our n78 example</span>
+    <span class="ds-title">Frame hierarchy — μ = 1 (30 kHz SCS)</span>
     <span class="ds-ref">TS 38.211 §4.3.2</span>
   </div>
   <div class="ds-body">
-    <canvas id="frame-canvas" width="920" height="260" style="width:100%;"></canvas>
+    <canvas id="frame-canvas" width="900" height="260" style="width:100%;"></canvas>
   </div>
 </div>
 
 <div class="prose">
-<h2>SFN — System Frame Number</h2>
-<p>
-  Radio frames are numbered sequentially using the <strong>System Frame Number (SFN)</strong>. SFN counts from 0 to 1023, then wraps back to 0. The full cycle is 1024 × 10 ms = <strong>10.24 seconds</strong>.
-</p>
-<p>
-  The SFN is critical for system timing. Scheduling, paging occasions, measurement gaps, SIB transmissions — all are defined relative to SFN and slot number. When a UE decodes the MIB, reconstructing the full SFN is one of the first things it does.
-</p>
-
 <h2>Slot structure — 14 symbols</h2>
 <p>
-  Every slot contains <strong>14 OFDM symbols</strong> (for normal CP). Symbols within a slot are numbered 0–13. Symbol 0 has a slightly longer CP (160 samples vs 144) to maintain slot timing alignment across subframes.
+  Every slot contains <strong>14 OFDM symbols</strong>. Symbol 0 has a slightly longer CP (160 vs 144 samples) to keep cumulative slot timing aligned across subframes.
 </p>
 </div>
 
 <div class="diagram-section reveal">
   <div class="ds-header">
-    <span class="ds-title">Slot structure — 14 symbols, μ = 1 (30 kHz)</span>
+    <span class="ds-title">Slot — 14 symbols, μ = 1</span>
     <span class="ds-ref">TS 38.211 §4.3.2</span>
   </div>
   <div class="ds-body">
-    <canvas id="slot-canvas" width="920" height="120" style="width:100%;"></canvas>
-    <div style="margin-top:14px;display:flex;gap:20px;font-family:var(--mono);font-size:11px;flex-wrap:wrap;">
-      <span style="color:var(--amber)">■ Symbol 0 — longer CP (160 samples = 2.60 μs)</span>
-      <span style="color:var(--teal)">■ Symbols 1–13 — normal CP (144 samples = 2.34 μs)</span>
-      <span style="color:var(--text3)">Total slot = 0.5 ms = 30,720 samples @ 61.44 Msps</span>
+    <canvas id="slot-canvas" width="900" height="100" style="width:100%;"></canvas>
+    <div style="margin-top:12px;display:flex;gap:20px;font-family:var(--mono);font-size:11px;flex-wrap:wrap;">
+      <span style="color:var(--amber)">■ Symbol 0 — longer CP: 160 samples = 2.60 μs</span>
+      <span style="color:var(--teal)">■ Symbols 1–13 — normal CP: 144 samples = 2.34 μs</span>
     </div>
   </div>
 </div>
 
-<div class="prose">
-<h2>Complete timing numbers — μ = 1</h2>
-</div>
-
 <div class="code-block reveal">
-  <div class="cb-header"><span>Full timing hierarchy — μ = 1, SCS = 30 kHz</span><span class="cb-ref">TS 38.211 §4.3.2</span></div>
-  <pre><span class="c">// Frame structure</span>
-Radio frame  = <span class="r">10 ms</span>   = 10 subframes  = 20 slots   = 280 symbols
-Subframe     = <span class="r">1 ms</span>    = 2 slots       = 28 symbols
-Slot         = <span class="r">0.5 ms</span>  = 14 symbols    = 30,720 samples @ 61.44 Msps
+  <div class="cb-header"><span>Complete timing — μ = 1, SCS = 30 kHz</span><span class="cb-ref">TS 38.211 §4.3.2</span></div>
+  <pre><span class="c">// Frame hierarchy</span>
+Radio frame  = <span class="r">10 ms</span>    = 10 subframes = 20 slots = 280 symbols
+Subframe     = <span class="r">1 ms</span>     = 2 slots      = 28 symbols
+Slot         = <span class="r">0.5 ms</span>   = 14 symbols   = 30,720 samples @ 61.44 Msps
 Symbol 0     = <span class="n">2208</span> samples (160 CP + 2048 useful) = <span class="r">35.94 μs</span>
-Symbol 1–13  = <span class="n">2192</span> samples (144 CP + 2048 useful) = <span class="r">35.68 μs</span>
+Symbols 1–13 = <span class="n">2192</span> samples (144 CP + 2048 useful) = <span class="r">35.68 μs</span>
 
 <span class="c">// SFN</span>
-SFN range    = 0..1023  (10 bits)
-Full cycle   = 1024 × 10 ms = <span class="r">10.24 seconds</span>
+SFN range = 0..1023  →  full cycle = 1024 × 10 ms = <span class="r">10.24 seconds</span>
 
-<span class="c">// Absolute slot number within radio frame</span>
-Slot n within SFN k:
-  n_s,f^μ ∈ {0, 1, ..., 2^μ × 10 − 1}
-  For μ=1: n_s,f^1 ∈ {0, 1, ..., 19}   (20 slots per frame)
-
-<span class="c">// Our PSS example:</span>
-SFN = <span class="n">565</span>, slot = <span class="n">2</span>
-Absolute time = <span class="n">565</span> × <span class="n">10</span> ms + <span class="n">2</span> × <span class="n">0.5</span> ms = <span class="r">5651 ms</span> since SFN=0</pre>
+<span class="c">// Slots per frame for each μ:</span>
+μ=0: <span class="n">10</span> slots/frame  |  μ=1: <span class="n">20</span>  |  μ=2: <span class="n">40</span>  |  μ=3: <span class="n">80</span>  |  μ=4: <span class="n">160</span></pre>
 </div>
 
 <div class="result-box reveal">
   <div class="rb-title">Frame structure — μ = 1 key facts</div>
-  <div class="rb-line">SCS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">30 kHz</span> (Δf = 2¹ × 15 kHz)</div>
-  <div class="rb-line">Slot duration → <span class="rb-val">0.5 ms</span> (2 slots per 1 ms subframe)</div>
-  <div class="rb-line">Symbols/slot &nbsp;→ <span class="rb-val">14</span> (normal CP)</div>
-  <div class="rb-line">Slots/frame &nbsp;&nbsp;→ <span class="rb-val">20</span> (2^μ × 10)</div>
-  <div class="rb-line">SFN period &nbsp;&nbsp;&nbsp;→ <span class="rb-val">10.24 s</span> (1024 frames)</div>
+  <div class="rb-line">SCS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">30 kHz</span> (= 2¹ × 15 kHz)</div>
+  <div class="rb-line">Slot duration → <span class="rb-val">0.5 ms</span></div>
+  <div class="rb-line">Symbols/slot &nbsp;→ <span class="rb-val">14</span></div>
+  <div class="rb-line">Slots/frame &nbsp;&nbsp;→ <span class="rb-val">20</span></div>
+  <div class="rb-line">SFN period &nbsp;&nbsp;&nbsp;→ <span class="rb-val">10.24 s</span></div>
 </div>
 
-</div><!-- content -->
+</div>
 
 <div class="page-nav">
-  <a href="1-1-ofdm.html">
-    <span class="pn-label">← Previous</span>
-    <span class="pn-title">OFDM & Multicarrier</span>
-  </a>
-  <a href="1-3-resource-grid.html" class="next">
-    <span class="pn-label">Next →</span>
-    <span class="pn-title">Resource Grid</span>
-  </a>
+  <a href="1-1-ofdm.html"><span class="pn-label">← Previous</span><span class="pn-title">OFDM & Multicarrier</span></a>
+  <a href="1-3-resource-grid.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Resource Grid</span></a>
 </div>
 
 </main>
 </div>
-
 <script src="../js/main.js"></script>
 <script>
 buildSidebar('1-2-numerology.html');
 
-// Frame hierarchy diagram
+// Frame hierarchy
 (function(){
-  const c = document.getElementById('frame-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
+  const c=document.getElementById('frame-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+  const PAD=20, totalW=W-PAD*2;
 
-  const PAD = 20;
-  const totalW = W - PAD*2;
-
-  // Row 1: Frame (10ms)
-  const r1y = 20, r1h = 44;
-  ctx.fillStyle = '#0d0f1c';
-  ctx.strokeStyle = '#6aabff'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.roundRect(PAD, r1y, totalW, r1h, 6); ctx.fill(); ctx.stroke();
-  ctx.font = 'bold 13px Fraunces'; ctx.fillStyle = '#6aabff'; ctx.textAlign = 'center';
-  ctx.fillText('Radio Frame — 10 ms (SFN = 565)', PAD + totalW/2, r1y + 28);
+  // Row 1: Frame
+  ctx.fillStyle=C.blueL; roundRect(ctx,PAD,20,totalW,40,6); ctx.fill();
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1.5; roundRect(ctx,PAD,20,totalW,40,6); ctx.stroke();
+  ctx.font='bold 13px Fraunces'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('Radio Frame — 10 ms (SFN = 565)',PAD+totalW/2,46);
 
   // Row 2: 10 subframes
-  const r2y = 76, r2h = 38;
-  const sfW = (totalW - 9) / 10;
-  for (let i = 0; i < 10; i++) {
-    const x = PAD + i * (sfW + 1);
-    ctx.fillStyle = i % 2 === 0 ? '#0f1118' : '#141720';
-    ctx.beginPath(); ctx.roundRect(x, r2y, sfW, r2h, 3); ctx.fill();
-    ctx.strokeStyle = '#2a3a5a'; ctx.lineWidth = 0.5;
-    ctx.beginPath(); ctx.roundRect(x, r2y, sfW, r2h, 3); ctx.stroke();
-    ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#3a4a6a'; ctx.textAlign = 'center';
-    ctx.fillText('sf'+i, x+sfW/2, r2y+r2h/2+4);
-  }
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#6b7090'; ctx.textAlign = 'left';
-  ctx.fillText('← 10 subframes × 1 ms each →', PAD, r2y - 6);
-
-  // Row 3: Zoom into subframe 0 → 2 slots
-  const r3y = 130, r3h = 38;
-  const sfZoomW = sfW; // zoom into first subframe width
-  const slotW = (totalW/5 - 2) / 2;
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#6b7090'; ctx.textAlign = 'left';
-  ctx.fillText('Subframe 0 expanded (1 ms = 2 slots):', PAD, r3y - 6);
-
-  const slotColors = ['#0d2045', '#062820'];
-  for (let s = 0; s < 2; s++) {
-    const x = PAD + s * (totalW/2);
-    ctx.fillStyle = slotColors[s];
-    ctx.beginPath(); ctx.roundRect(x, r3y, totalW/2 - 4, r3h, 4); ctx.fill();
-    ctx.strokeStyle = s === 0 ? '#6aabff' : '#3ddbb8'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.roundRect(x, r3y, totalW/2 - 4, r3h, 4); ctx.stroke();
-    ctx.font = '11px IBM Plex Mono'; ctx.fillStyle = s === 0 ? '#6aabff' : '#3ddbb8'; ctx.textAlign = 'center';
-    ctx.fillText('Slot ' + s + ' — 0.5 ms — 14 symbols', x + (totalW/2-4)/2, r3y + r3h/2 + 4);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('10 subframes × 1 ms:',PAD,80);
+  const sfW=(totalW-9)/10;
+  for(let i=0;i<10;i++){
+    const x=PAD+i*(sfW+1);
+    ctx.fillStyle=i%2===0?C.bg2:C.bg3; roundRect(ctx,x,86,sfW,36,3); ctx.fill();
+    ctx.strokeStyle=C.border2; ctx.lineWidth=0.5; roundRect(ctx,x,86,sfW,36,3); ctx.stroke();
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+    ctx.fillText('sf'+i,x+sfW/2,110);
   }
 
-  // Row 4: Zoom into slot 0 → 14 symbols
-  const r4y = 186, r4h = 38;
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#6b7090'; ctx.textAlign = 'left';
-  ctx.fillText('Slot 0 expanded (0.5 ms = 14 symbols):', PAD, r4y - 6);
-  const symW = (totalW - 13) / 14;
-  for (let sym = 0; sym < 14; sym++) {
-    const x = PAD + sym * (symW + 1);
-    ctx.fillStyle = sym === 0 ? '#2d1d04' : '#062820';
-    ctx.beginPath(); ctx.roundRect(x, r4y, symW, r4h, 2); ctx.fill();
-    ctx.strokeStyle = sym === 0 ? '#f7b731' : '#3ddbb8'; ctx.lineWidth = 0.8;
-    ctx.beginPath(); ctx.roundRect(x, r4y, symW, r4h, 2); ctx.stroke();
-    if (symW > 20) {
-      ctx.font = '9px IBM Plex Mono'; ctx.fillStyle = sym===0?'#f7b731':'#3ddbb8'; ctx.textAlign='center';
-      ctx.fillText(sym, x+symW/2, r4y+r4h/2+3);
+  // Row 3: 2 slots zoomed from sf0
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('Subframe 0 expanded → 2 slots:',PAD,144);
+  for(let s=0;s<2;s++){
+    const x=PAD+s*(totalW/2);
+    ctx.fillStyle=s===0?C.blueL:C.tealL;
+    roundRect(ctx,x,150,totalW/2-4,36,4); ctx.fill();
+    ctx.strokeStyle=s===0?C.blue:C.teal; ctx.lineWidth=1;
+    roundRect(ctx,x,150,totalW/2-4,36,4); ctx.stroke();
+    ctx.font='11px IBM Plex Mono'; ctx.fillStyle=s===0?C.blue:C.teal; ctx.textAlign='center';
+    ctx.fillText('Slot '+s+' — 0.5 ms — 14 symbols',x+(totalW/2-4)/2,174);
+  }
+
+  // Row 4: 14 symbols from slot 0
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('Slot 0 expanded → 14 symbols:',PAD,208);
+  const symW=(totalW-13)/14;
+  for(let sym=0;sym<14;sym++){
+    const x=PAD+sym*(symW+1);
+    ctx.fillStyle=sym===0?C.amberL:C.tealL;
+    roundRect(ctx,x,214,symW,36,2); ctx.fill();
+    ctx.strokeStyle=sym===0?C.amber:C.teal; ctx.lineWidth=0.8;
+    roundRect(ctx,x,214,symW,36,2); ctx.stroke();
+    if(symW>16){
+      ctx.font='9px IBM Plex Mono'; ctx.fillStyle=sym===0?C.amber:C.teal; ctx.textAlign='center';
+      ctx.fillText(sym,x+symW/2,237);
     }
   }
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#f7b731'; ctx.textAlign = 'left';
-  ctx.fillText('sym 0: CP=160', PAD, r4y+r4h+14);
-  ctx.fillStyle = '#3ddbb8';
-  ctx.fillText('sym 1–13: CP=144', PAD+120, r4y+r4h+14);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
 })();
 
-// Slot structure diagram
+// Slot structure
 (function(){
-  const c = document.getElementById('slot-canvas');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
-  const PAD = 20, slotH = 60, startY = 28;
+  const c=document.getElementById('slot-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+  const PAD=20, slotH=52, startY=22;
+  const totalSamples=2208+13*2192;
+  const totalW=W-PAD*2;
 
-  // Full slot bar background
-  const totalSamples = 2208 + 13*2192; // 30720
-  const totalW = W - PAD*2;
+  for(let i=0;i<14;i++){
+    const samps=i===0?2208:2192;
+    const cpSamps=i===0?160:144;
+    const w=(samps/totalSamples)*totalW;
+    const cpW=(cpSamps/samps)*w;
+    const x=PAD+(i===0?0:2208/totalSamples*totalW+(i-1)*2192/totalSamples*totalW);
 
-  function symX(i) {
-    let s = 0;
-    for (let j = 0; j < i; j++) s += (j === 0 ? 2208 : 2192);
-    return PAD + (s / totalSamples) * totalW;
+    // Recalculate x correctly
+    let xPos=PAD;
+    for(let j=0;j<i;j++) xPos+=(j===0?2208:2192)/totalSamples*totalW;
+
+    // CP
+    ctx.fillStyle=i===0?C.amberL:C.blueL;
+    ctx.fillRect(xPos,startY,cpW,slotH);
+    ctx.strokeStyle=i===0?C.amber:C.blue; ctx.lineWidth=0.8;
+    ctx.strokeRect(xPos,startY,cpW,slotH);
+
+    // Useful
+    ctx.fillStyle=i===0?'#fef9ee':C.tealL;
+    ctx.fillRect(xPos+cpW,startY,w-cpW,slotH);
+    ctx.strokeStyle=i===0?C.amber:C.teal; ctx.lineWidth=0.8;
+    ctx.strokeRect(xPos+cpW,startY,w-cpW,slotH);
+
+    if(w>18){
+      ctx.font='9px IBM Plex Mono'; ctx.fillStyle=i===0?C.amber:C.teal; ctx.textAlign='center';
+      ctx.fillText(i,xPos+w/2,startY+slotH/2+3);
+    }
   }
-  function symW(i) { return ((i===0?2208:2192) / totalSamples) * totalW; }
-
-  for (let i = 0; i < 14; i++) {
-    const x = symX(i), w = symW(i);
-    // CP part
-    const cpFrac = (i===0?160:144) / (i===0?2208:2192);
-    const cpW = w * cpFrac;
-    ctx.fillStyle = i===0 ? '#2d1d04' : '#0d2045';
-    ctx.fillRect(x, startY, cpW, slotH);
-    ctx.strokeStyle = i===0 ? '#f7b731' : '#6aabff'; ctx.lineWidth = 0.8;
-    ctx.strokeRect(x, startY, cpW, slotH);
-
-    // Useful part
-    ctx.fillStyle = i===0 ? '#062010' : '#062820';
-    ctx.fillRect(x+cpW, startY, w-cpW, slotH);
-    ctx.strokeStyle = i===0 ? '#3ddbb8' : '#3ddbb8'; ctx.lineWidth = 0.8;
-    ctx.strokeRect(x+cpW, startY, w-cpW, slotH);
-
-    // Symbol number
-    ctx.font = '9px IBM Plex Mono'; ctx.fillStyle = i===0?'#f7b731':'#3ddbb8'; ctx.textAlign='center';
-    ctx.fillText(i, x+w/2, startY+slotH/2+3);
-  }
-
-  // Labels
-  ctx.font = '10px IBM Plex Mono'; ctx.fillStyle = '#6b7090'; ctx.textAlign='left';
-  ctx.fillText('← Slot 0 — 0.5 ms — 30,720 samples →', PAD, startY-8);
-  ctx.fillStyle = '#f7b731';
-  ctx.fillText('CP', PAD+2, startY+slotH+16);
-  ctx.fillStyle = '#3ddbb8';
-  ctx.fillText('Useful (2048 samp)', PAD+24, startY+slotH+16);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('← Slot: 0.5 ms, 30,720 samples →',PAD,startY-6);
 })();
 </script>
 </body>

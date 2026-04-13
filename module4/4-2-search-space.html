@@ -10,28 +10,161 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 4 <span>›</span> Section 4.2</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 4 — Coming Soon
+  <div class="breadcrumb">Module 4 <span>›</span> Control Channels <span>›</span> Section 4.2</div>
+  <div class="module-tag" style="background:var(--teal-l);border:1px solid var(--teal-m);color:var(--teal);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;"></span>
+    Module 4 — Control Channels
   </div>
-  <h1>Search Space#0</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>Search Space#0 —<br><em>When to monitor CORESET#0</em></h1>
+  <p class="hero-lead">
+    CORESET#0 tells the UE where to look for PDCCH. Search Space#0 tells it when. From the 4-bit searchSpaceZero index in the MIB, the UE derives a precise monitoring schedule — which slots, which symbols, how many candidates to try. This section derives the full schedule for our example.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.213 §13</span>
+    <span class="spec-pill">TS 38.213 §10.1</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">Table 13-11 lookup</div>
-<div class="topic-item">Monitoring period and slot offset</div>
-<div class="topic-item">PDCCH candidates per aggregation level</div>
-<div class="topic-item">Monitoring occasion timeline</div>
+<div class="prose">
+
+<h2>Search Space concept</h2>
+<p>
+  The UE cannot monitor CORESET#0 every symbol — that would waste power and processing. Instead, the network defines a <strong>Search Space</strong>: a periodic schedule of <em>monitoring occasions</em> when the UE must check for PDCCH.
+</p>
+<p>
+  Think of it like a scheduled inspection: "Check the noticeboard every Monday at 9am." The UE shows up at exactly those times, tries to decode every candidate PDCCH it might find there, and moves on.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    A search space set is defined by monitoring occasions, the number of PDCCH candidates per aggregation level, and the PDCCH DCI formats. A UE monitors PDCCH candidates in the search space set on the monitoring occasions as defined for the search space set configuration.
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 10.1</div>
+</div>
+
+<h2>Table 13-11 lookup</h2>
+<p>
+  Our <code>searchSpaceZero</code> index = <strong>2</strong> (from MIB bits [16:19] = 0010). We look this up in TS 38.213 Table 13-11, using CORESET#0 duration = 2 symbols (from section 4.1).
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">TS 38.213 Table 13-11 — searchSpaceZero index = 2, CORESET duration = 2</span>
+    <span class="ds-ref">TS 38.213 §13, Table 13-11</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Index</th><th>Period (slots)</th><th>Slot offset</th><th>First symbol</th><th>AL=4 candidates</th><th>AL=8 candidates</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">0</td><td>20</td><td>0</td><td>0</td><td>4</td><td>2</td></tr>
+        <tr><td class="t-pos">1</td><td>20</td><td>0</td><td>0</td><td>4</td><td>2</td></tr>
+        <tr class="hl"><td class="t-pos">2 ← ours</td><td class="t-vp">20</td><td class="t-vp">2</td><td class="t-vp">0</td><td class="t-vp">4</td><td class="t-vp">2</td></tr>
+        <tr><td class="t-pos">3</td><td>20</td><td>2</td><td>0</td><td>4</td><td>2</td></tr>
+        <tr><td class="t-pos">4</td><td>20</td><td>5</td><td>0</td><td>4</td><td>2</td></tr>
+        <tr><td class="t-pos">5</td><td>20</td><td>5</td><td>0</td><td>4</td><td>2</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:14px;font-family:var(--mono);font-size:13px;color:var(--text2);">
+      Index 2 → <strong style="color:var(--blue)">period = 20 slots</strong>, <strong style="color:var(--teal)">slot offset = 2</strong>, <strong style="color:var(--amber)">first symbol = 0</strong>, candidates: <strong style="color:var(--purple)">4 at AL=4, 2 at AL=8</strong>
     </div>
   </div>
 </div>
+
+<div class="prose">
+<h2>Converting to actual slot numbers</h2>
+<p>
+  With 30 kHz SCS, there are <strong>20 slots per 10 ms half-frame</strong>. A period of 20 slots = 10 ms. The slot offset = 2 means the UE monitors slot 2 in each period.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Search Space#0 monitoring schedule — SCS = 30 kHz</span><span class="cb-ref">TS 38.213 §13</span></div>
+  <pre><span class="c">// Period = 20 slots × 0.5 ms per slot = 10 ms</span>
+<span class="c">// Offset = 2 → monitor slot 2 in each period</span>
+
+Monitoring occasions (slot numbers within radio frame):
+  Slot <span class="r">2</span>    →  t = SFN×10ms + 2×0.5ms  = 5651.0 ms (our SFN=565)
+  Slot <span class="r">22</span>   →  t = SFN×10ms + 22×0.5ms = 5661.0 ms
+  Slot <span class="r">42</span>   →  (next frame)
+  ...every 10 ms...
+
+<span class="c">// Within each monitoring slot:</span>
+Symbol = <span class="r">0</span>  (first symbol of slot)
+CORESET#0 occupies symbols 0 and 1
+
+<span class="c">// At each occasion, UE tries:</span>
+4 candidates at AL=4  →  each uses 4 CCEs
+2 candidates at AL=8  →  each uses 8 CCEs (= all 8 CCEs in CORESET#0)
+Total = <span class="r">6 blind decoding attempts</span> per occasion</pre>
+</div>
+
+<div class="prose">
+<h2>Monitoring occasion timeline</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Search Space#0 monitoring occasions — 10 ms period</span>
+    <span class="ds-ref">TS 38.213 §13, Table 13-11</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="ss-timeline-canvas" width="900" height="160" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>What happens at each monitoring occasion</h2>
+<p>
+  At each monitoring occasion, the UE performs <strong>blind decoding</strong>: it tries all 6 candidate PDCCH positions, decodes each one, and checks the CRC. If one passes, that is the PDCCH scheduling SIB1.
+</p>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Wait for monitoring slot (slot 2)</div>
+      <div class="step-text">UE waits until SFN=565, slot=2. This is the first Search Space#0 occasion after SIB1 decoding begins. t = 5651.0 ms from start of the SFN cycle.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Extract CORESET#0 symbols 0 and 1</div>
+      <div class="step-text">UE extracts the 24 RBs × 2 symbols of CORESET#0 from the received signal. This is the search space — the UE processes only these frequency-time resources.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);">3</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Try 4 candidates at AL=4</div>
+      <div class="step-text">AL=4 means each candidate uses 4 CCEs. With 8 total CCEs, possible AL=4 positions are: CCE{0,1,2,3}, CCE{2,3,4,5}, CCE{4,5,6,7}, CCE{0,2,4,6} (interleaved). UE decodes each and checks CRC.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--purple-l);color:var(--purple);border:1px solid var(--purple-m);">4</div></div>
+    <div class="step-body">
+      <div class="step-title">Try 2 candidates at AL=8</div>
+      <div class="step-text">AL=8 means each candidate uses all 8 CCEs. With 8 CCEs available, there is effectively only 1 unique position: CCE{0..7}. Both candidates test this position under different hypotheses. CRC pass → PDCCH found.</div>
+    </div>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Search Space#0 — complete schedule</div>
+  <div class="rb-line">Monitoring period &nbsp;&nbsp;→ <span class="rb-val">every 20 slots = 10 ms</span></div>
+  <div class="rb-line">First occasion &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">slot 2</span> (offset = 2)</div>
+  <div class="rb-line">Symbol position &nbsp;&nbsp;&nbsp;→ <span class="rb-val">symbol 0</span></div>
+  <div class="rb-line">Total candidates &nbsp;&nbsp;→ <span class="rb-val">6</span> (4 at AL=4 + 2 at AL=8)</div>
+  <div class="rb-line">DCI format &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">1_0 with SI-RNTI</span> (see next section)</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="4-1-coreset.html"><span class="pn-label">← Previous</span><span class="pn-title">CORESET#0 Derivation</span></a>
   <a href="4-3-blind-decoding.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Blind Decoding</span></a>
@@ -39,6 +172,51 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('4-2-search-space.html');</script>
+<script>
+buildSidebar('4-2-search-space.html');
+
+// Timeline diagram
+(function(){
+  const c=document.getElementById('ss-timeline-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=40, slotW=(W-PAD*2)/20, startY=38, barH=44;
+
+  // Draw 20 slots
+  for(let s=0;s<20;s++){
+    const x=PAD+s*slotW;
+    const isMonitor=(s===2);
+    ctx.fillStyle=isMonitor?C.tealL:C.bg2;
+    ctx.fillRect(x+1,startY,slotW-2,barH);
+    ctx.strokeStyle=isMonitor?C.teal:C.border; ctx.lineWidth=isMonitor?1.5:0.5;
+    ctx.strokeRect(x+1,startY,slotW-2,barH);
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=isMonitor?C.teal:C.muted; ctx.textAlign='center';
+    ctx.fillText(s,x+slotW/2,startY+barH/2+3);
+  }
+
+  // Next period
+  ctx.fillStyle=C.bg3;
+  ctx.fillRect(W-PAD+2,startY-6,30,barH+12); // overlap indicator
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
+  ctx.fillText('→ next period',W-PAD+4,startY+barH/2+3);
+
+  // Monitoring occasion label
+  const monX=PAD+2*slotW+slotW/2;
+  ctx.strokeStyle=C.teal; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(monX,startY-2); ctx.lineTo(monX,startY-18); ctx.stroke();
+  ctx.font='bold 11px Fraunces'; ctx.fillStyle=C.teal; ctx.textAlign='center';
+  ctx.fillText('Monitoring occasion',monX,startY-22);
+  ctx.font='10px IBM Plex Mono';
+  ctx.fillText('slot 2, symbol 0',monX,startY-10);
+
+  // Labels
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
+  ctx.fillText('← 10 ms period = 20 slots (30 kHz SCS) →',PAD,startY+barH+18);
+  ctx.textAlign='right';
+  ctx.fillText('Slots 22, 42, 62... follow same pattern',W-PAD,startY+barH+18);
+})();
+</script>
 </body>
 </html>

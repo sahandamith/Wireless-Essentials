@@ -13,7 +13,7 @@
 
 <div class="hero">
   <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.4</div>
-  <div class="module-tag" style="background:var(--teal-d);border:1px solid rgba(45,212,170,0.25);color:var(--teal);">
+  <div class="module-tag" style="background:var(--teal-l);border:1px solid var(--teal-m);color:var(--teal);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;"></span>
     Module 2 — Cell Search
   </div>
@@ -182,7 +182,7 @@ buildSidebar('2-4-sss.html');
   const ctx = c.getContext('2d');
   const W = c.width, H = c.height;
   const PAD = {l:50,r:20,t:20,b:30}, gW=W-PAD.l-PAD.r, gH=H-PAD.t-PAD.b;
-  ctx.fillStyle='#040610'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=C.codeBg; ctx.fillRect(0,0,W,H);
   const N=336, maxVal=80;
   // Draw bars
   const bw = gW/N;
@@ -196,13 +196,13 @@ buildSidebar('2-4-sss.html');
   }
   // Peak annotation
   const px = PAD.l + 147*bw + bw/2;
-  ctx.strokeStyle='#f5a623'; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1; ctx.setLineDash([3,3]);
   ctx.beginPath(); ctx.moveTo(px, PAD.t); ctx.lineTo(px, PAD.t+gH); ctx.stroke(); ctx.setLineDash([]);
-  ctx.font='bold 11px IBM Plex Mono'; ctx.fillStyle='#f5a623'; ctx.textAlign='center';
+  ctx.font='bold 11px IBM Plex Mono'; ctx.fillStyle=C.amber; ctx.textAlign='center';
   ctx.fillText('N¹_ID = 147', px, PAD.t+12);
   ctx.fillText('corr = 72.4', px, PAD.t+26);
   // Axes
-  ctx.font='10px IBM Plex Mono'; ctx.fillStyle='#2a3a5a';
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
   ctx.textAlign='left'; ctx.fillText('0',PAD.l,H-4);
   ctx.textAlign='center'; ctx.fillText('168',PAD.l+gW/2,H-4);
   ctx.textAlign='right'; ctx.fillText('335',W-PAD.r,H-4);

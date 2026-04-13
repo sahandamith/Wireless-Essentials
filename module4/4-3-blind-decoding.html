@@ -10,28 +10,182 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 4 <span>›</span> Section 4.3</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 4 — Coming Soon
+  <div class="breadcrumb">Module 4 <span>›</span> Control Channels <span>›</span> Section 4.3</div>
+  <div class="module-tag" style="background:var(--teal-l);border:1px solid var(--teal-m);color:var(--teal);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;"></span>
+    Module 4 — Control Channels
   </div>
-  <h1>Blind Decoding</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>Blind Decoding —<br><em>Finding PDCCH without being told where it is</em></h1>
+  <p class="hero-lead">
+    The UE knows when to look (Search Space#0) and where to look (CORESET#0). But within CORESET#0, the gNB has placed PDCCH at one of several possible CCE positions. The UE must try all of them — this is blind decoding. A CRC match reveals which candidate carries the real PDCCH.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.213 §10.1</span>
+    <span class="spec-pill">TS 38.212 §7.3.1</span>
+    <span class="spec-pill">TS 38.321 §7.1</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">CCE positions and aggregation levels</div>
-<div class="topic-item">SI-RNTI = 0xFFFF</div>
-<div class="topic-item">DCI format 1_0 field-by-field</div>
-<div class="topic-item">CRC pass → SIB1 location</div>
+<div class="prose">
+
+<h2>Why blind decoding?</h2>
+<p>
+  The gNB schedules different UEs in different CCE positions within each monitoring occasion. A UE has no advance knowledge of which CCE positions carry its PDCCH. Instead, it tries all candidate positions and checks each decoded result against a CRC masked with its own identity. Only the correct candidate passes.
+</p>
+<p>
+  For SIB1 specifically, the UE uses the <strong>SI-RNTI = 0xFFFF</strong> (a fixed value known by all UEs). Any UE in the cell can receive SIB1 — there is no UE-specific masking.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For a PDCCH candidate, if the CRC check of the decoded DCI is correct after de-masking with the RNTI associated with the search space set, the UE shall consider the decoded DCI as valid and process the corresponding DCI format.
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 10.1</div>
+</div>
+
+<h2>RNTI — Radio Network Temporary Identifier</h2>
+<p>
+  The RNTI is a 16-bit value used to mask the CRC of a PDCCH. Different RNTIs serve different purposes:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">RNTI types and their uses</span>
+    <span class="ds-ref">TS 38.321 §7.1, TS 38.331</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>RNTI</th><th>Value</th><th>Used for</th><th>Who monitors</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">SI-RNTI</td><td style="color:var(--blue);font-family:var(--mono);">0xFFFF</td><td>SIB1 and other SI scheduling</td><td>All UEs</td></tr>
+        <tr><td class="t-pos">P-RNTI</td><td style="font-family:var(--mono);color:var(--text2);">0xFFFE</td><td>Paging</td><td style="color:var(--text2)">UEs in IDLE/INACTIVE</td></tr>
+        <tr><td class="t-pos">RA-RNTI</td><td style="font-family:var(--mono);color:var(--text2);">0x0001–0xFFCF</td><td>Random Access Response</td><td style="color:var(--text2)">UE performing RACH</td></tr>
+        <tr><td class="t-pos">TC-RNTI</td><td style="font-family:var(--mono);color:var(--text2);">assigned</td><td>Msg3/4 during RACH</td><td style="color:var(--text2)">UE completing RACH</td></tr>
+        <tr><td class="t-pos">C-RNTI</td><td style="font-family:var(--mono);color:var(--text2);">assigned</td><td>UE-specific scheduling</td><td style="color:var(--text2)">Connected UE only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>DCI Format 1_0 — the SIB1 scheduling message</h2>
+<p>
+  When the UE finds a PDCCH with SI-RNTI, it decodes the <strong>DCI (Downlink Control Information)</strong> to find where SIB1 is on the PDSCH. The format used for SIB1 scheduling is <strong>DCI Format 1_0</strong> — the fallback downlink assignment format.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For DCI format 1_0 with CRC scrambled by SI-RNTI: the "System information indicator" field is 1 bit where 0 indicates scheduling of SIB1 and 1 indicates scheduling of SI messages in an SI window.
+  </div>
+  <div class="gpp-source">3GPP TS 38.212, Section 7.3.1.2.1</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">DCI Format 1_0 fields — SI-RNTI scrambled (SIB1 scheduling)</span>
+    <span class="ds-ref">TS 38.212 §7.3.1.2.1, Table 7.3.1.2.1-1</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Field</th><th>Bits</th><th>Our decoded value</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">Identifier for DCI formats</td><td>1</td><td style="font-family:var(--mono);color:var(--text2);">1</td><td style="color:var(--text2)">Downlink DCI</td></tr>
+        <tr class="hl"><td class="t-pos">Freq. domain resource assign.</td><td>variable</td><td style="font-family:var(--mono);">0b000111111</td><td>RBs 24–38 → SIB1 on PDSCH</td></tr>
+        <tr class="hl"><td class="t-pos">Time domain resource assign.</td><td>4</td><td style="font-family:var(--mono);">0b0010 = 2</td><td>Row 2 of Table 5.1.2.1-1 → symbols 2–12</td></tr>
+        <tr><td class="t-pos">VRB-to-PRB mapping</td><td>1</td><td style="font-family:var(--mono);color:var(--text2);">0</td><td style="color:var(--text2)">Non-interleaved</td></tr>
+        <tr><td class="t-pos">Modulation and coding scheme</td><td>5</td><td style="font-family:var(--mono);color:var(--text2);">5</td><td style="color:var(--text2)">QPSK, code rate 0.38</td></tr>
+        <tr><td class="t-pos">Redundancy version</td><td>2</td><td style="font-family:var(--mono);color:var(--text2);">00</td><td style="color:var(--text2)">First transmission (RV=0)</td></tr>
+        <tr class="hl"><td class="t-pos">System information indicator</td><td>1</td><td style="font-family:var(--mono);">0</td><td>This schedules SIB1 ← key field</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Full blind decoding walkthrough — slot 2</h2>
+<p>
+  Let's trace through exactly what the UE does at slot 2, symbols 0–1, in CORESET#0 (3497.10–3505.74 MHz).
+</p>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Extract CORESET#0 from received signal</div>
+      <div class="step-text">UE extracts 24 RBs × 2 symbols = 48 REGs from the received signal at slot 2. Channel estimation using PDCCH DMRS (seeded by PCI=442). Equalization applied to all data REs.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Candidate 0 — AL=4, CCEs {0,1,2,3}</div>
+      <div class="step-text">Demodulate CCEs 0–3 (= RBs 0–11 × 2 symbols = 144 REs → 288 bits after QPSK). Polar decode. Demask CRC with SI-RNTI=0xFFFF. CRC check → <strong style="color:var(--coral)">FAIL</strong>.</div>
+      <div class="code-block" style="margin-top:10px;">
+        <div class="cb-header"><span>CRC check — candidate 0</span></div>
+        <pre>Decoded bits + SI-RNTI demask → CRC = <span class="op">0xA3F2</span> ≠ 0  <span class="c">← fail</span></pre>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">3</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Candidates 1, 2, 3 — AL=4, other CCE positions</div>
+      <div class="step-text">Try CCEs {2,3,4,5}, {4,5,6,7}, {0,2,4,6}. Each decoded and CRC checked with SI-RNTI. All fail.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--green-l);color:var(--green);border:1px solid var(--green-m);">4</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Candidate 4 — AL=8, CCEs {0..7} — CRC PASS</div>
+      <div class="step-text">Demodulate all 8 CCEs (= all 48 REGs). Polar decode 576 bits. Demask with SI-RNTI=0xFFFF. CRC = 0x000000 → <strong style="color:var(--green)">PASS</strong>. PDCCH found.</div>
+      <div class="code-block" style="margin-top:10px;">
+        <div class="cb-header"><span>CRC check — candidate 4 (PASS)</span></div>
+        <pre>Decoded bits + SI-RNTI demask → CRC = <span class="r">0x000000</span>  <span class="c">← pass ✓</span>
+DCI 1_0 content:
+  Freq assignment = RBs <span class="n">24</span>–<span class="n">38</span>   <span class="c">← SIB1 on PDSCH</span>
+  Time assignment = row <span class="n">2</span>        <span class="c">← slot 2, symbols 2–12</span>
+  MCS            = <span class="n">5</span>             <span class="c">← QPSK, rate 0.38</span>
+  SI indicator   = <span class="n">0</span>             <span class="c">← this is SIB1</span></pre>
+      </div>
     </div>
   </div>
 </div>
+
+<div class="prose">
+<h2>SIB1 on PDSCH — where and when</h2>
+<p>
+  With the decoded DCI, the UE now knows exactly where to find SIB1. The time domain assignment row 2 from TS 38.214 Table 5.1.2.1-1 means: <strong>slot offset K0=0, symbols 2–12</strong> within the same slot.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Slot 2 — CORESET#0 then SIB1 PDSCH</span>
+    <span class="ds-ref">TS 38.214 §5.1.2.1</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="slot-layout-canvas" width="900" height="140" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Blind decoding complete — SIB1 location found</div>
+  <div class="rb-line">PDCCH found at &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">Candidate 4, AL=8, CCEs {0..7}</span></div>
+  <div class="rb-line">DCI format &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">1_0, SI-RNTI=0xFFFF</span></div>
+  <div class="rb-line">SIB1 frequency &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">RBs 24–38</span> (within initial DL BWP)</div>
+  <div class="rb-line">SIB1 time &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">slot 2, symbols 2–12</span></div>
+  <div class="rb-line">MCS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">5 (QPSK, code rate 0.38)</span></div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Decode SIB1 on PDSCH → Module 5</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="4-2-search-space.html"><span class="pn-label">← Previous</span><span class="pn-title">Search Space#0</span></a>
   <a href="../module5/5-1-sib1.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">SIB1 Contents</span></a>
@@ -39,6 +193,47 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('4-3-blind-decoding.html');</script>
+<script>
+buildSidebar('4-3-blind-decoding.html');
+
+// Slot layout
+(function(){
+  const c=document.getElementById('slot-layout-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=40, symW=(W-PAD*2)/14, startY=20, symH=80;
+
+  const labels=[
+    {sym:0,label:'CORESET',sub:'symbols 0–1',color:C.teal,fill:C.tealL,span:2},
+    {sym:2,label:'SIB1 PDSCH',sub:'symbols 2–12',color:C.blue,fill:C.blueL,span:11},
+    {sym:13,label:'',sub:'',color:C.muted,fill:C.bg2,span:1},
+  ];
+
+  let s=0;
+  labels.forEach(l=>{
+    const x=PAD+s*symW, w=l.span*symW;
+    ctx.fillStyle=l.fill; ctx.fillRect(x+1,startY,w-2,symH);
+    ctx.strokeStyle=l.color; ctx.lineWidth=l.span>1?1.5:0.5;
+    ctx.strokeRect(x+1,startY,w-2,symH);
+    if(l.label){
+      ctx.font='bold 12px Fraunces'; ctx.fillStyle=l.color; ctx.textAlign='center';
+      ctx.fillText(l.label,x+w/2,startY+32);
+      ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+      ctx.fillText(l.sub,x+w/2,startY+50);
+    }
+    // Symbol numbers
+    for(let i=0;i<l.span;i++){
+      ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+      ctx.fillText(s+i,x+i*symW+symW/2,startY+symH+14);
+    }
+    s+=l.span;
+  });
+
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('← Slot 2, 0.5 ms — symbol index →',PAD,startY-6);
+})();
+</script>
 </body>
 </html>

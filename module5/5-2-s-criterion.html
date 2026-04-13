@@ -3,35 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S-Criterion — Cell Selection | 5G From Scratch</title>
+<title>S-Criterion | 5G From Scratch</title>
 <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 5 <span>›</span> Section 5.2</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 5 — Coming Soon
+  <div class="breadcrumb">Module 5 <span>›</span> SIB1 & Camp <span>›</span> Section 5.2</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 5 — SIB1 & Cell Selection
   </div>
-  <h1>S-Criterion — Cell Selection</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>S-Criterion —<br><em>Is this cell good enough to camp on?</em></h1>
+  <p class="hero-lead">
+    After decoding SIB1, the UE applies the S-criterion — a pair of signal threshold checks. If both pass, the cell is suitable. If either fails, the UE rejects this cell and continues searching. This section derives the formulas, applies them to our example, and shows both passing and failing cases.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.304 §5.2.3.2</span>
+    <span class="spec-pill">TS 38.331 §6.3.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">Srxlev formula with all terms</div>
-<div class="topic-item">Squal formula</div>
-<div class="topic-item">Numerical pass and fail examples</div>
-<div class="topic-item">What happens when unsuitable</div>
-    </div>
+<div class="prose">
+
+<h2>The S-criterion formulas</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    A cell is suitable for cell selection if the following condition is met:<br><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;S<sub>rxlev</sub> &gt; 0 &nbsp;&nbsp;AND&nbsp;&nbsp; S<sub>qual</sub> &gt; 0<br><br>
+    where:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;S<sub>rxlev</sub> = Q<sub>rxlevmeas</sub> − (Q<sub>rxlevmin</sub> + Q<sub>rxlevminoffset</sub>) − P<sub>compensation</sub><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;S<sub>qual</sub>  = Q<sub>qualmeas</sub>  − (Q<sub>qualmin</sub>  + Q<sub>qualminoffset</sub>)
+  </div>
+  <div class="gpp-source">3GPP TS 38.304, Section 5.2.3.2</div>
+</div>
+
+<h2>Every term explained</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">S-criterion parameters — definitions and our values</span>
+    <span class="ds-ref">TS 38.304 §5.2.3.2, TS 38.331 §6.3.2</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Parameter</th><th>Description</th><th>Source</th><th>Our value</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">Q<sub>rxlevmeas</sub></td><td style="color:var(--text2)">Measured RSRP (dBm)</td><td style="color:var(--text3);font-family:var(--mono)">UE measurement</td><td style="font-family:var(--mono);color:var(--text2)">−85 dBm</td></tr>
+        <tr><td class="t-pos">Q<sub>rxlevmin</sub></td><td style="color:var(--text2)">Min required RSRP from SIB1 (dBm). Actual = IE × 2</td><td style="color:var(--teal);font-family:var(--mono)">SIB1: q-RxLevMin=−70</td><td style="font-family:var(--mono);color:var(--text2)">−140 dBm</td></tr>
+        <tr><td class="t-pos">Q<sub>rxlevminoffset</sub></td><td style="color:var(--text2)">Additional offset, if configured</td><td style="color:var(--text3);font-family:var(--mono)">SIB1 (optional)</td><td style="font-family:var(--mono);color:var(--text2)">0 dB</td></tr>
+        <tr><td class="t-pos">P<sub>compensation</sub></td><td style="color:var(--text2)">max(P_EMAX − P_PowerClass, 0). Only non-zero if UE max power &lt; P_EMAX</td><td style="color:var(--text3);font-family:var(--mono)">SIB1 + UE cap</td><td style="font-family:var(--mono);color:var(--text2)">0 dB</td></tr>
+        <tr><td class="t-pos">Q<sub>qualmeas</sub></td><td style="color:var(--text2)">Measured RSRQ (dB)</td><td style="color:var(--text3);font-family:var(--mono)">UE measurement</td><td style="font-family:var(--mono);color:var(--text2)">−10 dB</td></tr>
+        <tr><td class="t-pos">Q<sub>qualmin</sub></td><td style="color:var(--text2)">Min required RSRQ from SIB1 (dB)</td><td style="color:var(--teal);font-family:var(--mono)">SIB1: q-QualMin=−20</td><td style="font-family:var(--mono);color:var(--text2)">−20 dB</td></tr>
+        <tr><td class="t-pos">Q<sub>qualminoffset</sub></td><td style="color:var(--text2)">Additional offset, if configured</td><td style="color:var(--text3);font-family:var(--mono)">SIB1 (optional)</td><td style="font-family:var(--mono);color:var(--text2)">0 dB</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
+<div class="prose">
+<h2>Worked example — our cell (passing case)</h2>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>S-criterion calculation — RSRP = −85 dBm, RSRQ = −10 dB</span><span class="cb-ref">TS 38.304 §5.2.3.2</span></div>
+  <pre><span class="c">// Srxlev:</span>
+Srxlev = Q_rxlevmeas − (Q_rxlevmin + Q_rxlevminoffset) − P_compensation
+       = <span class="n">−85</span> − (<span class="n">−140</span> + <span class="n">0</span>) − <span class="n">0</span>
+       = <span class="n">−85</span> + <span class="n">140</span>
+       = <span class="r">+55 dB</span>  &gt; 0  ✓
+
+<span class="c">// Squal:</span>
+Squal  = Q_qualmeas − (Q_qualmin + Q_qualminoffset)
+       = <span class="n">−10</span> − (<span class="n">−20</span> + <span class="n">0</span>)
+       = <span class="n">−10</span> + <span class="n">20</span>
+       = <span class="r">+10 dB</span>  &gt; 0  ✓
+
+<span class="c">// Decision:</span>
+Srxlev = <span class="r">+55</span> &gt; 0  AND  Squal = <span class="r">+10</span> &gt; 0
+→ <span class="r">CELL SUITABLE ✓ — UE may camp</span></pre>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive S-criterion — adjust RSRP to see pass/fail boundary</span>
+    <span class="ds-ref">TS 38.304 §5.2.3.2</span>
+  </div>
+  <div class="ds-body">
+    <div class="ctrl-row">
+      <label>RSRP (dBm):</label>
+      <input type="range" id="rsrp-slider" min="-160" max="-60" value="-85" step="1">
+      <span class="ctrl-val" id="rsrp-val">−85 dBm</span>
+      <label style="margin-left:16px;">RSRQ (dB):</label>
+      <input type="range" id="rsrq-slider" min="-30" max="0" value="-10" step="1">
+      <span class="ctrl-val" id="rsrq-val">−10 dB</span>
+    </div>
+    <canvas id="scriterion-canvas" width="900" height="180" style="width:100%;border-radius:6px;"></canvas>
+    <div id="scriterion-result" style="margin-top:14px;font-family:var(--mono);font-size:13px;display:flex;gap:24px;flex-wrap:wrap;"></div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Failing case — weak signal</h2>
+<p>
+  If the UE measures RSRP = −148 dBm (very weak signal, near cell edge):
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>S-criterion — RSRP = −148 dBm (failing case)</span><span class="cb-ref">TS 38.304 §5.2.3.2</span></div>
+  <pre><span class="c">// Srxlev:</span>
+Srxlev = <span class="n">−148</span> − (<span class="n">−140</span>) − <span class="n">0</span> = <span class="op">−8 dB</span>  &lt; 0  ✗
+
+<span class="c">// Even if Squal passes, Srxlev failure alone rejects the cell</span>
+<span class="c">// Decision:</span>
+→ <span class="op">CELL UNSUITABLE — UE continues searching</span>
+
+<span class="c">// What UE does next:</span>
+1. Mark this cell as "barred" for the measurement period
+2. Continue GSCN sweep on same band
+3. If all intra-frequency cells fail → try next band (n1, n28...)
+4. If all bands exhausted → display "No Service"</pre>
+</div>
+
+<div class="prose">
+<h2>P_compensation — why it exists</h2>
+<p>
+  P_compensation accounts for UEs whose maximum transmit power is lower than the cell's expected power class. If a UE can only transmit at 20 dBm but the cell expects 23 dBm (P_EMAX), the uplink will be limited. The S-criterion adds a margin to ensure the UE can close the uplink link as well, not just the downlink.
+</p>
+<p>
+  In our example, P_EMAX = 23 dBm from SIB1, UE power class = 23 dBm → P_compensation = max(23−23, 0) = 0.
+</p>
+
+<h2>Hysteresis — preventing ping-pong</h2>
+<p>
+  In practice, the measured RSRP fluctuates due to fading. A UE camping on a cell will not immediately abandon it the moment Srxlev drops below 0. Additional hysteresis and timers (T311, T310) prevent excessive reselection. These are configured in SIB2 for the camping state, not SIB1.
+</p>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">S-criterion — our cell result</div>
+  <div class="rb-line">Srxlev = −85 − (−140) = <span class="rb-val">+55 dB</span> &gt; 0 ✓</div>
+  <div class="rb-line">Squal  = −10 − (−20)  = <span class="rb-val">+10 dB</span> &gt; 0 ✓</div>
+  <div class="rb-line">Decision &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">Cell suitable</span></div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ PLMN check and access control</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="5-1-sib1.html"><span class="pn-label">← Previous</span><span class="pn-title">SIB1 Contents</span></a>
   <a href="5-3-plmn.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">PLMN & Access Control</span></a>
@@ -39,6 +164,79 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('5-2-s-criterion.html');</script>
+<script>
+buildSidebar('5-2-s-criterion.html');
+
+function drawSCriterion() {
+  const c=document.getElementById('scriterion-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const rsrp=parseInt(document.getElementById('rsrp-slider').value);
+  const rsrq=parseInt(document.getElementById('rsrq-slider').value);
+  const srxlev=rsrp-(-140);
+  const squal=rsrq-(-20);
+  const pass=srxlev>0&&squal>0;
+
+  // Two gauges side by side
+  const gauges=[
+    {label:'Srxlev',val:srxlev,unit:'dB',min:-40,max:80,threshold:0,desc:`${rsrp} − (−140) = ${srxlev} dB`},
+    {label:'Squal',val:squal,unit:'dB',min:-20,max:30,threshold:0,desc:`${rsrq} − (−20) = ${squal} dB`},
+  ];
+
+  gauges.forEach((g,gi)=>{
+    const gx=gi===0?60:500, gy=30, gw=300, gh=100;
+    const pct=Math.max(0,Math.min(1,(g.val-g.min)/(g.max-g.min)));
+    const zeroPct=Math.max(0,Math.min(1,(0-g.min)/(g.max-g.min)));
+    const isPass=g.val>0;
+
+    // Background bar
+    ctx.fillStyle=C.bg2; roundRect(ctx,gx,gy,gw,gh,8); ctx.fill();
+    ctx.strokeStyle=C.border2; ctx.lineWidth=1; roundRect(ctx,gx,gy,gw,gh,8); ctx.stroke();
+
+    // Value fill
+    const fillW=pct*gw;
+    ctx.fillStyle=isPass?C.greenL:C.coralL;
+    ctx.fillRect(gx+1,gy+1,fillW-2,gh-2);
+
+    // Zero line
+    const zeroX=gx+zeroPct*gw;
+    ctx.strokeStyle=C.text3; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(zeroX,gy); ctx.lineTo(zeroX,gy+gh); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+    ctx.fillText('0',zeroX,gy+gh+14);
+
+    // Labels
+    ctx.font='bold 14px Fraunces'; ctx.fillStyle=isPass?C.green:C.coral; ctx.textAlign='left';
+    ctx.fillText(g.label+' = '+g.val+' '+g.unit,gx,gy-10);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+    ctx.fillText(g.desc,gx,gy+gh+28);
+    ctx.font='bold 11px IBM Plex Mono'; ctx.fillStyle=isPass?C.green:C.coral; ctx.textAlign='right';
+    ctx.fillText(isPass?'✓ PASS':'✗ FAIL',gx+gw,gy-10);
+  });
+
+  // Overall result
+  ctx.font='bold 14px Fraunces'; ctx.fillStyle=pass?C.green:C.coral; ctx.textAlign='center';
+  ctx.fillText(pass?'✓ Cell suitable — UE may camp':'✗ Cell unsuitable — continue search',W/2,H-8);
+
+  // Update result text
+  document.getElementById('scriterion-result').innerHTML=
+    `<span>Srxlev = <strong style="color:${srxlev>0?C.green:C.coral}">${srxlev} dB</strong></span>`+
+    `<span>Squal = <strong style="color:${squal>0?C.green:C.coral}">${squal} dB</strong></span>`+
+    `<span>Result: <strong style="color:${pass?C.green:C.coral}">${pass?'SUITABLE ✓':'UNSUITABLE ✗'}</strong></span>`;
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+}
+
+document.getElementById('rsrp-slider').addEventListener('input',function(){
+  document.getElementById('rsrp-val').textContent=this.value+' dBm'; drawSCriterion();
+});
+document.getElementById('rsrq-slider').addEventListener('input',function(){
+  document.getElementById('rsrq-val').textContent=this.value+' dB'; drawSCriterion();
+});
+drawSCriterion();
+</script>
 </body>
 </html>

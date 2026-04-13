@@ -10,29 +10,219 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 4 <span>›</span> Section 4.1</div>
-  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 4 — Coming Soon
+  <div class="breadcrumb">Module 4 <span>›</span> Control Channels <span>›</span> Section 4.1</div>
+  <div class="module-tag" style="background:var(--teal-l);border:1px solid var(--teal-m);color:var(--teal);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;"></span>
+    Module 4 — Control Channels
   </div>
-  <h1>CORESET#0 Derivation</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>CORESET#0 —<br><em>Finding where PDCCH lives</em></h1>
+  <p class="hero-lead">
+    The MIB gave us 8 bits — controlResourceSetZero and searchSpaceZero. From those 8 bits alone, the UE must derive the exact frequency position and time structure of CORESET#0, the control resource set where SIB1 scheduling information will appear. This section walks through the full derivation with exact numbers.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.213 §13</span>
+    <span class="spec-pill">TS 38.211 §7.3.2</span>
+    <span class="spec-pill">TS 38.331 §6.3.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">Table 13-1 to 13-10 lookup</div>
-<div class="topic-item">Point A from k_SSB</div>
-<div class="topic-item">CORESET#0 start frequency (exact MHz)</div>
-<div class="topic-item">Symbol duration and RB count</div>
-<div class="topic-item">CCE and REG structure</div>
+<div class="prose">
+
+<h2>What is a CORESET?</h2>
+<p>
+  A <strong>Control Resource Set (CORESET)</strong> is a defined region of time and frequency where the UE looks for PDCCH — the Physical Downlink Control Channel that carries scheduling assignments. Think of it as a designated noticeboard: the network tells the UE exactly which RBs and which symbols to watch, and the UE only searches for control information there.
+</p>
+<p>
+  <strong>CORESET#0</strong> is special — it is the only CORESET configured via MIB (before RRC connection). All other CORESETs (1–11) are configured later via RRC signalling. CORESET#0 must exist so the UE can find SIB1, which provides the full cell configuration needed to connect.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    CORESET#0 is configured by pdcch-ConfigSIB1 in MIB. A UE shall find the first PDCCH monitoring occasion for Type0-PDCCH CSS set in the first active downlink slot of the radio frame associated with the SS/PBCH block.
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 13</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">8 bits</div><div class="kc-label">from MIB</div><div class="kc-desc">controlResourceSetZero (4) + searchSpaceZero (4)</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">10 tables</div><div class="kc-label">in TS 38.213 §13</div><div class="kc-desc">One selected by SSB SCS + PDCCH SCS pair</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">24 RBs</div><div class="kc-label">CORESET#0 width</div><div class="kc-desc">Our example: index 3 → 24 RBs, 2 symbols</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--purple)">Point A</div><div class="kc-label">frequency anchor</div><div class="kc-desc">CORESET#0 offset is relative to Point A</div></div>
+</div>
+
+<h2>Step 1 — Select the correct table</h2>
+<p>
+  TS 38.213 Section 13 provides Tables 13-1 through 13-10. The correct table depends on the <strong>SSB subcarrier spacing</strong> and the <strong>PDCCH subcarrier spacing</strong> (from <code>subCarrierSpacingCommon</code> in MIB).
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Table selection — SSB SCS vs PDCCH SCS</span>
+    <span class="ds-ref">TS 38.213 §13</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>SSB SCS</th><th>PDCCH SCS</th><th>FR</th><th>Table</th></tr></thead>
+      <tbody>
+        <tr><td>15 kHz</td><td>15 kHz</td><td>FR1</td><td style="color:var(--text2)">Table 13-1</td></tr>
+        <tr><td>15 kHz</td><td>30 kHz</td><td>FR1</td><td style="color:var(--text2)">Table 13-2</td></tr>
+        <tr class="hl"><td>30 kHz</td><td>30 kHz</td><td>FR1</td><td>Table 13-4 ← our case</td></tr>
+        <tr><td>120 kHz</td><td>60 kHz</td><td>FR2</td><td style="color:var(--text2)">Table 13-7</td></tr>
+        <tr><td>120 kHz</td><td>120 kHz</td><td>FR2</td><td style="color:var(--text2)">Table 13-8</td></tr>
+      </tbody>
+    </table>
+    <div class="note-box" style="margin-top:14px;">
+      Our cell: SSB SCS = 30 kHz (from PSS detection) and PDCCH SCS = 30 kHz (subCarrierSpacingCommon = 1 in MIB). Therefore we use <strong>Table 13-4</strong>.
     </div>
   </div>
 </div>
+
+<div class="prose">
+<h2>Step 2 — Table 13-4 lookup</h2>
+<p>
+  Our <code>controlResourceSetZero</code> index = <strong>3</strong> (from MIB bits [12:15] = 0011). Looking up row 3 in Table 13-4:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">TS 38.213 Table 13-4 — SSB SCS 30 kHz, PDCCH SCS 30 kHz</span>
+    <span class="ds-ref">TS 38.213 §13, Table 13-4</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Index</th><th>Number of RBs</th><th>Number of symbols</th><th>Offset (RBs)</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">0</td><td>24</td><td>2</td><td>0</td></tr>
+        <tr><td class="t-pos">1</td><td>24</td><td>2</td><td>2</td></tr>
+        <tr><td class="t-pos">2</td><td>24</td><td>2</td><td>4</td></tr>
+        <tr class="hl"><td class="t-pos">3 ← ours</td><td class="t-vp">24</td><td class="t-vp">2</td><td class="t-vp">2</td></tr>
+        <tr><td class="t-pos">4</td><td>24</td><td>3</td><td>0</td></tr>
+        <tr><td class="t-pos">5</td><td>24</td><td>3</td><td>2</td></tr>
+        <tr><td class="t-pos">6</td><td>48</td><td>1</td><td>0</td></tr>
+        <tr><td class="t-pos">7</td><td>48</td><td>1</td><td>4</td></tr>
+        <tr><td class="t-pos">8</td><td>48</td><td>2</td><td>0</td></tr>
+        <tr><td class="t-pos">9</td><td>48</td><td>2</td><td>4</td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:14px;font-family:var(--mono);font-size:13px;color:var(--text2);">
+      Index 3 → <strong style="color:var(--teal)">24 RBs wide</strong>, <strong style="color:var(--blue)">2 symbols tall</strong>, <strong style="color:var(--amber)">offset = 2 RBs above Point A</strong>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Step 3 — Calculate Point A</h2>
+<p>
+  The offset in the table is relative to <strong>Point A</strong> — the absolute frequency reference derived from the MIB field <code>ssb-SubcarrierOffset</code> (k_SSB = 2). We calculated this in Module 3:
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Point A and CORESET#0 frequency calculation</span><span class="cb-ref">TS 38.211 §4.4.4.1 + TS 38.213 §13</span></div>
+  <pre><span class="c">// Point A (from Module 3 MIB parsing):</span>
+f_SSB_center = <span class="n">3498.24</span> MHz
+f_SSB_low    = <span class="n">3498.24</span> − 60 × <span class="n">0.030</span> = <span class="n">3496.44</span> MHz
+Point_A      = <span class="n">3496.44</span> − k_SSB × SCS
+             = <span class="n">3496.44</span> − <span class="n">2</span> × <span class="n">0.030</span>
+             = <span class="r">3496.38 MHz</span>
+
+<span class="c">// CORESET#0 frequency position:</span>
+<span class="c">// Offset = 2 RBs = 2 × 12 subcarriers × 30 kHz = 720 kHz</span>
+CORESET0_start = Point_A + offset × <span class="n">12</span> × SCS
+               = <span class="n">3496.38</span> + <span class="n">2</span> × <span class="n">12</span> × <span class="n">0.030</span>
+               = <span class="n">3496.38</span> + <span class="n">0.720</span>
+               = <span class="r">3497.10 MHz</span>
+
+<span class="c">// Width:</span>
+CORESET0_width = <span class="n">24</span> RBs × <span class="n">12</span> SC × <span class="n">30</span> kHz = <span class="r">8.64 MHz</span>
+CORESET0_end   = <span class="n">3497.10</span> + <span class="n">8.64</span>         = <span class="r">3505.74 MHz</span>
+
+<span class="c">// Time domain:</span>
+CORESET0_symbols = <span class="r">2</span>  (symbols 0 and 1 of each monitoring slot)</pre>
+</div>
+
+<div class="prose">
+<h2>Step 4 — Visualise the position</h2>
+<p>
+  Let's place CORESET#0 in context against the SSB and the 100 MHz channel:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">CORESET#0 frequency position — relative to SSB and Point A</span>
+    <span class="ds-ref">TS 38.213 §13, Table 13-4</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="coreset-freq-canvas" width="900" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>CORESET internal structure — CCEs and REGs</h2>
+<p>
+  Inside CORESET#0, the UE needs to know how control channel elements are organised in order to perform blind decoding. The building blocks are:
+</p>
+<p>
+  A <strong>Resource Element Group (REG)</strong> = 1 RB × 1 OFDM symbol = 12 REs. A <strong>Control Channel Element (CCE)</strong> = 6 REGs. The PDCCH uses 1, 2, 4, 8, or 16 CCEs — this is the <strong>aggregation level (AL)</strong>. Higher aggregation = more robust coding = used for weak signal UEs.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>CORESET#0 CCE structure — our example</span><span class="cb-ref">TS 38.211 §7.3.2</span></div>
+  <pre><span class="c">// CORESET#0 dimensions:</span>
+Width   = <span class="n">24</span> RBs
+Duration = <span class="n">2</span> symbols
+
+<span class="c">// REG count:</span>
+Total REGs = <span class="n">24</span> RBs × <span class="n">2</span> symbols = <span class="r">48 REGs</span>
+
+<span class="c">// CCE count:</span>
+Total CCEs = <span class="n">48</span> REGs / <span class="n">6</span> REGs per CCE = <span class="r">8 CCEs</span>
+(CCEs numbered 0–7)
+
+<span class="c">// Aggregation levels available:</span>
+AL=1:  1 CCE  → can fit 8 candidates → typically not used for SIB1
+AL=2:  2 CCEs → can fit 4 candidates
+AL=4:  4 CCEs → can fit 2 candidates → <span class="r">used for SIB1</span>
+AL=8:  8 CCEs → can fit 1 candidate  → <span class="r">used for SIB1</span>
+AL=16: exceeds CORESET#0 size → not applicable here</pre>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">CORESET#0 — REG and CCE layout</span>
+    <span class="ds-ref">TS 38.211 §7.3.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="coreset-cce-canvas" width="900" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>CCE-to-REG mapping — interleaved vs non-interleaved</h2>
+<p>
+  The mapping of CCEs to REGs can be either <strong>non-interleaved</strong> (CCEs map to contiguous REGs — good for beamforming) or <strong>interleaved</strong> (CCEs spread across the CORESET — provides frequency diversity). For CORESET#0, the mapping type is determined by the table and is typically non-interleaved.
+</p>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">CORESET#0 — complete derivation result</div>
+  <div class="rb-line">Frequency start &nbsp;→ <span class="rb-val">3497.10 MHz</span></div>
+  <div class="rb-line">Frequency end &nbsp;&nbsp;&nbsp;→ <span class="rb-val">3505.74 MHz</span></div>
+  <div class="rb-line">Width &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">24 RBs = 8.64 MHz</span></div>
+  <div class="rb-line">Duration &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">2 symbols</span> (symbols 0 and 1)</div>
+  <div class="rb-line">Total CCEs &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">8 CCEs</span> (0–7)</div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Search Space#0 tells the UE <em>when</em> to monitor</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="../module3/3-2-mib.html"><span class="pn-label">← Previous</span><span class="pn-title">MIB — Every Field</span></a>
   <a href="4-2-search-space.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Search Space#0</span></a>
@@ -40,6 +230,122 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('4-1-coreset.html');</script>
+<script>
+buildSidebar('4-1-coreset.html');
+
+// CORESET frequency diagram
+(function(){
+  const c=document.getElementById('coreset-freq-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  // Scale: 3490 MHz to 3510 MHz = 20 MHz range → W pixels
+  const fMin=3490, fMax=3515, fRange=fMax-fMin;
+  const fx=f=>40+(f-fMin)/(fRange)*(W-80);
+
+  // Channel bar
+  ctx.fillStyle=C.bg2;
+  ctx.fillRect(40,30,W-80,50); 
+  ctx.strokeStyle=C.border2; ctx.lineWidth=1;
+  ctx.strokeRect(40,30,W-80,50);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+  ctx.fillText('100 MHz channel',W/2,58);
+
+  // Point A marker
+  const pAx=fx(3496.38);
+  ctx.strokeStyle=C.text3; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(pAx,20); ctx.lineTo(pAx,110); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('Point A',pAx,18); ctx.fillText('3496.38',pAx,128);
+
+  // SSB bar
+  const ssbStart=fx(3496.44), ssbEnd=fx(3498.24+1.8);
+  ctx.fillStyle=C.blueL;
+  ctx.fillRect(ssbStart,35,ssbEnd-ssbStart,40);
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1.5;
+  ctx.strokeRect(ssbStart,35,ssbEnd-ssbStart,40);
+  ctx.font='bold 11px Fraunces'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('SSB',ssbStart+(ssbEnd-ssbStart)/2,60);
+
+  // CORESET#0 bar
+  const c0Start=fx(3497.10), c0End=fx(3505.74);
+  ctx.fillStyle=C.tealL;
+  ctx.fillRect(c0Start,90,c0End-c0Start,40);
+  ctx.strokeStyle=C.teal; ctx.lineWidth=2;
+  ctx.strokeRect(c0Start,90,c0End-c0Start,40);
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.teal; ctx.textAlign='center';
+  ctx.fillText('CORESET#0 — 24 RBs = 8.64 MHz',c0Start+(c0End-c0Start)/2,116);
+
+  // Annotations
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.teal;
+  ctx.textAlign='left'; ctx.fillText('3497.10',c0Start,142);
+  ctx.textAlign='right'; ctx.fillText('3505.74',c0End,142);
+
+  // Offset annotation
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pAx,155); ctx.lineTo(c0Start,155); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pAx,150); ctx.lineTo(pAx,160); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(c0Start,150); ctx.lineTo(c0Start,160); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.amber; ctx.textAlign='center';
+  ctx.fillText('offset = 2 RBs = 0.72 MHz',(pAx+c0Start)/2,168);
+
+  // SSB center
+  const ssbCx=fx(3498.24);
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1; ctx.setLineDash([2,2]);
+  ctx.beginPath(); ctx.moveTo(ssbCx,30); ctx.lineTo(ssbCx,75); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('SSB center',ssbCx,28); ctx.fillText('3498.24',ssbCx,128);
+})();
+
+// CORESET CCE layout
+(function(){
+  const c=document.getElementById('coreset-cce-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=50, rbW=(W-PAD*2)/24, sym0y=40, sym1y=110, symH=55;
+
+  // Draw 24 RBs × 2 symbols
+  const cceColors=[C.blueL,C.tealL,C.amberL,C.purpleL,C.coralL,C.greenL,'#fef3c7','#e0e7ff'];
+  const cceStrokes=[C.blue,C.teal,C.amber,C.purple,C.coral,C.green,'#d97706','#7c3aed'];
+
+  for(let rb=0;rb<24;rb++){
+    const cceIdx=Math.floor(rb/3); // 8 CCEs of 3 RBs each
+    for(let sym=0;sym<2;sym++){
+      const x=PAD+rb*rbW, y=sym===0?sym0y:sym1y;
+      ctx.fillStyle=cceColors[cceIdx%8];
+      ctx.fillRect(x+0.5,y+0.5,rbW-1,symH-1);
+      ctx.strokeStyle=cceStrokes[cceIdx%8]; ctx.lineWidth=0.8;
+      ctx.strokeRect(x+0.5,y+0.5,rbW-1,symH-1);
+    }
+    // RB label
+    if(rb%3===0){
+      ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+      ctx.fillText('RB'+rb,PAD+rb*rbW+rbW/2,sym0y-6);
+    }
+  }
+
+  // CCE labels in middle
+  for(let cce=0;cce<8;cce++){
+    const x=PAD+cce*3*rbW+1.5*rbW;
+    ctx.font='bold 12px Fraunces'; ctx.fillStyle=cceStrokes[cce%8]; ctx.textAlign='center';
+    ctx.fillText('CCE '+cce,x,sym0y+symH/2+5);
+  }
+
+  // Symbol labels
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='right';
+  ctx.fillText('Symbol 0',PAD-4,sym0y+symH/2+4);
+  ctx.fillText('Symbol 1',PAD-4,sym1y+symH/2+4);
+
+  // Total info
+  ctx.font='11px IBM Plex Mono'; ctx.fillStyle=C.text2; ctx.textAlign='left';
+  ctx.fillText('24 RBs × 2 symbols = 48 REGs = 8 CCEs',PAD,sym1y+symH+20);
+  ctx.fillText('Each CCE = 6 REGs (= 3 RBs × 2 symbols)',PAD,sym1y+symH+36);
+})();
+</script>
 </body>
 </html>
