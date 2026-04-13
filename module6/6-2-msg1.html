@@ -3,36 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Msg1 — Preamble Transmission | 5G From Scratch</title>
+<title>Msg1 — Preamble | 5G From Scratch</title>
 <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 6 <span>›</span> Section 6.2</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 6 — Coming Soon
+  <div class="breadcrumb">Module 6 <span>›</span> RACH <span>›</span> Section 6.2</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid var(--green-m);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    Module 6 — Random Access
   </div>
-  <h1>Msg1 — Preamble Transmission</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>Msg1 —<br><em>The preamble transmission</em></h1>
+  <p class="hero-lead">
+    Msg1 is the UE's first uplink transmission. It sends a Zadoff-Chu preamble sequence on a PRACH resource linked to the beam it received. The preamble is chosen at random from 64 available sequences. The gNB uses the received preamble to measure the UE's timing offset and compute the Timing Advance.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.211 §6.3.3</span>
+    <span class="spec-pill">TS 38.213 §8.1</span>
+    <span class="spec-pill">TS 38.321 §5.1.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">Zadoff-Chu preamble sequences</div>
-<div class="topic-item">64 preambles per cell</div>
-<div class="topic-item">PRACH frequency resource from SIB1</div>
-<div class="topic-item">Transmit power calculation</div>
-<div class="topic-item">SSB-to-PRACH beam linking</div>
-    </div>
+<div class="prose">
+
+<h2>Zadoff-Chu preamble sequences</h2>
+<p>
+  PRACH preambles are generated from <strong>Zadoff-Chu (ZC) sequences</strong> — complex exponential sequences with constant amplitude and ideal cyclic autocorrelation properties. They are ideal for timing estimation because their autocorrelation has a single sharp peak at zero lag and zero everywhere else.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The PRACH preamble sequence x_u,v(n) is generated according to:<br><br>
+    x_u,v(n) = x_u((n + C_v) mod L_RA)<br><br>
+    where x_u(n) = e^(−jπun(n+1)/L_RA) is a Zadoff-Chu sequence of length L_RA with root index u.
   </div>
+  <div class="gpp-source">3GPP TS 38.211, Section 6.3.3.1, Equation 6.3.3.1-2</div>
 </div>
+
+<p>
+  For <strong>preamble format 0</strong> (our prach-ConfigIndex=16): L_RA = <strong>839</strong> (long preamble). Different root indices u and cyclic shifts C_v generate the 64 preambles assigned to this cell.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Preamble generation — format 0, root u=22</span><span class="cb-ref">TS 38.211 §6.3.3.1</span></div>
+  <pre><span class="c">// ZC sequence length (format 0):</span>
+L_RA = <span class="r">839</span>
+
+<span class="c">// Root ZC sequence (root index u=22, for example):</span>
+x_22(n) = e^(−jπ×<span class="n">22</span>×n×(n+1)/<span class="n">839</span>),  n = 0, 1, ..., 838
+
+<span class="c">// First 4 values (complex exponentials on unit circle):</span>
+x_22(0) = e^(0)              = <span class="n">1.000</span> + <span class="n">0.000</span>j
+x_22(1) = e^(−jπ×44/839)    = <span class="n">0.993</span> − <span class="n">0.163</span>j
+x_22(2) = e^(−jπ×132/839)   = <span class="n">0.972</span> − <span class="n">0.236</span>j
+x_22(3) = e^(−jπ×264/839)   = <span class="n">0.897</span> − <span class="n">0.442</span>j
+
+<span class="c">// Preamble i (0..63): cyclic shift of root sequence</span>
+x_u,i(n) = x_22((n + i×N_CS) mod 839)
+<span class="c">// N_CS = cyclic shift (from zeroCorrelationZoneConfig=13 → N_CS=38)</span>
+<span class="c">// 839 / 38 = 22 preambles per root → need ceil(64/22) = 3 root sequences</span></pre>
+</div>
+
+<div class="prose">
+<h2>Why ZC sequences are ideal for timing estimation</h2>
+<p>
+  At the gNB receiver, the received preamble is correlated against all 64 locally generated preamble sequences. The correlation peak position tells the gNB exactly when the preamble arrived — from which the propagation delay (and hence Timing Advance) is computed.
+</p>
+<p>
+  The cyclic shift N_CS creates an <strong>interference-free zone</strong> between different preambles: even if two UEs at very different distances transmit the same root preamble, their correlation peaks appear at different offsets and do not overlap, as long as the timing difference is less than N_CS × T_s.
+</p>
+
+<h2>PRACH resource — where and when</h2>
+<p>
+  The UE must transmit on the correct <strong>PRACH occasion</strong> — the time-frequency resource linked to SSB beam index 3. SIB1's RACH configuration defines these occasions.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>PRACH resource derivation — SSB index 3, our SIB1 config</span><span class="cb-ref">TS 38.213 §8.1</span></div>
+  <pre><span class="c">// From SIB1 (rach-ConfigCommon):</span>
+prach-ConfigIndex        = <span class="n">16</span>   → preamble format 0, long preamble (839 seq)
+msg1-FrequencyStart      = <span class="n">4</span>    → PRACH starts at RB 4 from BWP start
+msg1-FDM                 = <span class="n">1</span>    → 1 PRACH occasion in frequency
+ra-ResponseWindow        = sl<span class="n">10</span> → UE waits up to 10 slots for Msg2
+
+<span class="c">// PRACH occasion timing (from prach-ConfigIndex=16, TS 38.211 Table 6.3.3.2-3):</span>
+Subframe index = <span class="n">0</span>  (first subframe of each frame where PRACH occurs)
+PRACH symbol   = <span class="n">0</span>
+
+<span class="c">// Frequency position:</span>
+PRACH_start_RB = msg1-FrequencyStart = <span class="n">4</span>
+PRACH_start_Hz = Point_A + <span class="n">4</span> × <span class="n">12</span> × <span class="n">30</span> kHz
+               = <span class="n">3496.38</span> + <span class="n">1.44</span> MHz = <span class="r">3497.82 MHz</span>
+
+<span class="c">// SSB-to-PRACH mapping (TS 38.213 §8.1):</span>
+SSB index 3 → maps to PRACH occasion offset 3 × (PRACH_per_SSB)
+<span class="c">// The UE transmits on the PRACH occasion associated with SSB 3</span></pre>
+</div>
+
+<div class="prose">
+<h2>Transmit power calculation</h2>
+<p>
+  The UE does not transmit the preamble at maximum power — it uses <strong>open-loop power control</strong> to target the correct received power at the gNB. The formula uses the path loss estimated from the SSB RSRP measurement.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The UE shall set the PRACH preamble transmit power P_PRACH to:<br><br>
+    P_PRACH = min(P_CMAX, preambleReceivedTargetPower + PL)
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 7.4, Equation 7.4-1</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Preamble transmit power — our example</span><span class="cb-ref">TS 38.213 §7.4</span></div>
+  <pre><span class="c">// Path loss estimate (from SSB measurement):</span>
+PL = P_SSB_tx − RSRP_measured
+   = <span class="n">43</span> dBm − (<span class="n">−85</span> dBm) = <span class="r">128 dB</span>
+<span class="c">// (P_SSB_tx = gNB EIRP, obtained from SIB1 or assumed)</span>
+
+<span class="c">// Target received preamble power (from SIB1):</span>
+preambleReceivedTargetPower = <span class="n">−110</span> dBm
+
+<span class="c">// Required transmit power:</span>
+P_PRACH = preambleReceivedTargetPower + PL
+        = <span class="n">−110</span> + <span class="n">128</span>
+        = <span class="r">+18 dBm</span>
+
+<span class="c">// Capped at UE max power P_CMAX = 23 dBm:</span>
+P_PRACH = min(<span class="n">23</span>, <span class="n">18</span>) = <span class="r">18 dBm</span>  ← well within UE capability</pre>
+</div>
+
+<div class="prose">
+<h2>Power ramping — what if no response?</h2>
+<p>
+  If the UE sends Msg1 and does not receive a response within the RAR window (10 slots), it retransmits the preamble with <strong>higher power</strong>. Each retry increases power by <code>powerRampingStep = 4 dB</code> from SIB1.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Power ramping — up to preambleTransMax = 7 attempts</span><span class="cb-ref">TS 38.321 §5.1.2</span></div>
+  <pre><span class="c">// Each failed attempt increases power by 4 dB:</span>
+Attempt 1: P = <span class="n">18</span> dBm  (initial)
+Attempt 2: P = <span class="n">22</span> dBm  (+4 dB)
+Attempt 3: P = <span class="n">23</span> dBm  (+4 dB, capped at P_CMAX)
+Attempt 4: P = <span class="n">23</span> dBm  (capped)
+...
+Attempt 7: P = <span class="n">23</span> dBm  (max — final attempt)
+
+<span class="c">// If no response after 7 attempts:</span>
+→ RACH failure reported to upper layers
+→ Connection establishment failure
+→ UE may try again after backoff timer</pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Msg1 — what the UE transmits</div>
+  <div class="rb-line">Preamble &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ random index from <span class="rb-val">0–63</span> (say index 27)</div>
+  <div class="rb-line">Sequence &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">Zadoff-Chu</span>, L_RA=839, root u=22, cyclic shift</div>
+  <div class="rb-line">Frequency &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ PRACH at <span class="rb-val">3497.82 MHz</span> (RB 4 from Point A)</div>
+  <div class="rb-line">Beam &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ PRACH occasion linked to <span class="rb-val">SSB index 3</span></div>
+  <div class="rb-line">Power &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">18 dBm</span> (target −110 dBm at gNB + 128 dB PL)</div>
+  <div class="rb-line">Next &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Wait up to <span class="rb-val">10 slots</span> for RAR (Msg2)</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="6-1-rach-overview.html"><span class="pn-label">← Previous</span><span class="pn-title">RACH Overview</span></a>
   <a href="6-3-msg2.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Msg2 — RAR</span></a>

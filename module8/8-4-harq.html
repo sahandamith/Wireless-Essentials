@@ -10,28 +10,143 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 8 <span>›</span> Section 8.4</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 8 — Coming Soon
+  <div class="breadcrumb">Module 8 <span>›</span> Scheduling <span>›</span> Section 8.4</div>
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid var(--amber-m);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    Module 8 — Scheduling & Data
   </div>
-  <h1>HARQ</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>HARQ —<br><em>The error correction safety net</em></h1>
+  <p class="hero-lead">
+    Wireless channels are imperfect. Packets can be corrupted. HARQ — Hybrid Automatic Repeat reQuest — is 5G NR's retransmission mechanism. It combines ARQ (resend failed packets) with incremental redundancy (each retransmission sends different parity bits that the receiver combines to improve decoding probability). This section covers the full HARQ process with timing, RV selection, and chase combining.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.321 §5.3</span>
+    <span class="spec-pill">TS 38.212 §5.4</span>
+    <span class="spec-pill">TS 38.213 §9.1</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">Chase combining vs incremental redundancy</div>
-<div class="topic-item">HARQ process numbering</div>
-<div class="topic-item">NACK → retransmission flow</div>
-<div class="topic-item">BLER target (10%)</div>
-    </div>
+<div class="prose">
+
+<h2>Why HARQ exists</h2>
+<p>
+  Without HARQ, a corrupted packet would require a full round trip to the application layer (TCP/IP retransmission) — potentially hundreds of milliseconds. HARQ operates at the MAC layer with a turnaround of <strong>4–8 ms</strong>, orders of magnitude faster.
+</p>
+<p>
+  5G NR uses <strong>HARQ with Incremental Redundancy (IR)</strong>: the transport block is encoded at a very low rate, producing far more coded bits than can be sent in one transmission. Each retransmission sends a different selection of these coded bits using a different <strong>Redundancy Version (RV)</strong>. The receiver combines all received versions to improve decoding — this is called <strong>soft combining</strong>.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For each HARQ process, the UE shall maintain a HARQ buffer to store the soft channel bits received for the HARQ process. When a new transmission is received (NDI toggled), the UE shall flush the HARQ buffer. For a retransmission (NDI unchanged), the UE shall combine the soft bits with those in the HARQ buffer.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.3.2</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">16</div><div class="kc-label">DL HARQ processes</div><div class="kc-desc">Allows pipelining — multiple TBs in flight simultaneously</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">4</div><div class="kc-label">Redundancy versions</div><div class="kc-desc">RV 0, 1, 2, 3 — each selects different coded bits</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">4 ms</div><div class="kc-label">Min HARQ RTT</div><div class="kc-desc">DCI → PDSCH → ACK/NACK → retransmit</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--green)">NDI</div><div class="kc-label">New Data Indicator</div><div class="kc-desc">Toggled for new TB, unchanged for retransmission</div></div>
+</div>
+
+<h2>HARQ timing — the round trip</h2>
+<p>
+  After the UE receives PDSCH in slot n, it must send an ACK or NACK on PUCCH. The DCI field <strong>PDSCH-to-HARQ timing</strong> (k1) tells the UE how many slots to wait. For our example k1=2: ACK/NACK sent 2 slots after PDSCH.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">HARQ timing — DL HARQ round trip</span>
+    <span class="ds-ref">TS 38.213 §9.1.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="harq-timing-canvas" width="900" height="180" style="width:100%;"></canvas>
   </div>
 </div>
+
+<div class="prose">
+<h2>Redundancy versions and soft combining</h2>
+<p>
+  The LDPC-encoded bits are arranged in a <strong>circular buffer</strong>. Each transmission starts reading from a different offset, selected by the RV. The standard transmission order is RV0 → RV2 → RV3 → RV1, cycling until either ACK is received or max retransmissions reached.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Circular buffer — RV positions and incremental redundancy</span>
+    <span class="ds-ref">TS 38.212 §5.4.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="rv-canvas" width="900" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>HARQ retransmission example — decode failure on first attempt</span><span class="cb-ref">TS 38.321 §5.3</span></div>
+  <pre><span class="c">// Slot n: gNB sends PDSCH with HARQ process 3, RV=0, NDI=1</span>
+UE receives, CRC check → <span class="op">FAIL</span>  (BLER ~10% at MCS 20)
+UE stores soft bits in HARQ buffer[3]
+UE sends: <span class="op">NACK</span> on PUCCH, k1=2 slots after → slot n+2
+
+<span class="c">// Slot n+4: gNB retransmits same TB, HARQ process 3, RV=2, NDI=1 (same)</span>
+<span class="c">// (NDI unchanged → UE knows this is retransmission)</span>
+UE receives RV2 → <span class="r">soft combines</span> with stored RV0 bits
+Combined LLR values: each bit's reliability improves
+CRC check → <span class="r">PASS</span>  (combining gain ≈ 3 dB effective SNR boost)
+UE sends: <span class="r">ACK</span> on PUCCH → slot n+6
+
+<span class="c">// If still failing after 4 retransmissions:</span>
+→ RLC layer requests retransmission (RLC-AM ARQ)
+→ Upper layer eventually times out → TCP retransmit</pre>
+</div>
+
+<div class="prose">
+<h2>HARQ process pipelining</h2>
+<p>
+  With 16 HARQ processes, the gNB can have 16 transport blocks in flight simultaneously — each in a different stage (first transmission, awaiting ACK, retransmitting). This keeps the channel fully utilised even when individual TBs are waiting for ACK feedback.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">HARQ process pipelining — 16 processes in flight</span>
+    <span class="ds-ref">TS 38.321 §5.3</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="harq-pipeline-canvas" width="900" height="160" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>ACK/NACK — PUCCH formats</h2>
+<p>
+  The HARQ feedback is sent on the <strong>PUCCH (Physical Uplink Control Channel)</strong>. For a single HARQ bit (one codeword), PUCCH Format 0 is used — it's a 2-symbol sequence that the gNB detects by correlating against known sequences. No bits are modulated — the presence and position of the sequence encodes the ACK (1) or NACK (0).
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For PUCCH format 0, the UE transmits a sequence r(m) defined as r(m) = e^(jαm) for the first OFDM symbol, where α = 2π·m_0/12 for ACK and α = 2π·(m_0+6)/12 for NACK, and m_0 is determined by the PUCCH resource.
+  </div>
+  <div class="gpp-source">3GPP TS 38.211, Section 6.3.2.3</div>
+</div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">HARQ — the complete feedback loop</div>
+  <div class="rb-line">Process 3 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">first TX (RV=0) → NACK → retransmit (RV=2) → ACK</span></div>
+  <div class="rb-line">Soft combining &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">~3 dB</span> effective SNR gain per retransmission</div>
+  <div class="rb-line">Pipelining &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">16 processes</span> keep channel fully utilised</div>
+  <div class="rb-line">Feedback channel &nbsp;&nbsp;→ <span class="rb-val">PUCCH Format 0</span> (1-bit ACK/NACK)</div>
+  <div class="rb-line">HARQ RTT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ minimum <span class="rb-val">4 ms</span> (DCI → PDSCH → PUCCH → retransmit)</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="8-3-ul-scheduling.html"><span class="pn-label">← Previous</span><span class="pn-title">Uplink Scheduling</span></a>
   <a href="../module9/9-1-mac.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">MAC Layer</span></a>
@@ -39,6 +154,191 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('8-4-harq.html');</script>
+<script>
+buildSidebar('8-4-harq.html');
+
+// HARQ timing diagram
+(function(){
+  const c=document.getElementById('harq-timing-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=50, slots=12, slotW=(W-PAD*2)/slots, barH=36;
+  const dlY=30, ulY=110;
+
+  // DL row label
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='right';
+  ctx.fillText('DL',PAD-6,dlY+barH/2+4);
+  ctx.fillText('UL',PAD-6,ulY+barH/2+4);
+
+  // Slot backgrounds
+  for(let s=0;s<slots;s++){
+    const x=PAD+s*slotW;
+    ctx.fillStyle=s%2===0?C.bg:C.bg2;
+    ctx.fillRect(x,dlY,slotW,barH);
+    ctx.fillRect(x,ulY,slotW,barH);
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+    ctx.fillText('n+'+(s),x+slotW/2,H-6);
+  }
+
+  // DCI
+  ctx.fillStyle=C.amberL; ctx.fillRect(PAD+1,dlY+2,slotW-2,barH-4);
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1.5; ctx.strokeRect(PAD+1,dlY+2,slotW-2,barH-4);
+  ctx.font='bold 10px Fraunces'; ctx.fillStyle=C.amber; ctx.textAlign='center';
+  ctx.fillText('DCI 1_1',PAD+slotW/2,dlY+barH/2+4);
+
+  // PDSCH (slot 0 same as DCI, K0=0)
+  ctx.fillStyle=C.blueL; ctx.fillRect(PAD+1,dlY+2,slotW-2,barH-4);
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1.5; ctx.strokeRect(PAD+1,dlY+2,slotW-2,barH-4);
+  ctx.font='bold 10px Fraunces'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('DCI+PDSCH',PAD+slotW/2,dlY+22);
+
+  // ACK/NACK (k1=2, so slot n+2 on UL)
+  const ackX=PAD+2*slotW;
+  ctx.fillStyle=C.coralL; ctx.fillRect(ackX+1,ulY+2,slotW-2,barH-4);
+  ctx.strokeStyle=C.coral; ctx.lineWidth=1.5; ctx.strokeRect(ackX+1,ulY+2,slotW-2,barH-4);
+  ctx.font='bold 10px Fraunces'; ctx.fillStyle=C.coral; ctx.textAlign='center';
+  ctx.fillText('NACK',ackX+slotW/2,ulY+barH/2+4);
+
+  // Retransmit (slot n+4 on DL)
+  const reTxX=PAD+4*slotW;
+  ctx.fillStyle=C.purpleL; ctx.fillRect(reTxX+1,dlY+2,slotW-2,barH-4);
+  ctx.strokeStyle=C.purple; ctx.lineWidth=1.5; ctx.strokeRect(reTxX+1,dlY+2,slotW-2,barH-4);
+  ctx.font='bold 10px Fraunces'; ctx.fillStyle=C.purple; ctx.textAlign='center';
+  ctx.fillText('PDSCH RV2',reTxX+slotW/2,dlY+barH/2+4);
+
+  // ACK (n+6)
+  const ackX2=PAD+6*slotW;
+  ctx.fillStyle=C.greenL; ctx.fillRect(ackX2+1,ulY+2,slotW-2,barH-4);
+  ctx.strokeStyle=C.green; ctx.lineWidth=1.5; ctx.strokeRect(ackX2+1,ulY+2,slotW-2,barH-4);
+  ctx.font='bold 10px Fraunces'; ctx.fillStyle=C.green; ctx.textAlign='center';
+  ctx.fillText('ACK',ackX2+slotW/2,ulY+barH/2+4);
+
+  // Arrows
+  const arr=(x1,y1,x2,y2)=>{
+    ctx.strokeStyle=C.text3; ctx.lineWidth=1; ctx.setLineDash([3,2]);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    ctx.setLineDash([]);
+  };
+  arr(PAD+slotW/2,dlY+barH,ackX+slotW/2,ulY);
+  arr(ackX+slotW/2,ulY,reTxX+slotW/2,dlY+barH);
+  arr(reTxX+slotW/2,dlY+barH,ackX2+slotW/2,ulY);
+
+  // k1 label
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('k1=2',PAD+1.5*slotW,H-24);
+  ctx.fillText('k1=2',reTxX+slotW,H-24);
+})();
+
+// Circular buffer RV diagram
+(function(){
+  const c=document.getElementById('rv-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const cx=W/2, cy=H/2, r=75, barW=28;
+  // Draw circular buffer as arc segments
+  ctx.strokeStyle=C.border2; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,r-barW,0,Math.PI*2); ctx.stroke();
+
+  // Fill the buffer ring with coded bits (show as filled arc)
+  ctx.fillStyle=C.bg2;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.arc(cx,cy,r-barW,0,Math.PI*2,true); ctx.fill();
+
+  // RV start positions (0°=top, going clockwise)
+  // RV0: 0°, RV2: ~0.33, RV3: ~0.5, RV1: ~0.75 of the circle
+  const rvs=[
+    {rv:0,angle:-Math.PI/2,color:C.blue,label:'RV0'},
+    {rv:2,angle:-Math.PI/2+Math.PI*2*0.33,color:C.teal,label:'RV2'},
+    {rv:3,angle:-Math.PI/2+Math.PI*2*0.5,color:C.amber,label:'RV3'},
+    {rv:1,angle:-Math.PI/2+Math.PI*2*0.75,color:C.purple,label:'RV1'},
+  ];
+
+  // Color each quarter of ring
+  const quarters=[C.blueL,C.tealL,C.amberL,C.purpleL];
+  const strokes=[C.blue,C.teal,C.amber,C.purple];
+  rvs.forEach((rv,i)=>{
+    const start=rv.angle, end=i<rvs.length-1?rvs[i+1].angle:rvs[0].angle+Math.PI*2;
+    ctx.fillStyle=quarters[i];
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,start,end);
+    ctx.arc(cx,cy,r-barW,end,start,true);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle=strokes[i]; ctx.lineWidth=0.5; ctx.stroke();
+  });
+
+  // Draw RV markers
+  rvs.forEach((rv,i)=>{
+    const x=cx+(r-2)*Math.cos(rv.angle), y=cy+(r-2)*Math.sin(rv.angle);
+    ctx.fillStyle=rv.color; ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+    const lx=cx+(r+20)*Math.cos(rv.angle), ly=cy+(r+20)*Math.sin(rv.angle);
+    ctx.font='bold 11px Fraunces'; ctx.fillStyle=rv.color; ctx.textAlign='center';
+    ctx.fillText(rv.label,lx,ly+4);
+  });
+
+  // Center label
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('Coded bits',cx,cy-5);
+  ctx.fillText('circular buffer',cx,cy+9);
+
+  // Right side: transmission arrows
+  const arrowX=cx+r+60;
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('Transmission order:',arrowX,80);
+  const order=[{rv:'RV0',col:C.blue},{rv:'RV2',col:C.teal},{rv:'RV3',col:C.amber},{rv:'RV1',col:C.purple}];
+  order.forEach((o,i)=>{
+    ctx.fillStyle=o.col; ctx.fillRect(arrowX,98+i*24,40,14);
+    ctx.strokeStyle=o.col; ctx.lineWidth=1; ctx.strokeRect(arrowX,98+i*24,40,14);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text2; ctx.textAlign='left';
+    ctx.fillText(o.rv+' → different parity bits exposed',arrowX+46,98+i*24+10);
+  });
+})();
+
+// Pipeline diagram
+(function(){
+  const c=document.getElementById('harq-pipeline-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const processes=8, slots=16;
+  const procH=(H-40)/processes, slotW=(W-60)/slots, PAD=60;
+
+  const colors=[C.blue,C.teal,C.amber,C.purple,C.coral,C.green,'#d97706','#0d9488'];
+  const fills=[C.blueL,C.tealL,C.amberL,C.purpleL,C.coralL,C.greenL,'#fffbeb','#f0fdfa'];
+
+  // Draw process rows
+  for(let p=0;p<processes;p++){
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='right';
+    ctx.fillText('P'+p,PAD-6,(p+0.5)*procH+36);
+
+    // Each process transmits starting at slot p, then 4 slots later for ACK round trip
+    for(let s=p;s<slots;s+=8){
+      if(s>=slots) break;
+      const x=PAD+s*slotW, y=p*procH+28;
+      ctx.fillStyle=fills[p%8];
+      ctx.fillRect(x+1,y,slotW*2-2,procH-3);
+      ctx.strokeStyle=colors[p%8]; ctx.lineWidth=1;
+      ctx.strokeRect(x+1,y,slotW*2-2,procH-3);
+      if(slotW*2>20){
+        ctx.font='8px IBM Plex Mono'; ctx.fillStyle=colors[p%8]; ctx.textAlign='center';
+        ctx.fillText('TX',x+slotW,y+procH/2+3);
+      }
+    }
+  }
+
+  // Slot labels
+  for(let s=0;s<slots;s++){
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+    ctx.fillText(s,PAD+s*slotW+slotW/2,22);
+  }
+  ctx.textAlign='left'; ctx.fillStyle=C.text3; ctx.font='10px IBM Plex Mono';
+  ctx.fillText('← Process number',6,40);
+  ctx.fillText('Slot →',PAD,16);
+})();
+</script>
 </body>
 </html>

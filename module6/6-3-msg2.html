@@ -3,36 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Msg2 — Random Access Response | 5G From Scratch</title>
+<title>Msg2 — RAR | 5G From Scratch</title>
 <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 6 <span>›</span> Section 6.3</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 6 — Coming Soon
+  <div class="breadcrumb">Module 6 <span>›</span> RACH <span>›</span> Section 6.3</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid var(--green-m);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    Module 6 — Random Access
   </div>
-  <h1>Msg2 — Random Access Response</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>Msg2 —<br><em>The Random Access Response</em></h1>
+  <p class="hero-lead">
+    After sending Msg1, the UE monitors the PDCCH for a RAR — the gNB's response. The RAR carries the Timing Advance command that synchronises the UE's uplink, a grant for sending Msg3, and a Temporary C-RNTI. This section explains how the UE finds the RAR, what it contains, and what happens if it never arrives.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.321 §5.1.4</span>
+    <span class="spec-pill">TS 38.213 §8.2</span>
+    <span class="spec-pill">TS 38.212 §6.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">RA-RNTI calculation</div>
-<div class="topic-item">RAR window</div>
-<div class="topic-item">Timing Advance command</div>
-<div class="topic-item">UL grant for Msg3</div>
-<div class="topic-item">Temporary C-RNTI</div>
+<div class="prose">
+
+<h2>RA-RNTI — finding the RAR on PDCCH</h2>
+<p>
+  The gNB does not send the RAR directly to the UE — it doesn't know the UE's identity yet. Instead, the RAR is addressed to an <strong>RA-RNTI</strong> derived from the PRACH occasion parameters. Any UE that transmitted in that occasion will monitor for this RA-RNTI.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The RA-RNTI associated with the PRACH occasion is computed as:<br><br>
+    RA-RNTI = 1 + s_id + 14·t_id + 14·80·f_id + 14·80·8·ul_carrier_id<br><br>
+    where s_id is the index of the first OFDM symbol of the PRACH occasion, t_id is the index of the first slot of the PRACH occasion in a system frame, f_id is the index of the PRACH occasion in the frequency domain, and ul_carrier_id is the uplink carrier used.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.1.4</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RA-RNTI calculation — our PRACH occasion</span><span class="cb-ref">TS 38.321 §5.1.4</span></div>
+  <pre><span class="c">// Our PRACH occasion parameters:</span>
+s_id         = <span class="n">0</span>   (first OFDM symbol of PRACH = symbol 0)
+t_id         = <span class="n">0</span>   (first slot of the PRACH subframe = slot 0)
+f_id         = <span class="n">0</span>   (only 1 PRACH occasion in freq, msg1-FDM=1)
+ul_carrier_id = <span class="n">0</span>   (normal uplink carrier)
+
+<span class="c">// Calculation:</span>
+RA-RNTI = 1 + <span class="n">0</span> + 14×<span class="n">0</span> + 14×80×<span class="n">0</span> + 14×80×8×<span class="n">0</span>
+        = <span class="r">1</span>
+
+<span class="c">// UE monitors PDCCH for DCI 1_0 with CRC masked by RA-RNTI = 0x0001</span>
+<span class="c">// Within the RAR window: slots 2+1 to 2+10 = slots 3..12</span>
+<span class="c">// (Msg1 was in slot 2, ra-ResponseWindow = sl10)</span></pre>
+</div>
+
+<div class="prose">
+<h2>RAR window — when to look</h2>
+<p>
+  After sending Msg1 in slot 2, the UE opens a <strong>RAR window</strong> lasting <code>ra-ResponseWindow = sl10</code> = 10 slots = 5 ms. During this window, the UE monitors the PDCCH (using the initial DL BWP CORESET) for the RA-RNTI. If no RAR is found within the window, the attempt is considered failed.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">RAR window — slots 3 to 12 after Msg1</span>
+    <span class="ds-ref">TS 38.321 §5.1.4</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="rar-window-canvas" width="900" height="120" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>RAR contents — MAC subPDU structure</h2>
+<p>
+  The RAR is carried in a <strong>MAC PDU</strong> that can contain multiple sub-headers and sub-PDUs — one per preamble detected by the gNB. Each sub-PDU contains one RAR, identifying which preamble it responds to and providing the resources for Msg3.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RAR MAC sub-PDU contents — our UE (preamble index 27)</span><span class="cb-ref">TS 38.321 §6.2.3</span></div>
+  <pre><span class="c">// MAC subheader:</span>
+RAPID = <span class="n">27</span>   <span class="c">← Random Access Preamble IDentifier</span>
+<span class="c">// (UE matches RAPID=27 against the preamble index it sent)</span>
+
+<span class="c">// RAR payload (6 bytes = 48 bits):</span>
+Timing Advance Command (12 bits) = <span class="r">31</span>
+<span class="c">// TA = 31 → actual advance = 31 × 16 × T_s = 31 × 16 / 30.72MHz ≈ 16.1 μs</span>
+<span class="c">// Meaning: UE must start transmitting 16.1 μs earlier than it currently does</span>
+
+UL Grant (27 bits):
+  Frequency resource  = RBs <span class="n">0</span>–<span class="n">5</span>   <span class="c">← 6 RBs for Msg3 PUSCH</span>
+  Time resource       = row <span class="n">3</span>      <span class="c">← slot offset + symbol allocation</span>
+  MCS                 = <span class="n">4</span>          <span class="c">← QPSK, low rate — conservative</span>
+  TPC command         = <span class="n">0</span> dB       <span class="c">← no power adjustment yet</span>
+
+Temporary C-RNTI (16 bits) = <span class="r">0x3A7F</span>
+<span class="c">// Temporary identity used for Msg3 and contention resolution</span></pre>
+</div>
+
+<div class="prose">
+<h2>Timing Advance — what it means physically</h2>
+<p>
+  The gNB measured that the UE's preamble arrived <strong>16.1 μs late</strong> relative to the uplink timing reference. This corresponds to a one-way propagation delay of ~8 μs, meaning the UE is approximately 8 μs × 3×10⁸ m/s = <strong>2.4 km</strong> from the gNB.
+</p>
+<p>
+  By advancing its transmit timing by 16.1 μs, the UE compensates for both the uplink and downlink propagation delays, ensuring its signal arrives at the gNB in the correct timing window.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Timing Advance — propagation delay compensation</span>
+    <span class="ds-ref">TS 38.213 §4.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="ta-canvas" width="900" height="180" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>After receiving the RAR</h2>
+<p>
+  When the UE successfully decodes the RAR and finds its RAPID (=27), it:
+</p>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Apply Timing Advance = 31</div>
+      <div class="step-text">UE sets its uplink transmit timing: start transmitting 31 × 16 × T_s = 16.1 μs earlier than the downlink frame timing. All subsequent uplink transmissions use this offset until a new TA command arrives.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Store Temporary C-RNTI = 0x3A7F</div>
+      <div class="step-text">This temporary identity will be used for Msg3 (sent on PUSCH with TC-RNTI) and will be confirmed or replaced in Msg4. If contention resolution fails, the TC-RNTI is discarded.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);">3</div></div>
+    <div class="step-body">
+      <div class="step-title">Prepare Msg3 using the UL grant</div>
+      <div class="step-text">The UL grant in the RAR allocates RBs 0–5 for Msg3 PUSCH. The UE assembles an RRCSetupRequest message and schedules it for the granted resources.</div>
     </div>
   </div>
 </div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Msg2 received — UE now has:</div>
+  <div class="rb-line">Timing Advance &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">TA = 31</span> → advance TX by 16.1 μs</div>
+  <div class="rb-line">UE-gNB distance &nbsp;&nbsp;&nbsp;&nbsp;→ approximately <span class="rb-val">2.4 km</span></div>
+  <div class="rb-line">UL grant &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">RBs 0–5</span>, MCS 4, for Msg3</div>
+  <div class="rb-line">Temporary C-RNTI &nbsp;&nbsp;&nbsp;→ <span class="rb-val">0x3A7F</span></div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Send Msg3 (RRCSetupRequest) on PUSCH</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="6-2-msg1.html"><span class="pn-label">← Previous</span><span class="pn-title">Msg1 — Preamble</span></a>
   <a href="6-4-msg3.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Msg3/4 — RRC Setup</span></a>
@@ -40,6 +177,73 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('6-3-msg2.html');</script>
+<script>
+buildSidebar('6-3-msg2.html');
+
+// RAR window
+(function(){
+  const c=document.getElementById('rar-window-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=40, slotW=(W-PAD*2)/16, startY=28, barH=48;
+  for(let s=0;s<16;s++){
+    const x=PAD+s*slotW;
+    const isMsg1=s===2, isWindow=s>=3&&s<=12, isMsg2=s===5;
+    let fill=C.bg2, stroke=C.border, label=s+'';
+    if(isMsg1){fill=C.blueL;stroke=C.blue;label='Msg1';}
+    else if(isMsg2){fill=C.greenL;stroke=C.green;label='RAR';}
+    else if(isWindow){fill='#f0fdf4';stroke=C.green;}
+    ctx.fillStyle=fill; ctx.fillRect(x+1,startY,slotW-2,barH);
+    ctx.strokeStyle=stroke; ctx.lineWidth=isMsg1||isMsg2?1.5:0.5;
+    ctx.strokeRect(x+1,startY,slotW-2,barH);
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=isMsg1?C.blue:isMsg2?C.green:C.muted; ctx.textAlign='center';
+    ctx.fillText(label,x+slotW/2,startY+barH/2+3);
+  }
+  // RAR window brace
+  ctx.strokeStyle=C.green; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD+3*slotW,startY+barH+8); ctx.lineTo(PAD+13*slotW,startY+barH+8); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.green; ctx.textAlign='center';
+  ctx.fillText('RAR window = sl10 (10 slots = 5 ms)',PAD+8*slotW,startY+barH+22);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
+  ctx.fillText('← Slot index →',PAD,startY-8);
+})();
+
+// Timing Advance diagram
+(function(){
+  const c=document.getElementById('ta-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  // Timeline
+  const y1=50, y2=130, ueX=80, gnbX=820;
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('UE',ueX,y1-12);
+  ctx.fillStyle=C.green; ctx.fillText('gNB',gnbX,y1-12);
+
+  // DL frame arrow (gNB → UE)
+  ctx.strokeStyle=C.green; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(gnbX,y1); ctx.lineTo(ueX+100,y1); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ueX+100,y1); ctx.lineTo(ueX+115,y1-5); ctx.lineTo(ueX+115,y1+5); ctx.closePath(); ctx.fillStyle=C.green; ctx.fill();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.green; ctx.textAlign='center';
+  ctx.fillText('DL frame (SSB, PDCCH...) — arrives 8 μs late at UE',(gnbX+ueX)/2,y1-8);
+
+  // UL preamble without TA (late)
+  ctx.strokeStyle=C.coral; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  ctx.beginPath(); ctx.moveTo(ueX+100,y2+20); ctx.lineTo(gnbX,y2+20); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.coral; ctx.textAlign='center';
+  ctx.fillText('Without TA: arrives 16 μs late at gNB ✗',(gnbX+ueX+100)/2,y2+36);
+
+  // UL preamble with TA (correct)
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(ueX,y2); ctx.lineTo(gnbX-100,y2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(gnbX-100,y2); ctx.lineTo(gnbX-85,y2-5); ctx.lineTo(gnbX-85,y2+5); ctx.closePath(); ctx.fillStyle=C.blue; ctx.fill();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('With TA=31: starts 16.1 μs early → arrives aligned ✓',(gnbX-100+ueX)/2,y2-8);
+  ctx.setLineDash([]);
+})();
+</script>
 </body>
 </html>

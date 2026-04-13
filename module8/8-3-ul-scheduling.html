@@ -10,27 +10,188 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 8 <span>›</span> Section 8.3</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 8 — Coming Soon
+  <div class="breadcrumb">Module 8 <span>›</span> Scheduling <span>›</span> Section 8.3</div>
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid var(--amber-m);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    Module 8 — Scheduling & Data
   </div>
-  <h1>Uplink Scheduling</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>Uplink Scheduling —<br><em>The UE requests, the gNB decides</em></h1>
+  <p class="hero-lead">
+    Uplink scheduling is more complex than downlink because the UE must first tell the gNB how much data it has — then wait for a grant. This section covers Buffer Status Reports, Scheduling Requests, power control, and the full PUSCH transmission chain including DFT-s-OFDM.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.321 §5.4</span>
+    <span class="spec-pill">TS 38.213 §7</span>
+    <span class="spec-pill">TS 38.214 §6.1</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">PUSCH resource allocation</div>
-<div class="topic-item">DCI 0_1 field-by-field</div>
-<div class="topic-item">Uplink power control</div>
+<div class="prose">
+
+<h2>How uplink scheduling works</h2>
+<p>
+  In downlink, the gNB decides everything and just tells the UE via DCI. In uplink, the process is more involved — the gNB cannot know how much data the UE has to send. The UE must first signal its buffer status, and the gNB grants uplink resources in response.
+</p>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Data arrives in UE buffer</div>
+      <div class="step-text">Application generates data (e.g. video upload). MAC layer sees the DTCH logical channel buffer fill up. Triggers BSR reporting procedure.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Scheduling Request (SR) sent on PUCCH</div>
+      <div class="step-text">If no UL grant is available, the UE sends a 1-bit SR on the PUCCH resource configured in RRCSetup. This tells the gNB "I have data to send, please give me an uplink grant."</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);">3</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">gNB sends DCI 0_1 (UL grant)</div>
+      <div class="step-text">The gNB responds with a DCI 0_1 on PDCCH granting uplink resources: frequency allocation, time offset K2, MCS, and HARQ process number.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--green-l);color:var(--green);border:1px solid var(--green-m);">4</div></div>
+    <div class="step-body">
+      <div class="step-title">UE sends BSR + data on PUSCH</div>
+      <div class="step-text">Using the grant K2 slots later, UE sends a Buffer Status Report MAC CE followed by as much data as the grant allows. The gNB uses the BSR to size future grants accurately.</div>
     </div>
   </div>
 </div>
+
+<div class="prose">
+<h2>Buffer Status Report (BSR)</h2>
+<p>
+  A BSR reports the amount of data waiting in each <strong>logical channel group (LCG)</strong>. LCGs are configured by RRC and group bearers by priority. The gNB uses the BSR to decide how many RBs to grant next time.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The MAC entity shall trigger a BSR procedure when data becomes available for transmission in the RLC entity of a logical channel which belongs to a LCG, and the data available in that LCG is larger than the data available in all other LCGs with lower priority.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.4.5</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>BSR MAC CE — our UE reporting uplink data</span><span class="cb-ref">TS 38.321 §6.1.3.1</span></div>
+  <pre><span class="c">// Short BSR format (1 LCG reported, 1 byte):</span>
+LCG ID    = <span class="n">1</span>   <span class="c">← LCG 1 (user data bearers)</span>
+Buffer    = <span class="n">18</span>  <span class="c">← index 18 → ~300 kB pending</span>
+
+<span class="c">// Long BSR format (all LCGs, used when >1 LCG has data):</span>
+LCG 0: <span class="n">0</span>   <span class="c">← no SRB data pending</span>
+LCG 1: <span class="n">18</span>  <span class="c">← 300 kB user data (video upload)</span>
+LCG 2: <span class="n">0</span>
+...
+
+<span class="c">// Buffer size index table (selected entries):</span>
+Index 0:   0 bytes
+Index 10:  3,072 bytes (~3 kB)
+Index 18: ~300 kB
+Index 25: ~2 MB
+Index 31: 30,576,752+ bytes (maximum)</pre>
+</div>
+
+<div class="prose">
+<h2>DCI 0_1 — uplink grant fields</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">DCI Format 0_1 — UL grant decoded</span>
+    <span class="ds-ref">TS 38.212 §7.3.1.1.2</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Field</th><th>Value</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">Freq domain resource</td><td style="font-family:var(--mono);color:var(--text2);">RIV=542</td><td style="color:var(--text2)">RBs 8–29 (22 RBs)</td></tr>
+        <tr class="hl"><td class="t-pos">Time domain (K2)</td><td style="font-family:var(--mono);">K2=4</td><td>Transmit 4 slots after this DCI</td></tr>
+        <tr><td class="t-pos">MCS</td><td style="font-family:var(--mono);color:var(--text2);">16</td><td style="color:var(--text2)">64-QAM, code rate 0.60</td></tr>
+        <tr><td class="t-pos">HARQ process</td><td style="font-family:var(--mono);color:var(--text2);">0b0001 = 1</td><td style="color:var(--text2)">UL HARQ process 1</td></tr>
+        <tr><td class="t-pos">TPC for PUSCH</td><td style="font-family:var(--mono);color:var(--text2);">+1 dB</td><td style="color:var(--text2)">Slight power increase commanded</td></tr>
+        <tr><td class="t-pos">UL/SUL indicator</td><td style="font-family:var(--mono);color:var(--text2);">0</td><td style="color:var(--text2)">Normal UL (not supplementary)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Uplink power control</h2>
+<p>
+  Unlike the downlink where the gNB knows its own transmit power, uplink power control is a critical mechanism. The gNB wants the UE's signal to arrive at a specific target power — high enough to decode but not so high as to cause interference to other cells.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The UE shall set the PUSCH transmit power to:<br><br>
+    P_PUSCH = min(P_CMAX, 10log10(2^μ × M_RB) + P_O_PUSCH + α × PL + ΔTF + f(i))
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 7.1.1, Equation 7.1.1-1</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>PUSCH power calculation — our UE</span><span class="cb-ref">TS 38.213 §7.1.1</span></div>
+  <pre><span class="c">// Parameters (from RRC configuration):</span>
+P_O_PUSCH = <span class="n">−90</span> dBm  <span class="c">← target received power at 1 RB (gNB configured)</span>
+α         = <span class="n">0.8</span>      <span class="c">← path loss compensation factor (0=no comp, 1=full)</span>
+PL        = <span class="n">128</span> dB   <span class="c">← path loss (from RSRP measurement)</span>
+M_RB      = <span class="n">22</span>       <span class="c">← allocated RBs</span>
+μ         = <span class="n">1</span>        <span class="c">← numerology</span>
+ΔTF       = <span class="n">0</span> dB     <span class="c">← MCS-dependent offset</span>
+f(i)      = <span class="n">+1</span> dB    <span class="c">← TPC accumulation from DCI</span>
+
+<span class="c">// Calculation:</span>
+P = 10×log10(2^<span class="n">1</span> × <span class="n">22</span>) + (<span class="n">−90</span>) + <span class="n">0.8</span>×<span class="n">128</span> + <span class="n">0</span> + <span class="n">1</span>
+  = <span class="n">16.4</span> + (<span class="n">−90</span>) + <span class="n">102.4</span> + <span class="n">0</span> + <span class="n">1</span>
+  = <span class="r">+29.8 dBm</span>
+
+<span class="c">// Capped at P_CMAX = 23 dBm:</span>
+P_PUSCH = min(<span class="n">23</span>, <span class="n">29.8</span>) = <span class="r">23 dBm</span>  <span class="c">← UE at max power</span></pre>
+</div>
+
+<div class="prose">
+<h2>DFT-s-OFDM vs CP-OFDM for uplink</h2>
+<p>
+  For uplink, the UE can use either <strong>CP-OFDM</strong> (same as downlink) or <strong>DFT-s-OFDM</strong> (DFT-spread OFDM). DFT-s-OFDM has a lower <strong>Peak-to-Average Power Ratio (PAPR)</strong> — crucial for the UE's power amplifier efficiency. Lower PAPR means the UE can transmit at higher average power without distortion, improving coverage.
+</p>
+<p>
+  The choice is configured by RRC. Our UE is configured for DFT-s-OFDM (single-layer, RRC configured <code>transformPrecoder = enabled</code>).
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">DFT-s-OFDM transmitter chain — PUSCH</span>
+    <span class="ds-ref">TS 38.211 §6.3.1</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="pusch-chain-canvas" width="900" height="110" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">UL scheduling — our transmission</div>
+  <div class="rb-line">Trigger &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">SR on PUCCH → DCI 0_1 received</span></div>
+  <div class="rb-line">Resources &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">22 RBs</span> (8–29), K2=4 slots ahead</div>
+  <div class="rb-line">MCS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">16 (64-QAM, rate 0.60)</span></div>
+  <div class="rb-line">Transmit power &nbsp;&nbsp;→ <span class="rb-val">23 dBm</span> (max, path loss = 128 dB)</div>
+  <div class="rb-line">Waveform &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">DFT-s-OFDM</span> (low PAPR)</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="8-2-dl-scheduling.html"><span class="pn-label">← Previous</span><span class="pn-title">Downlink Scheduling</span></a>
   <a href="8-4-harq.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">HARQ</span></a>
@@ -38,6 +199,45 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('8-3-ul-scheduling.html');</script>
+<script>
+buildSidebar('8-3-ul-scheduling.html');
+
+// PUSCH chain
+(function(){
+  const c=document.getElementById('pusch-chain-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+  const boxes=[
+    {label:'TB + CRC',sub:'LDPC encode',fill:C.blueL,stroke:C.blue},
+    {label:'Rate Match',sub:'+ scramble',fill:C.purpleL,stroke:C.purple},
+    {label:'64-QAM',sub:'map symbols',fill:C.tealL,stroke:C.teal},
+    {label:'DFT',sub:'M-point DFT',fill:C.amberL,stroke:C.amber},
+    {label:'Subcarrier\nMap',sub:'22 RBs',fill:C.greenL,stroke:C.green},
+    {label:'IFFT + CP',sub:'122.88 Msps',fill:C.coralL,stroke:C.coral},
+  ];
+  const bw=124, bh=64, gap=9, startX=(W-boxes.length*(bw+gap)+gap)/2, y=20;
+  boxes.forEach((b,i)=>{
+    const x=startX+i*(bw+gap);
+    ctx.fillStyle=b.fill; roundRect(ctx,x,y,bw,bh,5); ctx.fill();
+    ctx.strokeStyle=b.stroke; ctx.lineWidth=1.5; roundRect(ctx,x,y,bw,bh,5); ctx.stroke();
+    ctx.font='bold 11px Fraunces'; ctx.fillStyle=b.stroke; ctx.textAlign='center';
+    const lines=b.label.split('\n');
+    lines.forEach((l,li)=>ctx.fillText(l,x+bw/2,y+20+li*14));
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+    ctx.fillText(b.sub,x+bw/2,y+50);
+    if(i<boxes.length-1){
+      ctx.strokeStyle=C.faint; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.moveTo(x+bw+1,y+bh/2); ctx.lineTo(x+bw+gap-1,y+bh/2); ctx.stroke();
+      ctx.fillStyle=C.faint; ctx.beginPath();
+      ctx.moveTo(x+bw+gap-1,y+bh/2); ctx.lineTo(x+bw+gap-8,y+bh/2-5); ctx.lineTo(x+bw+gap-8,y+bh/2+5); ctx.closePath(); ctx.fill();
+    }
+  });
+  // DFT label
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.amber; ctx.textAlign='center';
+  ctx.fillText('← DFT-s-OFDM specific step (lowers PAPR)',W/2,y+bh+16);
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

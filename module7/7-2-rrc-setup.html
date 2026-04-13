@@ -3,35 +3,186 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RRC Setup | 5G From Scratch</title>
+<title>RRC Setup Details | 5G From Scratch</title>
 <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 7 <span>›</span> Section 7.2</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 7 — Coming Soon
+  <div class="breadcrumb">Module 7 <span>›</span> RRC <span>›</span> Section 7.2</div>
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
+    Module 7 — RRC
   </div>
-  <h1>RRC Setup</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>RRC Setup Details —<br><em>Bearers, DRX, and measurements</em></h1>
+  <p class="hero-lead">
+    RRCSetup configured the UE with SRB1 and basic PHY/MAC parameters. This section goes deeper into what RRC_CONNECTED actually means operationally — how radio bearers are structured, how DRX saves power while connected, and how measurement reporting enables handover decisions.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.331 §5.3.3</span>
+    <span class="spec-pill">TS 38.321 §5.7</span>
+    <span class="spec-pill">TS 38.331 §5.5.3</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">RRCSetup message contents</div>
-<div class="topic-item">SRB1 establishment</div>
-<div class="topic-item">Initial BWP configuration</div>
-<div class="topic-item">CORESET 1-11 (RRC configured)</div>
-    </div>
+<div class="prose">
+
+<h2>Radio bearer architecture</h2>
+<p>
+  A <strong>radio bearer</strong> is a logical pipe between the UE and the network for a specific type of traffic. Each bearer maps to a specific QoS class and traverses a defined stack of protocol layers. 5G NR defines two types:
+</p>
+<p>
+  <strong>Signalling Radio Bearers (SRBs)</strong> carry RRC and NAS control messages. SRB0 uses the Common Control Channel before RRC connection. SRB1 (established at RRCSetup) carries all subsequent RRC signalling. SRB2 is established later for NAS messages.
+</p>
+<p>
+  <strong>Data Radio Bearers (DRBs)</strong> carry user data. Each DRB maps to a PDU session and QoS flow. DRBs are established in RRCReconfiguration after NAS registration.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Radio bearer protocol stack — SRB1 and DRB1</span>
+    <span class="ds-ref">TS 38.300 §6.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="bearer-stack-canvas" width="900" height="240" style="width:100%;"></canvas>
   </div>
 </div>
+
+<div class="prose">
+<h2>Logical, transport, and physical channels</h2>
+<p>
+  The RRC configuration maps each bearer to a chain of channels:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">Channel mapping — from RRC to physical layer</span><span class="ds-ref">TS 38.300 §6.1</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Bearer type</th><th>Logical channel</th><th>Transport channel</th><th>Physical channel</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">SRB0 (pre-RRC)</td><td>CCCH</td><td>DL-SCH / UL-SCH</td><td style="color:var(--text2)">PDSCH / PUSCH (SI-RNTI / TC-RNTI)</td></tr>
+        <tr class="hl"><td class="t-pos">SRB1 (our current)</td><td>DCCH</td><td>DL-SCH / UL-SCH</td><td>PDSCH / PUSCH (C-RNTI)</td></tr>
+        <tr><td class="t-pos">DRB (user data)</td><td>DTCH</td><td>DL-SCH / UL-SCH</td><td style="color:var(--text2)">PDSCH / PUSCH (C-RNTI)</td></tr>
+        <tr><td class="t-pos">Broadcast (SIB)</td><td>BCCH</td><td>BCH / DL-SCH</td><td style="color:var(--text2)">PBCH / PDSCH (SI-RNTI)</td></tr>
+        <tr><td class="t-pos">Paging</td><td>PCCH</td><td>PCH</td><td style="color:var(--text2)">PDSCH (P-RNTI)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>DRX — power saving in connected mode</h2>
+<p>
+  Even in RRC_CONNECTED, the UE does not need to monitor the PDCCH every single slot. <strong>DRX (Discontinuous Reception)</strong> lets the UE sleep for defined periods, waking only at DRX occasions to check for scheduling assignments.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    When DRX is configured, the UE shall monitor the PDCCH in the Active Time. The Active Time includes the time the UE is performing the on-duration timer, drx-InactivityTimer, drx-RetransmissionTimerDL, or drx-RetransmissionTimerUL.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.7</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">DRX cycle — on-duration, inactivity, sleep</span>
+    <span class="ds-ref">TS 38.321 §5.7</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="drx-canvas" width="900" height="150" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>DRX timers — typical connected-mode configuration</span><span class="cb-ref">TS 38.321 §5.7</span></div>
+  <pre><span class="c">// DRX cycle = drx-LongCycleStartOffset</span>
+drx-LongCycle        = <span class="n">160</span> ms   <span class="c">← wake every 160 ms (default)</span>
+drx-OnDurationTimer  = <span class="n">10</span> ms    <span class="c">← monitor PDCCH for 10 ms after waking</span>
+drx-InactivityTimer  = <span class="n">100</span> ms   <span class="c">← stay awake 100 ms after last DCI received</span>
+drx-RetransmissionTimerDL = <span class="n">4</span> ms <span class="c">← stay awake for HARQ retransmissions</span>
+
+<span class="c">// Power saving example:</span>
+Active time  = 10 ms on-duration + ~100 ms after data
+Sleep time   = remaining ~50 ms per 160 ms cycle
+Duty cycle   = <span class="r">~31%</span>  (70% power reduction vs always-on)</pre>
+</div>
+
+<div class="prose">
+<h2>Measurement configuration and reporting</h2>
+<p>
+  In RRC_CONNECTED, the network configures the UE to measure signal quality of the serving cell and neighbouring cells. These measurements feed the handover algorithm — when a neighbour becomes significantly stronger than the serving cell, a handover is triggered.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The measurement configuration includes measurement objects (what to measure), reporting configurations (when and how to report), and quantity configurations (how to filter the measurements). A measurement report is sent by the UE on SRB1 when a reporting condition is met.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 5.5.2</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">Measurement framework — objects, reports, events</span><span class="ds-ref">TS 38.331 §5.5</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Event</th><th>Trigger</th><th>Typical use</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">A3</td><td>Neighbour becomes <em>offset</em> better than serving</td><td>Intra-frequency handover ← most common</td></tr>
+        <tr><td class="t-pos">A1</td><td style="color:var(--text2)">Serving cell above threshold</td><td style="color:var(--text2)">Cancel inter-freq measurements (save power)</td></tr>
+        <tr><td class="t-pos">A2</td><td style="color:var(--text2)">Serving cell below threshold</td><td style="color:var(--text2)">Start inter-freq/RAT measurements</td></tr>
+        <tr><td class="t-pos">A4</td><td style="color:var(--text2)">Neighbour above threshold</td><td style="color:var(--text2)">Conditional handover preparation</td></tr>
+        <tr><td class="t-pos">A5</td><td style="color:var(--text2)">Serving below T1 AND neighbour above T2</td><td style="color:var(--text2)">Inter-frequency handover</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>RRCSetupComplete — closing the loop</h2>
+<p>
+  The final RRC message in the initial access sequence. Sent by the UE on SRB1 after receiving and applying RRCSetup. It includes a NAS Registration Request piggybacked in the <code>dedicatedNAS-Message</code> field.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RRCSetupComplete — our UE</span><span class="cb-ref">TS 38.331 §5.3.3.4</span></div>
+  <pre><span class="c">// RRCSetupComplete sent on SRB1 (C-RNTI=0x3A7F):</span>
+RRCSetupComplete ::= SEQUENCE {
+  rrc-TransactionIdentifier = <span class="n">0</span>,
+  criticalExtensions:
+    rrcSetupComplete:
+      selectedPLMN-Identity  = <span class="n">1</span>        <span class="c">← index 1 → PLMN 244-05</span>
+      registeredAMF          = <span class="n">present</span>  <span class="c">← reuse last known AMF</span>
+      guami                  = <span class="n">present</span>  <span class="c">← last known GUAMI</span>
+      dedicatedNAS-Message:
+        <span class="c">// NAS Registration Request (5GMM):</span>
+        messageType          = <span class="n">0x41</span>     <span class="c">← Registration Request</span>
+        registrationType     = <span class="r">initialRegistration</span>
+        5GS_mobile_identity:
+          SUCI  <span class="c">← Subscription Concealed Identifier (privacy)</span>
+          <span class="c">// SUCI = ECIES-encrypted IMSI → AMF decrypts with AUSF</span>
+        requestedNSSAI       = <span class="n">eMBB slice</span>
+}</pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">RRC_CONNECTED — operational state</div>
+  <div class="rb-line">SRB1 active &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">RLC-AM, DCCH, C-RNTI=0x3A7F</span></div>
+  <div class="rb-line">DRX &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">160 ms cycle</span>, 10 ms on-duration</div>
+  <div class="rb-line">Measurements &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">A3 event</span> configured for intra-freq HO</div>
+  <div class="rb-line">NAS registration →  in progress (SUCI sent in RRCSetupComplete)</div>
+  <div class="rb-line">Data flows after → <span class="rb-val">NAS registration + PDU session establishment</span></div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="7-1-rrc-states.html"><span class="pn-label">← Previous</span><span class="pn-title">RRC States</span></a>
   <a href="../module8/8-1-dci.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">DCI Formats</span></a>
@@ -39,6 +190,98 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('7-2-rrc-setup.html');</script>
+<script>
+buildSidebar('7-2-rrc-setup.html');
+
+// Bearer stack
+(function(){
+  const c=document.getElementById('bearer-stack-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const layers=['PDCP','RLC','MAC','PHY'];
+  const colW=W/2-60, bh=42, PAD=40;
+  const cols=[
+    {x:PAD,label:'SRB1 (Signalling)',color:C.purple},
+    {x:W/2+20,label:'DRB1 (User data)',color:C.blue},
+  ];
+
+  // Shared MAC/PHY label
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+  ctx.fillText('← MAC and PHY are shared across all bearers →',W/2,H-10);
+
+  cols.forEach(col=>{
+    ctx.font='bold 12px Fraunces'; ctx.fillStyle=col.color; ctx.textAlign='center';
+    ctx.fillText(col.label,col.x+colW/2,18);
+
+    layers.forEach((layer,i)=>{
+      const y=28+i*bh;
+      const isShared=layer==='MAC'||layer==='PHY';
+      const fill=isShared?C.bg3:(col.color===C.purple?C.purpleL:C.blueL);
+      const stroke=isShared?C.border2:col.color;
+      ctx.fillStyle=fill; roundRect(ctx,col.x,y,colW,bh-3,5); ctx.fill();
+      ctx.strokeStyle=stroke; ctx.lineWidth=isShared?0.5:1.5;
+      roundRect(ctx,col.x,y,colW,bh-3,5); ctx.stroke();
+      ctx.font='bold 13px Fraunces'; ctx.fillStyle=isShared?C.text3:stroke; ctx.textAlign='center';
+      ctx.fillText(layer,col.x+colW/2,y+bh/2+2);
+
+      // Arrow down
+      if(i<layers.length-1){
+        ctx.strokeStyle=C.faint; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(col.x+colW/2,y+bh-3); ctx.lineTo(col.x+colW/2,y+bh+2); ctx.stroke();
+      }
+    });
+  });
+
+  // Shared bracket
+  const macY=28+2*bh;
+  ctx.strokeStyle=C.border2; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(PAD-8,macY); ctx.lineTo(W-PAD+8,macY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='right';
+  ctx.fillText('shared →',PAD-10,macY+20);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+
+// DRX cycle diagram
+(function(){
+  const c=document.getElementById('drx-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=40, cycleW=(W-PAD*2), y=30, h=60;
+  // One full DRX cycle = 160ms, split:
+  // on-duration = 10ms → 6.25% of width
+  // inactivity = 40ms → 25%
+  // sleep = 110ms → 68.75%
+  const parts=[
+    {w:0.0625,label:'On-duration\n10 ms',fill:C.greenL,stroke:C.green},
+    {w:0.25,  label:'Inactivity timer\n40 ms (data received)',fill:C.blueL,stroke:C.blue},
+    {w:0.6875,label:'Sleep — DRX off duration: ~110 ms',fill:C.bg2,stroke:C.faint},
+  ];
+  let x=PAD;
+  parts.forEach(p=>{
+    const w=p.w*cycleW;
+    ctx.fillStyle=p.fill; roundRect(ctx,x,y,w,h,4); ctx.fill();
+    ctx.strokeStyle=p.stroke; ctx.lineWidth=1; roundRect(ctx,x,y,w,h,4); ctx.stroke();
+    if(w>60){
+      const lines=p.label.split('\n');
+      ctx.font='10px IBM Plex Mono'; ctx.fillStyle=p.stroke; ctx.textAlign='center';
+      lines.forEach((l,i)=>ctx.fillText(l,x+w/2,y+h/2-4+i*14));
+    }
+    x+=w;
+  });
+  // Cycle brace
+  ctx.strokeStyle=C.text3; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD,y+h+10); ctx.lineTo(W-PAD,y+h+10); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('← DRX cycle = 160 ms →',W/2,y+h+24);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

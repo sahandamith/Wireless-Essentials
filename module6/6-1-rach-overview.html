@@ -10,28 +10,122 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 6 <span>›</span> Section 6.1</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 6 — Coming Soon
+  <div class="breadcrumb">Module 6 <span>›</span> RACH <span>›</span> Section 6.1</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid var(--green-m);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    Module 6 — Random Access
   </div>
-  <h1>RACH Overview</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>RACH —<br><em>The UE knocks on the door</em></h1>
+  <p class="hero-lead">
+    The UE is camped on PCI 442. It knows the operator, the signal is good, access is allowed. Now it must actually connect. The Random Access Channel (RACH) procedure is how the UE synchronises its uplink timing with the gNB and gets a temporary identity — the first step to an RRC connection.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.213 §8</span>
+    <span class="spec-pill">TS 38.321 §5.1</span>
+    <span class="spec-pill">TS 38.331 §5.3.3</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">Purpose (timing advance, UL sync)</div>
-<div class="topic-item">Contention-based vs contention-free</div>
-<div class="topic-item">4-step vs 2-step RACH</div>
-<div class="topic-item">Msg1/2/3/4 overview</div>
-    </div>
+<div class="prose">
+
+<h2>Why RACH is needed</h2>
+<p>
+  In OFDM systems, the gNB must receive all UE transmissions time-aligned to within the cyclic prefix duration. A UE that just powered on does not know how long its signal takes to travel to the gNB — it could be 100 metres away or 10 km away. The propagation delay can range from near-zero to <strong>~33 μs</strong> for a cell radius of 5 km.
+</p>
+<p>
+  If the UE transmitted on the uplink without adjusting for this delay, its signal would arrive misaligned at the gNB, causing interference with other UEs. RACH solves this by letting the gNB measure the UE's arrival timing and send back a <strong>Timing Advance (TA)</strong> command — telling the UE to transmit earlier by exactly the right amount.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The random access procedure is used to achieve uplink synchronisation and to allocate a unique temporary identifier to the UE. The UE shall initiate the random access procedure when directed by upper layers to establish an RRC connection.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.1</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">4-step</div><div class="kc-label">contention-based RACH</div><div class="kc-desc">Msg1 → Msg2 → Msg3 → Msg4. Standard initial access.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">2-step</div><div class="kc-label">contention-free RACH</div><div class="kc-desc">MsgA → MsgB. Faster, used for handover.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">64</div><div class="kc-label">preambles per cell</div><div class="kc-desc">UE picks one at random from 64 Zadoff-Chu sequences</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--purple)">TA</div><div class="kc-label">timing advance</div><div class="kc-desc">gNB-measured delay sent to UE in Msg2</div></div>
+</div>
+
+<h2>4-step RACH — the messages</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">4-step RACH procedure — Msg1 through Msg4</span>
+    <span class="ds-ref">TS 38.321 §5.1.2, TS 38.331 §5.3.3</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="rach-flow-canvas" width="900" height="320" style="width:100%;"></canvas>
   </div>
 </div>
+
+<div class="prose">
+<h2>Contention — the problem in 4-step RACH</h2>
+<p>
+  When a UE selects a preamble at random from 64 options, two UEs in the same cell might pick the same preamble in the same PRACH occasion. The gNB cannot tell them apart from the preamble alone — it responds to both with the same RAR. Both UEs then send Msg3, which collide at the gNB.
+</p>
+<p>
+  Msg4 resolves this: the gNB's contention resolution message includes the UE's identity from Msg3. Only the UE that recognises its own identity continues; the other one backs off and retries.
+</p>
+
+<h2>When RACH is triggered</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">RACH trigger conditions</span>
+    <span class="ds-ref">TS 38.321 §5.1.1</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Trigger</th><th>RACH type</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">Initial access from RRC_IDLE</td><td>Contention-based</td><td>Our case — first connection after camping</td></tr>
+        <tr><td class="t-pos">RRC connection re-establishment</td><td style="color:var(--text2)">Contention-based</td><td style="color:var(--text2)">After radio link failure</td></tr>
+        <tr><td class="t-pos">Handover</td><td style="color:var(--text2)">Contention-free</td><td style="color:var(--text2)">gNB assigns dedicated preamble</td></tr>
+        <tr><td class="t-pos">UL data arrival in RRC_INACTIVE</td><td style="color:var(--text2)">Contention-based</td><td style="color:var(--text2)">Resume suspended connection</td></tr>
+        <tr><td class="t-pos">Uplink sync lost</td><td style="color:var(--text2)">Contention-based</td><td style="color:var(--text2)">TA timer expired</td></tr>
+        <tr><td class="t-pos">Beam failure recovery</td><td style="color:var(--text2)">Contention-free</td><td style="color:var(--text2)">New beam selected after failure</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>SSB-to-PRACH beam linking</h2>
+<p>
+  In 5G NR, the RACH is not beam-agnostic. Because the UE detected the SSB on beam index 3 (strongest beam), it must send its preamble on the PRACH occasion linked to that same beam. This ensures the gNB receives the preamble on the same spatial direction it used to transmit the SSB.
+</p>
+<p>
+  SIB1 contains a table mapping each SSB index to one or more PRACH occasions. The UE uses this table to find the correct PRACH resource for SSB index 3.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    A UE that has identified an SS/PBCH block shall, if the UE initiates a random access procedure, transmit a preamble in the PRACH occasion associated with the SS/PBCH block as defined in TS 38.213.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.1.2</div>
+</div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">RACH overview — key facts for our cell</div>
+  <div class="rb-line">Type &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">4-step contention-based</span> (initial access)</div>
+  <div class="rb-line">SSB beam &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">index 3</span> → links to specific PRACH occasions</div>
+  <div class="rb-line">Preamble pool &nbsp;→ <span class="rb-val">64 sequences</span> (Zadoff-Chu based)</div>
+  <div class="rb-line">RA config &nbsp;&nbsp;&nbsp;&nbsp;→ from SIB1 (prach-ConfigIndex=16, target power=−110 dBm)</div>
+  <div class="rb-line">Next &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Msg1: select and transmit preamble</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="../module5/5-3-plmn.html"><span class="pn-label">← Previous</span><span class="pn-title">PLMN & Access Control</span></a>
   <a href="6-2-msg1.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Msg1 — Preamble</span></a>
@@ -39,6 +133,70 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('6-1-rach-overview.html');</script>
+<script>
+buildSidebar('6-1-rach-overview.html');
+
+// RACH flow diagram
+(function(){
+  const c=document.getElementById('rach-flow-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  // Columns
+  const ueX=180, gnbX=720, startY=20;
+
+  // Entity boxes
+  box(ueX-70,startY,140,40,'UE',C.blueL,C.blue);
+  box(gnbX-70,startY,140,40,'gNB',C.greenL,C.green);
+
+  // Lifelines
+  ctx.strokeStyle=C.faint; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(ueX,60); ctx.lineTo(ueX,H-20); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(gnbX,60); ctx.lineTo(gnbX,H-20); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Messages
+  const msgs=[
+    {y:90,  from:ueX, to:gnbX, label:'Msg1 — Preamble (PRACH)', sub:'Random Zadoff-Chu sequence on PRACH resource', col:C.blue, dir:1},
+    {y:160, from:gnbX,to:ueX,  label:'Msg2 — RAR (Random Access Response)', sub:'Timing Advance + UL grant + TC-RNTI', col:C.teal, dir:-1},
+    {y:230, from:ueX, to:gnbX, label:'Msg3 — RRCSetupRequest', sub:'UE identity + establishment cause', col:C.amber, dir:1},
+    {y:295, from:gnbX,to:ueX,  label:'Msg4 — RRCSetup (Contention Resolution)', sub:'C-RNTI assignment → RRC_CONNECTED', col:C.green, dir:-1},
+  ];
+
+  msgs.forEach(m=>{
+    const x1=m.from, x2=m.to;
+    // Arrow line
+    ctx.strokeStyle=m.col; ctx.lineWidth=1.8;
+    ctx.beginPath(); ctx.moveTo(x1,m.y); ctx.lineTo(x2,m.y); ctx.stroke();
+    // Arrowhead
+    const dir=m.dir;
+    ctx.beginPath(); ctx.fillStyle=m.col;
+    ctx.moveTo(x2,m.y);
+    ctx.lineTo(x2-dir*14,m.y-6);
+    ctx.lineTo(x2-dir*14,m.y+6);
+    ctx.closePath(); ctx.fill();
+    // Labels
+    const midX=(x1+x2)/2;
+    ctx.font='bold 12px Fraunces'; ctx.fillStyle=m.col; ctx.textAlign='center';
+    ctx.fillText(m.label,midX,m.y-10);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+    ctx.fillText(m.sub,midX,m.y+18);
+  });
+
+  // Channel labels
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
+  ctx.fillText('UL: PRACH',10,90); ctx.fillText('DL: PDCCH+PDSCH',10,160);
+  ctx.fillText('UL: PUSCH',10,230); ctx.fillText('DL: PDCCH+PDSCH',10,295);
+
+  function box(x,y,w,h,label,fill,stroke){
+    ctx.fillStyle=fill; roundRect(ctx,x,y,w,h,6); ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=1.5; roundRect(ctx,x,y,w,h,6); ctx.stroke();
+    ctx.font='bold 14px Fraunces'; ctx.fillStyle=stroke; ctx.textAlign='center';
+    ctx.fillText(label,x+w/2,y+h/2+5);
+  }
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

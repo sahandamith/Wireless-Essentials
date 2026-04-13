@@ -10,27 +10,133 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 9 <span>›</span> Section 9.2</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 9 — Coming Soon
+  <div class="breadcrumb">Module 9 <span>›</span> Protocol Stack <span>›</span> Section 9.2</div>
+  <div class="module-tag" style="background:var(--coral-l);border:1px solid var(--coral-m);color:var(--coral);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--coral);display:inline-block;"></span>
+    Module 9 — Protocol Stack
   </div>
-  <h1>RLC Layer</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>RLC Layer —<br><em>Segmentation and guaranteed delivery</em></h1>
+  <p class="hero-lead">
+    The Radio Link Control layer sits between MAC and PDCP. It handles segmentation of large SDUs into transport-block-sized pieces, reassembly at the receiver, and — in Acknowledged Mode — its own ARQ retransmission on top of HARQ. Three modes serve different traffic types with different reliability guarantees.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.322</span>
+    <span class="spec-pill">TS 38.300 §6.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">TM, UM, AM modes</div>
-<div class="topic-item">ARQ retransmission</div>
-<div class="topic-item">RLC segmentation and reassembly</div>
-    </div>
+<div class="prose">
+
+<h2>Three RLC modes</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The RLC sublayer supports three modes of operation: Transparent Mode (TM), Unacknowledged Mode (UM), and Acknowledged Mode (AM). The mode of operation is determined by the configuration from the upper layer.
+  </div>
+  <div class="gpp-source">3GPP TS 38.322, Section 4.1</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">RLC modes — features and use cases</span><span class="ds-ref">TS 38.322 §4.1</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Mode</th><th>Segmentation</th><th>ARQ</th><th>In-order delivery</th><th>Used for</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">TM</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td style="color:var(--text3)">No</td><td style="color:var(--text2)">SRB0 (RACH), BCCH, PCCH — no overhead</td></tr>
+        <tr><td class="t-pos">UM</td><td style="color:var(--text2)">Yes</td><td style="color:var(--text3)">No</td><td style="color:var(--text2)">Yes (with gaps)</td><td style="color:var(--text2)">VoNR, streaming — low latency</td></tr>
+        <tr class="hl"><td class="t-pos">AM</td><td>Yes</td><td>Yes</td><td>Yes (guaranteed)</td><td>SRB1/2, DRBs — reliable data ← our case</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
+<div class="prose">
+<h2>RLC-AM — our SRB1 bearer</h2>
+<p>
+  SRB1 uses RLC Acknowledged Mode. AM provides:
+</p>
+<p>
+  <strong>Segmentation and reassembly:</strong> If an RLC SDU (from PDCP) is larger than what fits in the current MAC grant, RLC splits it across multiple transport blocks. At the receiver, RLC reassembles the segments before passing to PDCP.
+</p>
+<p>
+  <strong>ARQ retransmission:</strong> Unlike HARQ (which operates on the transport block in milliseconds), RLC ARQ operates on the RLC PDU level. The receiver sends STATUS PDUs reporting which RLC PDUs were received and which are missing. The transmitter retransmits only the missing segments. RLC ARQ runs on a longer timescale (~hundreds of ms) and catches residual errors that HARQ missed.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">RLC-AM PDU structure and ARQ flow</span>
+    <span class="ds-ref">TS 38.322 §6.2.2, §5.3</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="rlc-flow-canvas" width="900" height="220" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>RLC-AM PDU header</h2>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RLC-AM Data PDU header fields</span><span class="cb-ref">TS 38.322 §6.2.2.4</span></div>
+  <pre><span class="c">// RLC AM Data PDU (12-bit SN):</span>
+D/C      = <span class="n">1</span>    <span class="c">← Data PDU (not Control PDU)</span>
+P        = <span class="n">0</span>    <span class="c">← Poll bit (1 = request STATUS report)</span>
+SI       = <span class="n">00</span>   <span class="c">← Segmentation Info: 00=full, 01=first, 10=last, 11=middle</span>
+SN       = <span class="n">47</span>   <span class="c">← Sequence Number (12-bit field)</span>
+SO       = <span class="n">0</span>    <span class="c">← Segment Offset (only present if SI≠00)</span>
+
+<span class="c">// Window size for AM (TS 38.322 §7.3):</span>
+SN field = <span class="n">12</span> bits → max window = 2^12/2 = <span class="r">2048</span>
+<span class="c">// (18-bit SN also supported for large TBS applications)</span>
+
+<span class="c">// STATUS PDU (receiver → transmitter):</span>
+D/C      = <span class="n">0</span>    <span class="c">← Control PDU</span>
+CPT      = <span class="n">000</span>  <span class="c">← STATUS report</span>
+ACK_SN   = <span class="n">48</span>   <span class="c">← Next expected SN (all SNs before 48 received)</span>
+NACK_SN  = <span class="n">45</span>   <span class="c">← Missing SN 45 (needs retransmission)</span></pre>
+</div>
+
+<div class="prose">
+<h2>RLC segmentation example</h2>
+<p>
+  Suppose PDCP delivers a 4,000-byte SDU to RLC, but the first MAC grant only allocates 1,496 bytes. RLC segments the SDU:
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RLC segmentation — 4,000 byte SDU across 3 transport blocks</span><span class="cb-ref">TS 38.322 §5.2.2</span></div>
+  <pre><span class="c">// PDCP SDU = 4,000 bytes</span>
+<span class="c">// RLC header = 2 bytes (12-bit SN, no SO)</span>
+
+<span class="c">// MAC grant 1: 1,496 bytes available</span>
+RLC PDU 1: header [SN=47, SI=01 (first)] + <span class="r">1,494 bytes</span> of SDU
+
+<span class="c">// MAC grant 2: 1,496 bytes available</span>
+RLC PDU 2: header [SN=47, SI=11 (middle), SO=1494] + <span class="r">1,492 bytes</span>
+
+<span class="c">// MAC grant 3: 1,024 bytes available</span>
+<span class="c">// Remaining: 4,000 − 1,494 − 1,492 = 1,014 bytes</span>
+RLC PDU 3: header [SN=47, SI=10 (last), SO=2986] + <span class="r">1,014 bytes</span>
+
+<span class="c">// Receiver reassembles: waits for SI=01 and SI=10 with same SN</span>
+<span class="c">// Delivers full 4,000 byte SDU to PDCP once all segments received</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">RLC layer summary</div>
+  <div class="rb-line">Mode for SRB1/DRBs &nbsp;→ <span class="rb-val">Acknowledged Mode (AM)</span></div>
+  <div class="rb-line">Segmentation &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ SDUs split to fit MAC grants, reassembled at receiver</div>
+  <div class="rb-line">ARQ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">STATUS PDUs</span> report missing SNs, targeted retransmit</div>
+  <div class="rb-line">Window size &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">2,048 PDUs</span> (12-bit SN)</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="9-1-mac.html"><span class="pn-label">← Previous</span><span class="pn-title">MAC Layer</span></a>
   <a href="9-3-pdcp.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">PDCP Layer</span></a>
@@ -38,6 +144,70 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('9-2-rlc.html');</script>
+<script>
+buildSidebar('9-2-rlc.html');
+
+// RLC flow diagram
+(function(){
+  const c=document.getElementById('rlc-flow-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const txX=160, rxX=740;
+  // Entities
+  box(txX-70,10,140,44,'RLC TX',C.blueL,C.blue);
+  box(rxX-70,10,140,44,'RLC RX',C.greenL,C.green);
+
+  // Lifelines
+  ctx.strokeStyle=C.faint; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(txX,54); ctx.lineTo(txX,H-10); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(rxX,54); ctx.lineTo(rxX,H-10); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Messages
+  const msgs=[
+    {y:80, from:txX,to:rxX,label:'RLC PDU SN=45 (full)',col:C.blue,ok:true},
+    {y:120,from:txX,to:rxX,label:'RLC PDU SN=46 (full)',col:C.blue,ok:true},
+    {y:160,from:txX,to:rxX,label:'RLC PDU SN=47 (seg 1/3)',col:C.amber,ok:false},
+    {y:170,label:'× lost in channel',col:C.coral,noarrow:true,cx:W/2},
+    {y:200,from:txX,to:rxX,label:'RLC PDU SN=48 (full)',col:C.blue,ok:true},
+    {y:155,from:rxX,to:txX,label:'STATUS: ACK=48, NACK=47',col:C.green,ok:true,reversed:true,y:170},
+  ];
+
+  // Draw arrows
+  arrow(txX,80,rxX,80,'SN=45',C.blue);
+  arrow(txX,108,rxX,108,'SN=46',C.blue);
+  // Lost
+  ctx.strokeStyle=C.coral; ctx.lineWidth=1.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(txX,136); ctx.lineTo(txX+200,136); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.coral; ctx.textAlign='center';
+  ctx.fillText('SN=47 — lost in channel ✗',txX+140,128);
+  ctx.fillText('✗',txX+200,140);
+
+  arrow(txX,164,rxX,164,'SN=48',C.blue);
+  arrow(rxX,192,txX,192,'STATUS: ACK=49, NACK=47',C.green);
+  arrow(txX,220,rxX,220,'SN=47 retransmit',C.amber);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.green; ctx.textAlign='center';
+  ctx.fillText('SN=47 retransmit ✓',W/2,212);
+
+  function arrow(x1,y1,x2,y2,label,col){
+    ctx.strokeStyle=col; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    const dir=x2>x1?1:-1;
+    ctx.fillStyle=col; ctx.beginPath();
+    ctx.moveTo(x2,y2); ctx.lineTo(x2-dir*12,y2-5); ctx.lineTo(x2-dir*12,y2+5); ctx.closePath(); ctx.fill();
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=col; ctx.textAlign='center';
+    ctx.fillText(label,(x1+x2)/2,y1-6);
+  }
+  function box(x,y,w,h,label,fill,stroke){
+    ctx.fillStyle=fill; roundRect(ctx,x,y,w,h,5); ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=1.5; roundRect(ctx,x,y,w,h,5); ctx.stroke();
+    ctx.font='bold 12px Fraunces'; ctx.fillStyle=stroke; ctx.textAlign='center';
+    ctx.fillText(label,x+w/2,y+h/2+5);
+  }
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

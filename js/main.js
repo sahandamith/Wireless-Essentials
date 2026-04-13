@@ -98,6 +98,11 @@ const COMPLETE_FILES = [
   '3-1-pbch.html','3-2-mib.html',
   '4-1-coreset.html','4-2-search-space.html','4-3-blind-decoding.html',
   '5-1-sib1.html','5-2-s-criterion.html','5-3-plmn.html',
+  '6-1-rach-overview.html','6-2-msg1.html','6-3-msg2.html','6-4-msg3.html',
+  '7-1-rrc-states.html','7-2-rrc-setup.html',
+  '8-1-dci.html','8-2-dl-scheduling.html','8-3-ul-scheduling.html','8-4-harq.html',
+  '9-1-mac.html','9-2-rlc.html','9-3-pdcp.html','9-4-sdap.html',
+  '10-1-mimo.html','10-2-beam-sweep.html','10-3-tci.html',
 ];
 
 // ══════════════════════════════════════════

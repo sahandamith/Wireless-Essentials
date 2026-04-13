@@ -10,34 +10,233 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 7 <span>›</span> Section 7.1</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 7 — Coming Soon
+  <div class="breadcrumb">Module 7 <span>›</span> RRC <span>›</span> Section 7.1</div>
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
+    Module 7 — RRC
   </div>
-  <h1>RRC States</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>RRC States —<br><em>Three modes of existence</em></h1>
+  <p class="hero-lead">
+    5G NR defines three RRC states for a UE: IDLE, INACTIVE, and CONNECTED. Each has a different power profile, paging behaviour, and network resource usage. Understanding these states and their transitions is essential for understanding mobility, power saving, and connection management.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.331 §4.2</span>
+    <span class="spec-pill">TS 38.304 §5</span>
+    <span class="spec-pill">TS 38.300 §9.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">RRC_IDLE vs INACTIVE vs CONNECTED</div>
-<div class="topic-item">State transitions</div>
-<div class="topic-item">What changes in each state</div>
-    </div>
+<div class="prose">
+
+<h2>The three RRC states</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The RRC layer is specified in TS 38.331. It supports three RRC states: RRC_IDLE, RRC_INACTIVE, and RRC_CONNECTED. The RRC state machine is controlled by the network through RRC messages.
+  </div>
+  <div class="gpp-source">3GPP TS 38.300, Section 9.2.1</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">IDLE</div><div class="kc-label">No RRC context</div><div class="kc-desc">Minimum power. Cell reselection. Paging monitored.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">INACTIVE</div><div class="kc-label">RRC context stored</div><div class="kc-desc">Low power. Fast resume. New in 5G NR.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--green)">CONNECTED</div><div class="kc-label">Active connection</div><div class="kc-desc">Full resources. C-RNTI assigned. Data flows.</div></div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">RRC state machine — transitions and triggers</span>
+    <span class="ds-ref">TS 38.331 §4.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="state-machine-canvas" width="900" height="280" style="width:100%;"></canvas>
   </div>
 </div>
+
+<div class="prose">
+<h2>RRC_IDLE — camping state</h2>
+<p>
+  This is where our UE has been since completing cell selection. In RRC_IDLE:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">RRC_IDLE — characteristics</span><span class="ds-ref">TS 38.304 §5</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">RRC context</td><td style="color:var(--text2)">None stored at network. UE unknown to gNB.</td></tr>
+        <tr><td class="t-pos">NAS state</td><td style="color:var(--text2)">5GMM-REGISTERED or 5GMM-DEREGISTERED</td></tr>
+        <tr><td class="t-pos">PLMN/cell</td><td style="color:var(--text2)">UE selects and monitors one cell (camped)</td></tr>
+        <tr><td class="t-pos">Paging</td><td style="color:var(--text2)">UE wakes up at Paging Occasions (derived from IMSI and SFN)</td></tr>
+        <tr><td class="t-pos">Mobility</td><td style="color:var(--text2)">Cell reselection — UE-autonomous, no network involvement</td></tr>
+        <tr><td class="t-pos">Power</td><td style="color:var(--text2)">Minimum — only wakes for paging and SI acquisition</td></tr>
+        <tr><td class="t-pos">To leave</td><td style="color:var(--text2)">RACH → RRC_CONNECTED (as we just did in Module 6)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>RRC_INACTIVE — the 5G innovation</h2>
+<p>
+  RRC_INACTIVE is new in 5G NR (not present in LTE). It solves a key problem: maintaining a connection for IoT/latency-sensitive devices that send data infrequently. Going to IDLE and reconnecting every time wastes energy and time. RRC_INACTIVE keeps the RRC context alive at both the UE and the last serving gNB (the <strong>anchor gNB</strong>), while the UE behaves like IDLE for power purposes.
+</p>
+<p>
+  When data arrives, the UE can <strong>resume</strong> the connection in 1–2 round trips instead of the full 4-step RACH + RRC setup. The resume uses an <strong>I-RNTI</strong> (Inactive-RNTI) as a stored identity.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    In RRC_INACTIVE, the UE stores the AS (Access Stratum) context and the network stores the UE context at the last serving gNB. The UE is reachable via a RAN-based paging area (RNA). The UE performs RAN-based notification area updates (RNAU) when it moves outside its configured RNA.
+  </div>
+  <div class="gpp-source">3GPP TS 38.300, Section 9.2.3</div>
+</div>
+
+<h2>RRC_CONNECTED — active data transfer</h2>
+<p>
+  This is the state our UE just entered after Msg4. In RRC_CONNECTED, the UE has a dedicated C-RNTI, configured bearers, and the network knows exactly which cell it is in. All scheduling is network-controlled.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">RRC_CONNECTED — characteristics</span><span class="ds-ref">TS 38.331 §4.2</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Aspect</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">C-RNTI</td><td>0x3A7F — unique identity for all PDCCH addressing</td></tr>
+        <tr><td class="t-pos">RRC context</td><td style="color:var(--text2)">Full context at both UE and gNB (SRB1, bearers, config)</td></tr>
+        <tr><td class="t-pos">Mobility</td><td style="color:var(--text2)">Handover — network-controlled, transparent to upper layers</td></tr>
+        <tr><td class="t-pos">Scheduling</td><td style="color:var(--text2)">DCI on PDCCH every slot — gNB grants UL/DL resources</td></tr>
+        <tr><td class="t-pos">Measurements</td><td style="color:var(--text2)">UE reports RSRP/RSRQ of serving and neighbour cells</td></tr>
+        <tr><td class="t-pos">Power</td><td style="color:var(--text2)">Higher — but DRX (Discontinuous Reception) saves power</td></tr>
+        <tr><td class="t-pos">To leave</td><td style="color:var(--text2)">RRCRelease → IDLE or INACTIVE (network-initiated)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Paging — finding UEs in IDLE/INACTIVE</h2>
+<p>
+  When a call or data arrives for an IDLE UE, the network doesn't know which cell it is in. It pages the UE across all cells in the Tracking Area (for IDLE) or RAN Notification Area (for INACTIVE).
+</p>
+<p>
+  The UE wakes up at specific <strong>Paging Occasions (PO)</strong> derived from its IMSI and the SFN. The network sends a paging message on PDCCH using <strong>P-RNTI = 0xFFFE</strong>.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Paging occasion calculation — our UE</span><span class="cb-ref">TS 38.304 §7.1</span></div>
+  <pre><span class="c">// Paging frame (PF) and Paging Occasion (PO) derived from IMSI:</span>
+<span class="c">// Assume IMSI = 244051234567890</span>
+IMSI_mod_1024 = <span class="n">244051234567890</span> mod <span class="n">1024</span> = <span class="n">722</span>
+
+<span class="c">// Default paging parameters (from SIB1 if not configured):</span>
+T = <span class="n">128</span> frames  (default DRX cycle)
+N = min(T, nB) where nB = <span class="n">1</span>T → N = <span class="n">128</span>
+
+<span class="c">// Paging Frame:</span>
+SFN mod T = (T div N) × (IMSI_mod_1024 mod N)
+          = (<span class="n">128</span>/<span class="n">128</span>) × (<span class="n">722</span> mod <span class="n">128</span>)
+          = <span class="n">1</span> × <span class="n">82</span>
+PF occurs when: SFN mod <span class="n">128</span> = <span class="r">82</span>
+
+<span class="c">// Paging Occasion (i_s index):</span>
+i_s = ⌊IMSI_mod_1024 / N⌋ mod Ns = <span class="r">0</span>
+<span class="c">// → first PO within the paging frame</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">RRC state summary</div>
+  <div class="rb-line">Our UE state &nbsp;&nbsp;&nbsp;→ <span class="rb-val">RRC_CONNECTED</span> (just entered in Msg4)</div>
+  <div class="rb-line">C-RNTI &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">0x3A7F</span></div>
+  <div class="rb-line">INACTIVE key &nbsp;&nbsp;→ <span class="rb-val">fast resume</span> — I-RNTI stored, 1-2 RTT reconnect</div>
+  <div class="rb-line">IDLE paging &nbsp;&nbsp;&nbsp;→ UE wakes at <span class="rb-val">SFN mod 128 = 82</span></div>
+  <div class="rb-line">Next step &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ RRC setup details — bearers, DRX, measurements</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="../module6/6-4-msg3.html"><span class="pn-label">← Previous</span><span class="pn-title">Msg3/4 — RRC Setup</span></a>
-  <a href="7-2-rrc-setup.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">RRC Setup</span></a>
+  <a href="7-2-rrc-setup.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">RRC Setup Details</span></a>
 </div>
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('7-1-rrc-states.html');</script>
+<script>
+buildSidebar('7-1-rrc-states.html');
+
+// State machine diagram
+(function(){
+  const c=document.getElementById('state-machine-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const states=[
+    {x:160, y:140, label:'RRC_IDLE',    sub:'No context',      fill:C.blueL,   stroke:C.blue},
+    {x:450, y:60,  label:'RRC_INACTIVE',sub:'Context stored',  fill:C.amberL,  stroke:C.amber},
+    {x:740, y:140, label:'RRC_CONNECTED',sub:'C-RNTI active',  fill:C.greenL,  stroke:C.green},
+  ];
+  const bw=160, bh=60;
+
+  states.forEach(s=>{
+    ctx.fillStyle=s.fill; roundRect(ctx,s.x-bw/2,s.y-bh/2,bw,bh,8); ctx.fill();
+    ctx.strokeStyle=s.stroke; ctx.lineWidth=2; roundRect(ctx,s.x-bw/2,s.y-bh/2,bw,bh,8); ctx.stroke();
+    ctx.font='bold 13px Fraunces'; ctx.fillStyle=s.stroke; ctx.textAlign='center';
+    ctx.fillText(s.label,s.x,s.y-3);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+    ctx.fillText(s.sub,s.x,s.y+13);
+  });
+
+  // Arrows with labels
+  const arrows=[
+    {from:states[0],to:states[2],label:'RACH → RRCSetup',labelY:-12,bend:0.3},
+    {from:states[2],to:states[0],label:'RRCRelease',labelY:20,bend:0.3},
+    {from:states[0],to:states[1],label:'—',labelY:-12,bend:-0.2},
+    {from:states[1],to:states[0],label:'RNA update timeout',labelY:18,bend:-0.2},
+    {from:states[2],to:states[1],label:'RRCRelease (suspend)',labelY:-14,bend:-0.25},
+    {from:states[1],to:states[2],label:'RRCResume',labelY:16,bend:-0.25},
+  ];
+
+  arrows.forEach(a=>{
+    const {from:f,to:t,label,labelY,bend}=a;
+    const mx=(f.x+t.x)/2, my=(f.y+t.y)/2;
+    const cpx=mx, cpy=my+bend*120;
+    ctx.strokeStyle=C.text3; ctx.lineWidth=1; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(f.x,f.y); ctx.quadraticCurveTo(cpx,cpy,t.x,t.y); ctx.stroke();
+    // arrowhead
+    const tang=Math.atan2(t.y-cpy,t.x-cpx);
+    ctx.setLineDash([]); ctx.fillStyle=C.text3;
+    ctx.beginPath(); ctx.moveTo(t.x,t.y);
+    ctx.lineTo(t.x-12*Math.cos(tang-0.3),t.y-12*Math.sin(tang-0.3));
+    ctx.lineTo(t.x-12*Math.cos(tang+0.3),t.y-12*Math.sin(tang+0.3));
+    ctx.closePath(); ctx.fill();
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+    ctx.fillText(label,cpx,cpy+labelY);
+  });
+  ctx.setLineDash([]);
+
+  // Power indicator
+  ctx.font='10px IBM Plex Mono'; ctx.textAlign='left';
+  ctx.fillStyle=C.blue; ctx.fillText('↓ power',states[0].x-bw/2,states[0].y+bh/2+20);
+  ctx.fillStyle=C.amber; ctx.fillText('↓ power',states[1].x-bw/2,states[1].y+bh/2+20);
+  ctx.fillStyle=C.green; ctx.fillText('↑ power',states[2].x-bw/2,states[2].y+bh/2+20);
+
+  // Our UE marker
+  ctx.fillStyle=C.green; ctx.font='bold 11px Fraunces'; ctx.textAlign='center';
+  ctx.fillText('← our UE is here',states[2].x,states[2].y+bh/2+36);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

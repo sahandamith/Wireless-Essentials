@@ -10,30 +10,200 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 8 <span>›</span> Section 8.1</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 8 — Coming Soon
+  <div class="breadcrumb">Module 8 <span>›</span> Scheduling <span>›</span> Section 8.1</div>
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid var(--amber-m);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    Module 8 — Scheduling & Data
   </div>
-  <h1>DCI Formats</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>DCI Formats —<br><em>The scheduler's instruction set</em></h1>
+  <p class="hero-lead">
+    Every data transmission in 5G NR is preceded by a DCI — Downlink Control Information. DCI is the scheduler's per-slot instruction to the UE: here is your frequency allocation, here is your MCS, here is your time offset. This section covers all DCI formats, their fields, and how the UE decodes them.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.212 §7.3.1</span>
+    <span class="spec-pill">TS 38.213 §10.1</span>
+    <span class="spec-pill">TS 38.214 §5.1</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">RNTI types (C-RNTI, SI-RNTI, P-RNTI...)</div>
-<div class="topic-item">DCI 0_0 / 0_1 — uplink scheduling</div>
-<div class="topic-item">DCI 1_0 / 1_1 — downlink scheduling</div>
-<div class="topic-item">DCI 2_0 — slot format indication</div>
+<div class="prose">
+
+<h2>What DCI is and how it arrives</h2>
+<p>
+  DCI is carried on the <strong>PDCCH</strong> in a CORESET, addressed to the UE's C-RNTI (or other RNTI). The UE decodes it using blind decoding — exactly the same process as finding the SIB1 scheduling DCI, but now using its dedicated C-RNTI instead of SI-RNTI.
+</p>
+<p>
+  Each DCI format serves a specific purpose. Some schedule downlink data, some grant uplink resources, some configure power control. The format is not explicitly signalled — the UE infers it from the decoded bit count and the RNTI used.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    A PDCCH carries DCI. DCI includes downlink assignments, uplink scheduling grants, and power control commands for PUCCH and PUSCH. The UE monitors PDCCH in one or more CORESETs.
+  </div>
+  <div class="gpp-source">3GPP TS 38.212, Section 7.3.1</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">DCI format overview — all formats and their uses</span>
+    <span class="ds-ref">TS 38.212 §7.3.1</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Format</th><th>Direction</th><th>Purpose</th><th>Key RNTI</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">0_0</td><td style="color:var(--green)">UL ↑</td><td style="color:var(--text2)">PUSCH scheduling — fallback (compact)</td><td style="font-family:var(--mono);color:var(--text3)">C-RNTI, TC-RNTI</td></tr>
+        <tr class="hl"><td class="t-pos">0_1</td><td style="color:var(--green)">UL ↑</td><td>PUSCH scheduling — normal (full features)</td><td style="font-family:var(--mono)">C-RNTI</td></tr>
+        <tr><td class="t-pos">0_2</td><td style="color:var(--green)">UL ↑</td><td style="color:var(--text2)">PUSCH scheduling — compact for URLLC</td><td style="font-family:var(--mono);color:var(--text3)">C-RNTI</td></tr>
+        <tr><td class="t-pos">1_0</td><td style="color:var(--blue)">DL ↓</td><td style="color:var(--text2)">PDSCH scheduling — fallback (SI, paging, RAR)</td><td style="font-family:var(--mono);color:var(--text3)">C-RNTI, SI-RNTI, P-RNTI, RA-RNTI</td></tr>
+        <tr class="hl"><td class="t-pos">1_1</td><td style="color:var(--blue)">DL ↓</td><td>PDSCH scheduling — normal (full features)</td><td style="font-family:var(--mono)">C-RNTI ← most common for data</td></tr>
+        <tr><td class="t-pos">1_2</td><td style="color:var(--blue)">DL ↓</td><td style="color:var(--text2)">PDSCH scheduling — compact for URLLC</td><td style="font-family:var(--mono);color:var(--text3)">C-RNTI</td></tr>
+        <tr><td class="t-pos">2_0</td><td style="color:var(--text3)">—</td><td style="color:var(--text2)">Slot format indicator (SFI) for TDD</td><td style="font-family:var(--mono);color:var(--text3)">SFI-RNTI</td></tr>
+        <tr><td class="t-pos">2_1</td><td style="color:var(--text3)">—</td><td style="color:var(--text2)">PRE-emption indicator</td><td style="font-family:var(--mono);color:var(--text3)">INT-RNTI</td></tr>
+        <tr><td class="t-pos">2_3</td><td style="color:var(--text3)">—</td><td style="color:var(--text2)">UL transmit power control</td><td style="font-family:var(--mono);color:var(--text3)">TPC-PUSCH-RNTI</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>DCI Format 1_1 — downlink data scheduling</h2>
+<p>
+  This is the most important DCI format for connected UEs receiving data. It tells the UE exactly which time-frequency resources carry its PDSCH, what MCS to use for decoding, and which HARQ process to use.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">DCI Format 1_1 field breakdown — our example</span>
+    <span class="ds-ref">TS 38.212 §7.3.1.2.2</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Field</th><th>Bits</th><th>Our value</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">Identifier for DCI</td><td>1</td><td style="font-family:var(--mono);color:var(--text2);">1</td><td style="color:var(--text2)">Downlink DCI</td></tr>
+        <tr class="hl"><td class="t-pos">Freq domain resource</td><td>varies</td><td style="font-family:var(--mono);">0b001111100</td><td>RBs 16–52 (37 RBs allocated)</td></tr>
+        <tr class="hl"><td class="t-pos">Time domain resource</td><td>4</td><td style="font-family:var(--mono);">0b0010 = 2</td><td>Slot offset K0=0, symbols 2–13 (12 symbols)</td></tr>
+        <tr><td class="t-pos">VRB-to-PRB mapping</td><td>1</td><td style="font-family:var(--mono);color:var(--text2);">0</td><td style="color:var(--text2)">Non-interleaved</td></tr>
+        <tr class="hl"><td class="t-pos">MCS (PDSCH)</td><td>5</td><td style="font-family:var(--mono);">0b10100 = 20</td><td>256-QAM, code rate 0.75</td></tr>
+        <tr><td class="t-pos">NDI</td><td>1</td><td style="font-family:var(--mono);color:var(--text2);">1</td><td style="color:var(--text2)">New data indicator (new TB)</td></tr>
+        <tr><td class="t-pos">Redundancy version</td><td>2</td><td style="font-family:var(--mono);color:var(--text2);">00</td><td style="color:var(--text2)">RV=0 (first transmission)</td></tr>
+        <tr class="hl"><td class="t-pos">HARQ process number</td><td>4</td><td style="font-family:var(--mono);">0b0011 = 3</td><td>HARQ process 3</td></tr>
+        <tr><td class="t-pos">Antenna ports</td><td>4</td><td style="font-family:var(--mono);color:var(--text2);">0b0000</td><td style="color:var(--text2)">1 layer, port 1000</td></tr>
+        <tr><td class="t-pos">TPC for PUCCH</td><td>2</td><td style="font-family:var(--mono);color:var(--text2);">00</td><td style="color:var(--text2)">0 dB power adjustment</td></tr>
+        <tr><td class="t-pos">PUCCH resource indicator</td><td>3</td><td style="font-family:var(--mono);color:var(--text2);">000</td><td style="color:var(--text2)">HARQ-ACK on PUCCH resource 0</td></tr>
+        <tr><td class="t-pos">PDSCH-to-HARQ timing</td><td>3</td><td style="font-family:var(--mono);color:var(--text2);">0b010 = 2</td><td style="color:var(--text2)">ACK/NACK 2 slots after PDSCH</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Frequency domain resource assignment</h2>
+<p>
+  The frequency resource field uses <strong>Resource Indicator Value (RIV)</strong> encoding to compactly represent a contiguous allocation of RBs within the active BWP. For our allocation of RBs 16–52 (37 RBs starting at RB 16):
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RIV encoding — RBs 16–52, 37 contiguous RBs</span><span class="cb-ref">TS 38.214 §5.1.2.2.2</span></div>
+  <pre><span class="c">// RIV formula:</span>
+<span class="c">// If (L_RBs - 1) ≤ floor(N_BWP_size / 2):</span>
+RIV = N_BWP_size × (L_RBs - 1) + RB_start
+    = <span class="n">52</span> × (<span class="n">37</span> - <span class="n">1</span>) + <span class="n">16</span>
+    = <span class="n">52</span> × <span class="n">36</span> + <span class="n">16</span>
+    = <span class="n">1872</span> + <span class="n">16</span>
+    = <span class="r">1888</span>
+
+<span class="c">// In binary: 1888 = 11101100000 (11 bits for 52-RB BWP)</span>
+<span class="c">// → fits in the freq domain resource field</span>
+
+<span class="c">// Reverse: given RIV=1888, recover allocation:</span>
+L_RBs   = ⌊RIV / N_BWP_size⌋ + 1 = ⌊<span class="n">1888</span>/<span class="n">52</span>⌋ + 1 = <span class="n">36</span> + 1 = <span class="r">37</span>
+RB_start = RIV mod N_BWP_size     = <span class="n">1888</span> mod <span class="n">52</span>     = <span class="r">16</span></pre>
+</div>
+
+<div class="prose">
+<h2>Time domain resource assignment</h2>
+<p>
+  The 4-bit time domain field is an index into a table defined in TS 38.214 Table 5.1.2.1-1. Each row defines a <strong>slot offset K0</strong> (how many slots after the DCI to start PDSCH) and the <strong>symbol allocation</strong> (start symbol S and number of symbols L).
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Time domain assignment — row index 2</span><span class="cb-ref">TS 38.214 Table 5.1.2.1-1</span></div>
+  <pre><span class="c">// Table 5.1.2.1-1, row 2 (0-indexed):</span>
+K0     = <span class="n">0</span>    <span class="c">← PDSCH in same slot as DCI</span>
+S      = <span class="n">2</span>    <span class="c">← start symbol 2 (after DMRS)</span>
+L      = <span class="n">12</span>   <span class="c">← 12 symbols</span>
+SLIV   = <span class="n">S×(14−L+1) + (L−1)</span> if (L−1) ≤ 7 → SLIV = <span class="r">2×3 + 11 = 17</span>
+
+<span class="c">// Summary: PDSCH occupies symbols 2–13 of the current slot</span>
+<span class="c">// 12 symbols × 37 RBs × 12 SC = 5,328 resource elements</span>
+<span class="c">// After removing DMRS (every 4th SC in symbol 2):</span>
+<span class="c">// Net data REs ≈ 4,884 (after DMRS overhead)</span></pre>
+</div>
+
+<div class="prose">
+<h2>MCS table — modulation and code rate</h2>
+<p>
+  The 5-bit MCS field indexes into one of three MCS tables (64-QAM, 256-QAM, or low-spectral efficiency). Which table to use is configured by RRC. For our UE in good signal conditions, Table 2 (256-QAM) is used.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">MCS Table 2 (256-QAM) — selected rows</span>
+    <span class="ds-ref">TS 38.214 Table 5.1.3.1-2</span>
+  </div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>MCS index</th><th>Modulation</th><th>Code rate (×1024)</th><th>Spectral eff.</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">0</td><td>QPSK</td><td>120</td><td>0.23 bps/Hz</td></tr>
+        <tr><td class="t-pos">5</td><td>QPSK</td><td>378</td><td>0.74 bps/Hz</td></tr>
+        <tr><td class="t-pos">10</td><td>16-QAM</td><td>330</td><td>1.29 bps/Hz</td></tr>
+        <tr><td class="t-pos">15</td><td>64-QAM</td><td>378</td><td>3.70 bps/Hz</td></tr>
+        <tr class="hl"><td class="t-pos">20 ← ours</td><td>256-QAM</td><td>766</td><td>5.99 bps/Hz</td></tr>
+        <tr><td class="t-pos">25</td><td>256-QAM</td><td>948</td><td>7.41 bps/Hz</td></tr>
+        <tr><td class="t-pos">27</td><td>256-QAM</td><td>948</td><td>7.41 bps/Hz</td></tr>
+      </tbody>
+    </table>
+    <div class="code-block" style="margin-top:14px;">
+      <div class="cb-header"><span>Throughput estimate — MCS 20, 37 RBs, 12 symbols</span></div>
+      <pre><span class="c">// Data REs per slot:</span>
+REs = <span class="n">37</span> RBs × <span class="n">12</span> SC × <span class="n">12</span> symbols − DMRS overhead ≈ <span class="n">4,884</span>
+
+<span class="c">// Bits per slot:</span>
+bits = REs × modulation_order × code_rate
+     = <span class="n">4,884</span> × <span class="n">8</span> (256-QAM) × <span class="n">0.748</span> (rate 766/1024)
+     = <span class="r">29,222 bits/slot</span>
+
+<span class="c">// Throughput (2 slots per ms, 30 kHz SCS):</span>
+Mbps = <span class="n">29,222</span> × <span class="n">2000</span> slots/s / <span class="n">1,000,000</span> = <span class="r">~58 Mbps</span> DL</pre>
     </div>
   </div>
 </div>
+
+<div class="result-box reveal">
+  <div class="rb-title">DCI 1_1 decoded — PDSCH assignment</div>
+  <div class="rb-line">Frequency &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">RBs 16–52</span> (37 RBs, RIV=1888)</div>
+  <div class="rb-line">Time &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">same slot, symbols 2–13</span> (12 symbols)</div>
+  <div class="rb-line">MCS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">20 (256-QAM, rate 0.748)</span></div>
+  <div class="rb-line">HARQ process &nbsp;→ <span class="rb-val">3</span>, NDI=1 (new transmission)</div>
+  <div class="rb-line">Throughput &nbsp;&nbsp;&nbsp;→ approximately <span class="rb-val">58 Mbps</span> DL</div>
+  <div class="rb-line">HARQ-ACK &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ send on PUCCH <span class="rb-val">2 slots</span> after this slot</div>
+</div>
+
+</div>
+
 <div class="page-nav">
-  <a href="../module7/7-2-rrc-setup.html"><span class="pn-label">← Previous</span><span class="pn-title">RRC Setup</span></a>
+  <a href="../module7/7-2-rrc-setup.html"><span class="pn-label">← Previous</span><span class="pn-title">RRC Setup Details</span></a>
   <a href="8-2-dl-scheduling.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Downlink Scheduling</span></a>
 </div>
 </main>

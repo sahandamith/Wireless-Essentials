@@ -10,27 +10,142 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 9 <span>›</span> Section 9.4</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 9 — Coming Soon
+  <div class="breadcrumb">Module 9 <span>›</span> Protocol Stack <span>›</span> Section 9.4</div>
+  <div class="module-tag" style="background:var(--coral-l);border:1px solid var(--coral-m);color:var(--coral);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--coral);display:inline-block;"></span>
+    Module 9 — Protocol Stack
   </div>
-  <h1>SDAP Layer</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>SDAP Layer —<br><em>QoS flows to radio bearers</em></h1>
+  <p class="hero-lead">
+    SDAP is new in 5G NR — it has no equivalent in LTE. The Service Data Adaptation Protocol maps QoS flows (the 5GC's unit of QoS differentiation) onto data radio bearers. This section explains QoS flow identifiers, the mapping rules, and how SDAP enables differentiated treatment of traffic in the RAN.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 37.324</span>
+    <span class="spec-pill">TS 23.501 §5.7</span>
+    <span class="spec-pill">TS 38.300 §6.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">QoS flows and DRB mapping</div>
-<div class="topic-item">QFI and 5QI</div>
-<div class="topic-item">Reflective QoS</div>
-    </div>
+<div class="prose">
+
+<h2>Why SDAP is needed</h2>
+<p>
+  In 5G, the core network (5GC) handles QoS at the granularity of <strong>QoS flows</strong>. Each PDU session can carry multiple QoS flows — one for video streaming, one for voice, one for background data — each with different guaranteed bit rate and priority requirements.
+</p>
+<p>
+  The RAN handles QoS at the granularity of <strong>Data Radio Bearers (DRBs)</strong>. There can be at most 29 DRBs per UE. SDAP bridges the two — it maps QoS flows (possibly many) onto DRBs (fewer, grouped by similar QoS requirements).
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    SDAP performs mapping between QoS flows and data radio bearers, and marks the DL and UL packets with QoS Flow ID (QFI). The QFI is used to differentiate packets with different QoS requirements within a PDU session.
+  </div>
+  <div class="gpp-source">3GPP TS 37.324, Section 4.2</div>
+</div>
+
+<h2>QoS flow identifiers (QFI)</h2>
+<p>
+  Each QoS flow is identified by a 6-bit <strong>QFI (QoS Flow Identifier)</strong> within a PDU session. The 5GC assigns QFIs based on the QoS requirements negotiated during PDU session establishment.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">QoS flow types and their 5QI values</span><span class="ds-ref">TS 23.501 §5.7.4, Table 5.7.4-1</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>5QI</th><th>Resource type</th><th>Priority</th><th>Packet delay budget</th><th>Use case</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">1</td><td>GBR</td><td>20</td><td>100 ms</td><td>Conversational Voice (VoNR) ← our call</td></tr>
+        <tr><td class="t-pos">2</td><td style="color:var(--text2)">GBR</td><td style="color:var(--text2)">4</td><td style="color:var(--text2)">150 ms</td><td style="color:var(--text2)">Conversational Video</td></tr>
+        <tr><td class="t-pos">5</td><td style="color:var(--text2)">Non-GBR</td><td style="color:var(--text2)">10</td><td style="color:var(--text2)">100 ms</td><td style="color:var(--text2)">IMS Signalling</td></tr>
+        <tr><td class="t-pos">8</td><td style="color:var(--text2)">Non-GBR</td><td style="color:var(--text2)">8</td><td style="color:var(--text2)">300 ms</td><td style="color:var(--text2)">Video streaming (buffered)</td></tr>
+        <tr><td class="t-pos">9</td><td style="color:var(--text2)">Non-GBR</td><td style="color:var(--text2)">9</td><td style="color:var(--text2)">300 ms</td><td style="color:var(--text2)">Video streaming (default) ← YouTube</td></tr>
+        <tr><td class="t-pos">80</td><td style="color:var(--text2)">Non-GBR</td><td style="color:var(--text2)">68</td><td style="color:var(--text2)">10 ms</td><td style="color:var(--text2)">Low latency gaming/URLLC</td></tr>
+      </tbody>
+    </table>
   </div>
 </div>
+
+<div class="prose">
+<h2>QoS flow to DRB mapping</h2>
+<p>
+  The gNB's SDAP layer establishes a mapping table: each QFI maps to exactly one DRB. Multiple QFIs with similar QoS requirements can share one DRB. The mapping is configured by RRC in <code>sdap-Config</code>.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>SDAP mapping — our UE's PDU session</span><span class="cb-ref">TS 37.324 §5.2</span></div>
+  <pre><span class="c">// PDU Session 1 (Internet): 3 QoS flows</span>
+QFI=1  (5QI=1,  VoNR voice)       → <span class="r">DRB1</span>  (high priority, low latency)
+QFI=5  (5QI=5,  IMS signalling)   → <span class="r">DRB1</span>  (same DRB — both IMS)
+QFI=9  (5QI=9,  best-effort data) → <span class="r">DRB2</span>  (lower priority)
+
+<span class="c">// SDAP header added to each DL PDU:</span>
+<span class="c">// 1 byte: RDI=0, RQI=0, QFI=1</span>
+[SDAP: 0x01] [IP packet for VoNR]  → sent on DRB1
+[SDAP: 0x09] [YouTube UDP]         → sent on DRB2
+
+<span class="c">// UL reflective QoS mapping:</span>
+<span class="c">// UE copies QFI from DL → UL for same flow</span>
+<span class="c">// (RQI bit = 1 triggers this mapping)</span></pre>
+</div>
+
+<div class="prose">
+<h2>Full protocol stack — end to end</h2>
+<p>
+  Now all four layers are covered. Here is how a VoNR voice packet travels from the network application to the radio interface:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Complete protocol stack — DL VoNR packet processing</span>
+    <span class="ds-ref">TS 38.300 §6.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="stack-canvas" width="900" height="260" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Overhead calculation — VoNR 40-byte payload</span><span class="cb-ref">Each layer adds headers</span></div>
+  <pre><span class="c">// Application generates: 40 bytes RTP voice payload</span>
+IP + UDP + RTP headers: + <span class="n">40</span> bytes → <span class="n">80</span> bytes total
+
+<span class="c">// SDAP:</span>
+SDAP header:           + <span class="n">1</span> byte  → <span class="n">81</span> bytes
+
+<span class="c">// PDCP:</span>
+PDCP SN (12-bit):      + <span class="n">2</span> bytes
+MAC-I integrity:       + <span class="n">4</span> bytes  <span class="c">← only SRBs, not DRBs</span>
+After ROHC compression: IP+UDP+RTP → <span class="n">2</span> bytes
+Net PDCP output:       = <span class="r">45</span> bytes  (40 payload + 2 ROHC + 2 PDCP hdr + 1 SDAP)
+
+<span class="c">// RLC:</span>
+RLC-AM header:         + <span class="n">2</span> bytes  → <span class="r">47</span> bytes
+
+<span class="c">// MAC:</span>
+MAC subheader:         + <span class="n">2</span> bytes  → <span class="r">49</span> bytes (+ padding to TBS)
+
+<span class="c">// Without ROHC: 80 bytes payload → 86 bytes total  (+7.5% overhead)</span>
+<span class="c">// With ROHC:    42 bytes payload → 49 bytes total  (+16% overhead, less raw data)</span>
+<span class="c">// ROHC savings: 80→49 bytes = <span class="r">39% reduction</span> in bytes transmitted</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Protocol stack complete — the full journey</div>
+  <div class="rb-line">SDAP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">QFI tagging</span>, QoS flow → DRB mapping</div>
+  <div class="rb-line">PDCP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">AES ciphering</span> + ROHC header compression</div>
+  <div class="rb-line">RLC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">AM segmentation</span> + ARQ retransmission</div>
+  <div class="rb-line">MAC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">Multiplexing</span> + HARQ + scheduling</div>
+  <div class="rb-line">PHY &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">LDPC encoding</span> + 256-QAM + OFDM → air</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="9-3-pdcp.html"><span class="pn-label">← Previous</span><span class="pn-title">PDCP Layer</span></a>
   <a href="../module10/10-1-mimo.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Massive MIMO Basics</span></a>
@@ -38,6 +153,58 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('9-4-sdap.html');</script>
+<script>
+buildSidebar('9-4-sdap.html');
+
+// Full stack diagram
+(function(){
+  const c=document.getElementById('stack-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const layers=[
+    {label:'Application',sub:'RTP voice 40 bytes',fill:C.bg2,stroke:C.muted},
+    {label:'SDAP',sub:'Add QFI tag (+1 byte)',fill:C.greenL,stroke:C.green},
+    {label:'PDCP',sub:'ROHC compress + AES cipher (+2 bytes net)',fill:C.blueL,stroke:C.blue},
+    {label:'RLC-AM',sub:'Segment + ARQ (+2 bytes header)',fill:C.amberL,stroke:C.amber},
+    {label:'MAC',sub:'Mux + HARQ + assemble TB (+2 bytes)',fill:C.purpleL,stroke:C.purple},
+    {label:'PHY',sub:'LDPC encode + 256-QAM + OFDM → air',fill:C.tealL,stroke:C.teal},
+  ];
+
+  const bh=36, PAD=60, bw=360, gap=4;
+  const startY=10;
+
+  layers.forEach((l,i)=>{
+    const x=(W-bw)/2, y=startY+i*(bh+gap);
+    ctx.fillStyle=l.fill; roundRect(ctx,x,y,bw,bh,5); ctx.fill();
+    ctx.strokeStyle=l.stroke; ctx.lineWidth=1.5; roundRect(ctx,x,y,bw,bh,5); ctx.stroke();
+    ctx.font='bold 12px Fraunces'; ctx.fillStyle=l.stroke; ctx.textAlign='left';
+    ctx.fillText(l.label,x+12,y+bh/2+1);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='right';
+    ctx.fillText(l.sub,x+bw-10,y+bh/2+1);
+    // Down arrow
+    if(i<layers.length-1){
+      const ax=x+bw/2, ay=y+bh;
+      ctx.strokeStyle=C.faint; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(ax,ay+gap); ctx.stroke();
+      ctx.fillStyle=C.faint; ctx.beginPath();
+      ctx.moveTo(ax,ay+gap); ctx.lineTo(ax-5,ay+gap-5); ctx.lineTo(ax+5,ay+gap-5); ctx.closePath(); ctx.fill();
+    }
+  });
+
+  // Size annotation on right
+  const sizes=[80,81,45,47,49,'LDPC'];
+  layers.forEach((l,i)=>{
+    const x=(W-bw)/2+bw+16, y=startY+i*(bh+gap)+bh/2;
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+    ctx.fillText(typeof sizes[i]==='number'?sizes[i]+' bytes':sizes[i],x,y+4);
+  });
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
+  ctx.fillText('PDU size →',(W-bw)/2+bw+16,startY-4);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

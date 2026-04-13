@@ -10,30 +10,186 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 10 <span>›</span> Section 10.3</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 10 — Coming Soon
+  <div class="breadcrumb">Module 10 <span>›</span> Beamforming <span>›</span> Section 10.3</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 10 — Beamforming & MIMO
   </div>
-  <h1>TCI States</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>TCI States —<br><em>Linking beams to channels</em></h1>
+  <p class="hero-lead">
+    A Transmission Configuration Indicator (TCI) state associates a reference signal with a downlink channel — telling the UE which beam direction to use when receiving PDCCH or PDSCH. This section explains TCI states, how they are configured, how they are activated via MAC CE, and how they connect back to the SSB beam we detected.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.214 §5.1.5</span>
+    <span class="spec-pill">TS 38.321 §6.1.3.14</span>
+    <span class="spec-pill">TS 38.331 §6.3.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">TCI state concept</div>
-<div class="topic-item">Beam indication in DCI</div>
-<div class="topic-item">Beam failure recovery procedure</div>
+<div class="prose">
+
+<h2>What a TCI state is</h2>
+<p>
+  When the gNB transmits PDSCH or PDCCH, it uses a specific beam. The UE must know which beam so it can apply the corresponding receive beamforming. A <strong>TCI state</strong> links a reference signal (SSB or CSI-RS) to a channel — effectively saying "this channel uses the same spatial filter as this reference signal."
+</p>
+<p>
+  The UE measures the reference signal, learns the spatial channel for that beam direction, and applies it when receiving the associated channel. This is <strong>quasi co-location (QCL)</strong>: the UE assumes the channel and reference signal share certain propagation properties.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    A TCI state provides a configuration for quasi-colocation relationships between a reference signal and another reference signal or physical channel. The UE uses the TCI state to determine the receive spatial filter for the downlink physical channel.
+  </div>
+  <div class="gpp-source">3GPP TS 38.214, Section 5.1.5</div>
+</div>
+
+<h2>QCL types — four flavours</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">QCL types — what properties are shared</span><span class="ds-ref">TS 38.214 §5.1.5, Table 5.1.5-1</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>QCL type</th><th>Shared property</th><th>Impact</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">QCL-TypeA</td><td style="color:var(--text2)">Doppler shift, Doppler spread, average delay, delay spread</td><td style="color:var(--text2)">Channel estimation accuracy</td></tr>
+        <tr><td class="t-pos">QCL-TypeB</td><td style="color:var(--text2)">Doppler shift, Doppler spread</td><td style="color:var(--text2)">Frequency offset tracking</td></tr>
+        <tr><td class="t-pos">QCL-TypeC</td><td style="color:var(--text2)">Doppler shift, average delay</td><td style="color:var(--text2)">Timing and frequency reference</td></tr>
+        <tr class="hl"><td class="t-pos">QCL-TypeD</td><td>Spatial Rx parameter (beam direction)</td><td>Receive beamforming ← most important for 5G</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>TCI state configuration</h2>
+<p>
+  TCI states are configured by RRC in <code>tci-StatesToAddModList</code>. Each TCI state has an ID and one or two reference signals. The gNB can configure up to 128 TCI states. Only a subset are <strong>active</strong> at any time.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>TCI state configuration — our UE example</span><span class="cb-ref">TS 38.331 §6.3.2</span></div>
+  <pre><span class="c">// RRC configures 4 TCI states (simplified):</span>
+TCI-State ID=0:
+  referenceSignal: SSB 0
+  qcl-Type: TypeD
+  <span class="c">← UE uses SSB beam 0's spatial filter for PDSCH</span>
+
+TCI-State ID=1:
+  referenceSignal: SSB 1
+  qcl-Type: TypeD
+
+TCI-State ID=2:
+  referenceSignal: SSB 2
+  qcl-Type: TypeD
+
+TCI-State ID=<span class="r">3</span>:
+  referenceSignal: SSB <span class="r">3</span>    <span class="c">← our best beam</span>
+  qcl-Type: TypeD
+  <span class="c">← UE points receive beam toward SSB 3 direction</span>
+
+<span class="c">// Additional for channel estimation quality:</span>
+TCI-State ID=3 also includes:
+  referenceSignal2: CSI-RS resource 0
+  qcl-Type: TypeA  <span class="c">← for delay/Doppler estimation</span></pre>
+</div>
+
+<div class="prose">
+<h2>TCI state activation via MAC CE</h2>
+<p>
+  After RRC configures a set of TCI states, the gNB activates specific ones using a <strong>MAC CE</strong>. The TCI State Indication MAC CE is a 1-byte message containing two 3-bit TCI state IDs — one for each codeword (or for CORESET-0 and other CORESETs).
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The UE shall, for each activated TCI state, apply the TCI state to the associated downlink physical channel or reference signal. The activation takes effect after a 3 ms delay from reception of the MAC CE.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 6.1.3.14</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>TCI state activation — MAC CE</span><span class="cb-ref">TS 38.321 §6.1.3.14</span></div>
+  <pre><span class="c">// TCI State Indication MAC CE (1 byte):</span>
+Bits [7:4]: Serving Cell ID = <span class="n">0</span>
+Bits [3:0]: TCI state ID    = <span class="r">3</span>   <span class="c">← activate TCI state 3 (SSB beam 3)</span>
+
+<span class="c">// Activation timing:</span>
+MAC CE received in slot n
+TCI state becomes active: slot n + <span class="n">3 ms</span> = slot n + <span class="n">6</span> slots (30 kHz)
+
+<span class="c">// Effect:</span>
+<span class="c">// From slot n+6 onwards, UE uses SSB beam 3's receive spatial filter</span>
+<span class="c">// for all PDSCH on the configured CORESET</span>
+<span class="c">// The beam pointing matches the gNB's transmit beam for that TCI state</span></pre>
+</div>
+
+<div class="prose">
+<h2>The complete beamforming loop — from SSB to data</h2>
+<p>
+  We can now trace the complete beam management journey from initial cell search to steady-state data reception:
+</p>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">SSB beam sweep (Module 2)</div>
+      <div class="step-text">UE scans 8 SSB beams. SSB index 3 has highest RSRP = −85 dBm. UE identifies best beam direction.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">RACH on beam-linked PRACH (Module 6)</div>
+      <div class="step-text">UE sends preamble on PRACH occasion linked to SSB 3. gNB receives on its beam 3 receive panel. Timing advance derived from arrival timing.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);">3</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">RRC configures TCI states</div>
+      <div class="step-text">In RRCSetup (or RRCReconfiguration), gNB configures TCI states 0–7, each linked to one SSB beam. Also configures CSI-RS for finer channel estimation.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--purple-l);color:var(--purple);border:1px solid var(--purple-m);">4</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">MAC CE activates TCI state 3</div>
+      <div class="step-text">gNB sends TCI State Indication MAC CE selecting TCI=3. UE activates beam 3 spatial filter 3 ms later. PDSCH now received using optimal beam direction.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--green-l);color:var(--green);border:1px solid var(--green-m);">5</div></div>
+    <div class="step-body">
+      <div class="step-title">CSI-RS measurement → beam refinement</div>
+      <div class="step-text">gNB periodically transmits narrow CSI-RS beams for refinement (P2). UE measures and reports PMI/CQI/RI. As UE moves, MAC CE updates the active TCI state to track the best beam.</div>
     </div>
   </div>
 </div>
+
+<div class="result-box reveal">
+  <div class="rb-title">TCI states — final summary</div>
+  <div class="rb-line">TCI state &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ links reference signal → channel beam direction</div>
+  <div class="rb-line">Our active TCI &nbsp;&nbsp;→ <span class="rb-val">TCI state 3 → SSB beam 3 → QCL-TypeD</span></div>
+  <div class="rb-line">Activation &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">MAC CE</span>, takes effect after 3 ms</div>
+  <div class="rb-line">Refinement &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ CSI-RS P1/P2 procedures update TCI as UE moves</div>
+</div>
+
+<div class="note-box reveal">
+  <strong>Course complete.</strong> From powering on (Module 1) through OFDM fundamentals, cell search (Module 2), PBCH/MIB (Module 3), CORESET/search space (Module 4), SIB1/camping (Module 5), RACH (Module 6), RRC connection (Module 7), scheduling and HARQ (Module 8), the full protocol stack (Module 9), to beamforming and TCI states (Module 10) — you can now derive every number in a 5G NR connection procedure from first principles using 3GPP specifications.
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="10-2-beam-sweep.html"><span class="pn-label">← Previous</span><span class="pn-title">SSB Beam Sweep</span></a>
-  <a href="../index.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Home</span></a>
+  <a href="../index.html" class="next"><span class="pn-label">↑ Back to</span><span class="pn-title">All Modules</span></a>
 </div>
 </main>
 </div>

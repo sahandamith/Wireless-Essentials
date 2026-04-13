@@ -10,28 +10,139 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 10 <span>›</span> Section 10.2</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 10 — Coming Soon
+  <div class="breadcrumb">Module 10 <span>›</span> Beamforming <span>›</span> Section 10.2</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 10 — Beamforming & MIMO
   </div>
-  <h1>SSB Beam Sweep</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>SSB Beam Sweep —<br><em>Finding the best beam before connecting</em></h1>
+  <p class="hero-lead">
+    The SSB we detected in Module 2 was not just one transmission — it was one of up to 64 SSBs transmitted in different beam directions within a 20 ms period. The UE measures each SSB, identifies the best beam (index 3 in our example), and uses that beam index to link to the correct PRACH resource. This section explains the full beam sweep procedure.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.213 §4.1</span>
+    <span class="spec-pill">TS 38.211 §7.4.3</span>
+    <span class="spec-pill">TS 38.331 §5.5.5</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">Up to 64 beams in FR2</div>
-<div class="topic-item">RSRP per SSB measurement</div>
-<div class="topic-item">Best beam selection</div>
-<div class="topic-item">Beam-to-RACH linking</div>
-    </div>
+<div class="prose">
+
+<h2>The SSB burst set</h2>
+<p>
+  Within one <strong>SSB burst period</strong> (20 ms default), the gNB transmits a set of SSBs — each in a different beam direction using a different precoding vector. The maximum number of SSBs per burst set is:
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The maximum number of SS/PBCH blocks in a half-frame is L_max, where L_max = 4 for f ≤ 3 GHz, L_max = 8 for 3 GHz &lt; f ≤ 6 GHz, and L_max = 64 for f &gt; 6 GHz.
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 4.1</div>
+</div>
+
+<p>
+  Our cell is at 3498.24 MHz (between 3 and 6 GHz) → <strong>L_max = 8</strong>. The gNB can transmit up to 8 SSBs in different directions within one 5 ms half-frame, then repeat every 20 ms.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">SSB burst set — 8 beams in one half-frame (5 ms)</span>
+    <span class="ds-ref">TS 38.213 §4.1, TS 38.211 §7.4.3</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="beam-sweep-canvas" width="900" height="240" style="width:100%;"></canvas>
   </div>
 </div>
+
+<div class="prose">
+<h2>SSB time positions</h2>
+<p>
+  The 8 SSBs within a half-frame occupy specific OFDM symbol positions. Each SSB occupies 4 consecutive symbols (PSS, SSS, PBCH×2) within specific slots and subframes.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>SSB symbol positions — 30 kHz SCS, L_max=8</span><span class="cb-ref">TS 38.213 §4.1, Case C</span></div>
+  <pre><span class="c">// Case C: 30 kHz SCS, FR1 (3–6 GHz)</span>
+<span class="c">// First SSB group (n=0,1): slots 2 and 8 of subframe 0</span>
+SSB 0: slot 2, symbols {4,5,6,7}
+SSB 1: slot 2, symbols {8,9,10,11}
+
+<span class="c">// Second SSB group (n=2,3): slots 2 and 8 of subframe 0 continued</span>
+SSB 2: slot 8, symbols {4,5,6,7}
+SSB 3: slot 8, symbols {8,9,10,11}
+
+<span class="c">// Third group (n=4,5): subframe 1</span>
+SSB 4: slot 16, symbols {4,5,6,7}
+SSB 5: slot 16, symbols {8,9,10,11}
+
+<span class="c">// Fourth group (n=6,7): subframe 1 continued</span>
+SSB 6: slot 22, symbols {4,5,6,7}
+SSB 7: slot 22, symbols {8,9,10,11}
+
+<span class="c">// Our UE detected SSB index 3 (strongest beam)</span>
+SSB 3 position: slot 8, symbols {8,9,10,11}
+SSB 3 beam direction: ~ 30° off broadside (example)</pre>
+</div>
+
+<div class="prose">
+<h2>How the UE identifies the best beam</h2>
+<p>
+  The UE scans all GSCN frequencies and at each one performs a PSS correlation sweep. When it finds a cell, it receives all 8 SSBs in the burst period and measures the RSRP of each. The SSB with the highest RSRP is the best beam — that beam direction aligns best with the UE's location.
+</p>
+<p>
+  The SSB index is conveyed in two places: the PBCH DMRS pattern (3 bits, implicitly) and the PBCH payload overhead bits (additional bits for large L_max). For L_max=8, the 3-bit i_SSB field in the overhead gives the index directly.
+</p>
+
+<h2>Beam management — keeping track after connection</h2>
+<p>
+  After initial access, the gNB continues to manage beams using three procedures defined in TS 38.331:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">Beam management procedures</span><span class="ds-ref">TS 38.331 §5.5.5</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Procedure</th><th>Purpose</th><th>Trigger</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">P1</td><td>Beam sweeping — find best TRP beam and UE beam</td><td>Periodic CSI-RS or SSB measurement</td></tr>
+        <tr><td class="t-pos">P2</td><td style="color:var(--text2)">Beam refinement — narrow beam within best direction</td><td style="color:var(--text2)">After P1, triggered by beam-specific CSI-RS</td></tr>
+        <tr><td class="t-pos">P3</td><td style="color:var(--text2)">UE-side beam selection — rotate UE's own receive beam</td><td style="color:var(--text2)">Only for FR2 (mmWave) UEs with antenna arrays</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Beam failure recovery</h2>
+<p>
+  If the serving beam quality degrades below a threshold (e.g., due to the UE moving or an obstruction), the UE declares a <strong>beam failure</strong> and must quickly find a new beam. This is faster than a full handover — the UE sends a RACH preamble on the PRACH occasion associated with a candidate new beam.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    If the UE detects beam failure, it shall initiate beam failure recovery by selecting a new candidate beam and transmitting a random access preamble in the PRACH occasion associated with the selected candidate beam.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.17</div>
+</div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">SSB beam sweep — our example</div>
+  <div class="rb-line">L_max &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">8 beams</span> (3–6 GHz band)</div>
+  <div class="rb-line">Period &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">20 ms</span> (default SSB burst period)</div>
+  <div class="rb-line">Best beam &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">SSB index 3</span> (slot 8, symbols 8–11)</div>
+  <div class="rb-line">PRACH link &nbsp;&nbsp;&nbsp;→ beam 3 → dedicated PRACH occasion for initial access</div>
+  <div class="rb-line">After connection → <span class="rb-val">P1/P2</span> beam management via CSI-RS</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="10-1-mimo.html"><span class="pn-label">← Previous</span><span class="pn-title">Massive MIMO Basics</span></a>
   <a href="10-3-tci.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">TCI States</span></a>
@@ -39,6 +150,76 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('10-2-beam-sweep.html');</script>
+<script>
+buildSidebar('10-2-beam-sweep.html');
+
+// Beam sweep diagram
+(function(){
+  const c=document.getElementById('beam-sweep-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const gNBx=80, gNBy=H/2;
+  const N=8;
+  const colors=[C.blue,C.teal,C.amber,C.purple,C.coral,C.green,'#d97706','#0d9488'];
+  const fills=[C.blueL,C.tealL,C.amberL,C.purpleL,C.coralL,C.greenL,'#fffbeb','#f0fdfa'];
+
+  // Draw gNB
+  ctx.fillStyle=C.bg3; ctx.fillRect(gNBx-15,gNBy-50,30,100);
+  ctx.strokeStyle=C.text3; ctx.lineWidth=1.5; ctx.strokeRect(gNBx-15,gNBy-50,30,100);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('gNB',gNBx,gNBy+65);
+  ctx.fillText('64 antennas',gNBx,gNBy+78);
+
+  // Draw 8 beams
+  const beamAngles=[-70,-50,-30,-10,10,30,50,70]; // degrees
+  beamAngles.forEach((deg,i)=>{
+    const rad=deg*Math.PI/180;
+    const beamW=0.25; // beam width in radians
+    const beamLen=i===3?200:120+Math.random()*30; // beam 3 is strongest
+    const isActive=i===3;
+
+    // Beam shape (fan)
+    ctx.fillStyle=fills[i];
+    ctx.beginPath();
+    ctx.moveTo(gNBx,gNBy);
+    for(let a=rad-beamW/2;a<=rad+beamW/2;a+=0.01){
+      ctx.lineTo(gNBx+beamLen*Math.cos(a),gNBy+beamLen*Math.sin(a));
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle=colors[i]; ctx.lineWidth=isActive?2:0.8;
+    ctx.beginPath();
+    ctx.moveTo(gNBx,gNBy);
+    for(let a=rad-beamW/2;a<=rad+beamW/2;a+=0.01){
+      ctx.lineTo(gNBx+beamLen*Math.cos(a),gNBy+beamLen*Math.sin(a));
+    }
+    ctx.closePath(); ctx.stroke();
+
+    // Label
+    const lx=gNBx+(beamLen+20)*Math.cos(rad), ly=gNBy+(beamLen+20)*Math.sin(rad);
+    ctx.font=isActive?'bold 11px Fraunces':'10px IBM Plex Mono';
+    ctx.fillStyle=colors[i]; ctx.textAlign='center';
+    ctx.fillText('SSB '+i,lx,ly+(i<4?-6:8));
+    if(isActive){
+      ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.amber;
+      ctx.fillText('Best beam ★',lx,ly+(i<4?-18:22));
+    }
+  });
+
+  // UE
+  ctx.fillStyle=C.blueL; roundRect(ctx,720,H/2-25,60,50,6); ctx.fill();
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1.5; roundRect(ctx,720,H/2-25,60,50,6); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('UE',750,H/2+5);
+  ctx.fillText('RSRP[3]=best',750,H/2+18);
+
+  // Timeline below
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('← 5 ms half-frame — all 8 SSBs transmitted in sequence, one per beam →',100,H-8);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

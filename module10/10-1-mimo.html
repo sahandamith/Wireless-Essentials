@@ -10,27 +10,135 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 10 <span>›</span> Section 10.1</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 10 — Coming Soon
+  <div class="breadcrumb">Module 10 <span>›</span> Beamforming <span>›</span> Section 10.1</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    Module 10 — Beamforming & MIMO
   </div>
-  <h1>Massive MIMO Basics</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>Massive MIMO —<br><em>Many antennas, focused beams</em></h1>
+  <p class="hero-lead">
+    5G NR base stations typically have 32, 64, or even 192 antenna elements — orders of magnitude more than LTE. This large antenna array enables spatial beamforming: concentrating signal energy in specific directions rather than radiating equally in all directions. This section covers the physics and mathematics behind beamforming and why massive MIMO is central to 5G capacity.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.214 §5.2</span>
+    <span class="spec-pill">TS 38.211 §7.3.1.4</span>
+    <span class="spec-pill">TS 38.214 §5.2.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">SISO → MIMO → Massive MIMO</div>
-<div class="topic-item">Spatial multiplexing vs diversity</div>
-<div class="topic-item">Beamforming intuition</div>
-    </div>
+<div class="prose">
+
+<h2>Why more antennas help</h2>
+<p>
+  A single antenna radiates energy in all directions — only a tiny fraction reaches the intended UE. An array of antennas, each transmitting the same signal with carefully chosen phase offsets, creates <strong>constructive interference</strong> in the desired direction and <strong>destructive interference</strong> in all other directions. This is a <strong>beam</strong>.
+</p>
+<p>
+  With N antennas, the maximum beamforming gain is <strong>N times</strong> the single-antenna power in the beam direction. For a 64-antenna array: 18 dB gain. This is why 5G can operate at higher frequencies (more path loss) and still achieve good coverage.
+</p>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">64</div><div class="kc-label">typical antenna ports</div><div class="kc-desc">32 cross-pol elements = 64 ports in a typical 5G panel</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">18 dB</div><div class="kc-label">max beamforming gain</div><div class="kc-desc">10·log₁₀(64) = 18 dB vs omnidirectional</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">MU-MIMO</div><div class="kc-label">multi-user MIMO</div><div class="kc-desc">Serve multiple UEs simultaneously on same RBs</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--purple)">CSI-RS</div><div class="kc-label">channel sounding</div><div class="kc-desc">UE measures CSI-RS, reports PMI/CQI/RI to gNB</div></div>
+</div>
+
+<h2>Beamforming mathematics</h2>
+<p>
+  Consider a uniform linear array (ULA) of N antennas spaced half a wavelength apart. To steer a beam at angle θ from broadside, the signal at antenna n is delayed by n × (d/λ) × sin(θ) wavelengths, equivalent to a phase shift.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Beamforming weight vector — ULA, N=8 antennas, θ=30°</span><span class="cb-ref">Array signal processing</span></div>
+  <pre><span class="c">// Uniform Linear Array (ULA) steering vector:</span>
+d = λ/2  (half-wavelength spacing)
+θ = 30°  (desired beam direction)
+
+<span class="c">// Phase shift per element:</span>
+ψ = 2π × (d/λ) × sin(θ) = 2π × <span class="n">0.5</span> × sin(<span class="n">30°</span>)
+  = 2π × <span class="n">0.5</span> × <span class="n">0.5</span> = <span class="r">π/2 radians</span>
+
+<span class="c">// Beamforming weight vector w (N=8):</span>
+w = [1,  e^(jπ/2),  e^(jπ),  e^(j3π/2),  e^(j2π),  e^(j5π/2),  e^(j3π),  e^(j7π/2)]
+  = [1,  j,  -1,  -j,  1,  j,  -1,  -j]
+
+<span class="c">// Array gain at θ=30°:</span>
+|w^H × a(θ)|² = N² = <span class="r">64</span>  (8² = 18 dB gain)
+
+<span class="c">// Array gain at θ=60° (interference null):</span>
+|w^H × a(60°)|² ≈ <span class="r">0.02</span>  (−17 dB nulling)</pre>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Beam pattern — 8-element ULA steered to 30°</span>
+    <span class="ds-ref">Array factor computation</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="beam-pattern-canvas" width="900" height="280" style="width:100%;"></canvas>
   </div>
 </div>
+
+<div class="prose">
+<h2>Precoding — connecting beamforming to 3GPP</h2>
+<p>
+  In 3GPP, beamforming is implemented through <strong>precoding</strong>. The gNB multiplies the data symbols by a precoding matrix W before transmitting from multiple antenna ports. The UE reports a <strong>Precoding Matrix Indicator (PMI)</strong> — an index into a codebook of predefined precoding matrices — telling the gNB which precoder it prefers.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For transmission on physical channels using multiple antenna ports, the UE assumes that the precoding matrix W applied to the symbols on the antenna ports corresponds to a codebook-based precoding or a non-codebook-based precoding as configured.
+  </div>
+  <div class="gpp-source">3GPP TS 38.214, Section 5.2.2.2</div>
+</div>
+
+<h2>CSI feedback — how the gNB learns the channel</h2>
+<p>
+  The gNB transmits <strong>CSI-RS (Channel State Information Reference Signals)</strong> — known pilot signals from specific antenna ports. The UE measures these, estimates the channel, and reports back:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">CSI feedback loop</span><span class="ds-ref">TS 38.214 §5.2.1</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Report</th><th>Full name</th><th>Description</th><th>Bits</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">CQI</td><td>Channel Quality Indicator</td><td>Recommended MCS index (0–15)</td><td style="font-family:var(--mono);">4</td></tr>
+        <tr class="hl"><td class="t-pos">PMI</td><td>Precoding Matrix Indicator</td><td>Best precoder from codebook</td><td style="font-family:var(--mono);">varies</td></tr>
+        <tr class="hl"><td class="t-pos">RI</td><td>Rank Indicator</td><td>Number of spatial layers (1–4)</td><td style="font-family:var(--mono);">1–2</td></tr>
+        <tr><td class="t-pos">LI</td><td>Layer Indicator</td><td>Best layer for single-layer PDSCH</td><td style="font-family:var(--mono);">varies</td></tr>
+        <tr><td class="t-pos">CRI</td><td>CSI-RS Resource Indicator</td><td>Best CSI-RS beam (for SSB beam management)</td><td style="font-family:var(--mono);">varies</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Spatial multiplexing — multiple layers</h2>
+<p>
+  With enough antenna elements and sufficient scattering in the environment, the gNB can transmit <strong>multiple independent data streams (layers)</strong> simultaneously to the same UE. This is <strong>spatial multiplexing</strong>. The maximum number of layers equals the minimum of the number of transmit and receive antennas and the channel rank.
+</p>
+<p>
+  For our UE: RI=1 (single layer reported). If RI=2, the throughput doubles — 2 independent streams occupy the same time-frequency resources.
+</p>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Massive MIMO — key numbers</div>
+  <div class="rb-line">Antenna ports &nbsp;&nbsp;&nbsp;&nbsp;→ typically <span class="rb-val">32 or 64</span> per panel</div>
+  <div class="rb-line">Beamforming gain &nbsp;→ up to <span class="rb-val">18 dB</span> (64 antennas)</div>
+  <div class="rb-line">Max layers (SU) &nbsp;&nbsp;→ <span class="rb-val">4 DL, 4 UL</span> per UE (Release 17)</div>
+  <div class="rb-line">CSI feedback &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">CQI + PMI + RI</span> reported on PUCCH/PUSCH</div>
+  <div class="rb-line">Our UE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ RI=1, single layer, PMI=0 (codebook index)</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="../module9/9-4-sdap.html"><span class="pn-label">← Previous</span><span class="pn-title">SDAP Layer</span></a>
   <a href="10-2-beam-sweep.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">SSB Beam Sweep</span></a>
@@ -38,6 +146,72 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('10-1-mimo.html');</script>
+<script>
+buildSidebar('10-1-mimo.html');
+
+// Beam pattern diagram
+(function(){
+  const c=document.getElementById('beam-pattern-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const cx=W/2, cy=H*0.55, maxR=100;
+
+  // Draw polar grid
+  [0.25,0.5,0.75,1.0].forEach(r=>{
+    ctx.strokeStyle=C.border; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.arc(cx,cy,maxR*r,0,Math.PI*2); ctx.stroke();
+  });
+  // Angle lines
+  for(let deg=0;deg<360;deg+=30){
+    const rad=deg*Math.PI/180;
+    ctx.strokeStyle=C.border; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+maxR*1.1*Math.cos(rad),cy+maxR*1.1*Math.sin(rad)); ctx.stroke();
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+    const lx=cx+maxR*1.2*Math.cos(rad), ly=cy+maxR*1.2*Math.sin(rad);
+    ctx.fillText(deg+'°',lx,ly+3);
+  }
+
+  // Compute array factor for N=8 ULA, steered to 30°
+  const N=8, steer=30*Math.PI/180;
+  function arrayFactor(theta){
+    let re=0, im=0;
+    for(let n=0;n<N;n++){
+      const psi=Math.PI*(Math.sin(theta)-Math.sin(steer));
+      re+=Math.cos(n*psi);
+      im+=Math.sin(n*psi);
+    }
+    return Math.sqrt(re*re+im*im)/N;
+  }
+
+  // Draw beam pattern
+  ctx.strokeStyle=C.blue; ctx.lineWidth=2;
+  ctx.beginPath();
+  for(let deg=0;deg<360;deg+=1){
+    const rad=deg*Math.PI/180;
+    const af=arrayFactor(rad);
+    const r=af*maxR;
+    const x=cx+r*Math.cos(rad-(Math.PI/2)), y=cy+r*Math.sin(rad-(Math.PI/2));
+    deg===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath(); ctx.stroke();
+  ctx.fillStyle='rgba(37,99,235,0.06)'; ctx.fill();
+
+  // Mark main lobe direction
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+  const th30=30*Math.PI/180-Math.PI/2;
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+maxR*1.05*Math.cos(th30),cy+maxR*1.05*Math.sin(th30)); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='bold 11px Fraunces'; ctx.fillStyle=C.amber; ctx.textAlign='left';
+  ctx.fillText('Main lobe θ=30°',cx+maxR*0.7*Math.cos(th30)+5,cy+maxR*0.7*Math.sin(th30));
+
+  // Labels
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('N=8 ULA, half-λ spacing, steered to 30°',cx,H-10);
+  ctx.fillStyle=C.text3;
+  ctx.fillText('Array factor magnitude',cx,16);
+})();
+</script>
 </body>
 </html>

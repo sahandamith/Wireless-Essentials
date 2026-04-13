@@ -10,28 +10,158 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 9 <span>›</span> Section 9.1</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 9 — Coming Soon
+  <div class="breadcrumb">Module 9 <span>›</span> Protocol Stack <span>›</span> Section 9.1</div>
+  <div class="module-tag" style="background:var(--coral-l);border:1px solid var(--coral-m);color:var(--coral);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--coral);display:inline-block;"></span>
+    Module 9 — Protocol Stack
   </div>
-  <h1>MAC Layer</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>MAC Layer —<br><em>The scheduler's domain</em></h1>
+  <p class="hero-lead">
+    The Medium Access Control layer is where resources meet data. MAC multiplexes logical channels, runs the HARQ processes, performs scheduling, and assembles the transport blocks that get encoded and transmitted. This section traces the complete MAC PDU structure and explains priority-based logical channel multiplexing.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.321</span>
+    <span class="spec-pill">TS 38.300 §6.2</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">MAC PDU structure</div>
-<div class="topic-item">MAC CE (Control Elements)</div>
-<div class="topic-item">Logical channel prioritization</div>
-<div class="topic-item">BSR and PHR</div>
-    </div>
+<div class="prose">
+
+<h2>MAC position in the protocol stack</h2>
+<p>
+  The protocol stack from application to air interface has four radio protocol layers. From top to bottom: PDCP → RLC → MAC → PHY. Each layer adds headers, performs error control, and handles a specific function. The MAC layer sits directly above the physical layer — it is the last stop before bits become radio waves.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The MAC layer provides services to the RLC layer in the form of logical channels. The MAC layer uses services from the physical layer in the form of transport channels. The MAC layer performs mapping between logical channels and transport channels, multiplexing/demultiplexing of MAC SDUs, scheduling information reporting, error correction through HARQ, and priority handling.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 4.2</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">Mux</div><div class="kc-label">Multiplexing</div><div class="kc-desc">Combines multiple logical channels into one transport block</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">HARQ</div><div class="kc-label">Retransmission</div><div class="kc-desc">16 DL / 16 UL processes, soft combining</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">BSR</div><div class="kc-label">Buffer reports</div><div class="kc-desc">Reports UL buffer status to gNB scheduler</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--purple)">CE</div><div class="kc-label">Control Elements</div><div class="kc-desc">MAC CEs for TA, BSR, power headroom etc.</div></div>
+</div>
+
+<h2>MAC PDU structure</h2>
+<p>
+  A MAC PDU (the transport block handed to the PHY layer) is built from subheaders and payloads. Each subheader identifies what follows — either a MAC SDU (data from an RLC bearer) or a MAC Control Element (MAC-layer control information).
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">MAC PDU structure — subheaders and payloads</span>
+    <span class="ds-ref">TS 38.321 §6.1</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="mac-pdu-canvas" width="900" height="140" style="width:100%;"></canvas>
   </div>
 </div>
+
+<div class="prose">
+<h2>MAC subheader format</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    A MAC subheader consists of the following fields: R (reserved, set to 0), F (format flag), LCID (Logical Channel ID), and L (length). The F bit indicates whether the L field is 8 bits (F=0) or 16 bits (F=1). The LCID identifies the logical channel or the type of control element.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 6.1.2</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>MAC subheader — LCID values and their meanings</span><span class="cb-ref">TS 38.321 §6.2.1</span></div>
+  <pre><span class="c">// LCID values for DL-SCH:</span>
+LCID 0:     <span class="r">CCCH</span>      (SRB0 — pre-connection control)
+LCID 1:     <span class="r">DCCH</span>      (SRB1 — RRC signalling)
+LCID 2:     DCCH       (SRB2 — NAS signalling)
+LCID 3–10:  DTCH       (DRB1–DRB8 — user data)
+LCID 60:    <span class="k">DAPS HO Command</span>
+LCID 61:    <span class="k">Timing Advance Command</span>   <span class="c">← MAC CE we received in Msg2</span>
+LCID 62:    <span class="k">Contention Resolution ID</span> <span class="c">← MAC CE in Msg4</span>
+LCID 63:    <span class="k">Padding</span>
+
+<span class="c">// LCID values for UL-SCH:</span>
+LCID 1:     DCCH (SRB1)
+LCID 3–10:  DTCH (DRBs)
+LCID 57:    <span class="k">Short BSR</span>
+LCID 58:    <span class="k">Long BSR</span>
+LCID 59:    <span class="k">Short Truncated BSR</span>
+LCID 60:    <span class="k">Power Headroom Report</span>
+LCID 63:    <span class="k">Padding</span></pre>
+</div>
+
+<div class="prose">
+<h2>Logical channel prioritisation</h2>
+<p>
+  When assembling a MAC PDU, the MAC entity must decide which logical channels get how many bytes. The algorithm is defined in TS 38.321 and ensures high-priority channels are always served before low-priority ones.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The MAC entity shall prioritize the logical channels in the following order: first, all logical channels with a configured prioritizedBitRate other than zero, ordered by priority; then, all other logical channels, ordered by priority. MAC CEs shall have higher priority than data from logical channels.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.4.3.1</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Logical channel prioritisation — our UE, 22 RBs UL grant</span><span class="cb-ref">TS 38.321 §5.4.3.1</span></div>
+  <pre><span class="c">// Available bytes in UL grant (22 RBs, MCS 16, 64-QAM):</span>
+TBS ≈ <span class="n">12,032</span> bits = <span class="r">1,504 bytes</span>
+
+<span class="c">// Logical channel priority order (RRC configured):</span>
+Priority 1: SRB1 (DCCH)      → pending: <span class="n">0</span> bytes     → allocate: <span class="n">0</span>
+Priority 2: Short BSR MAC CE → pending: <span class="n">4</span> bytes     → allocate: <span class="r">4</span>  (MAC CE first)
+Priority 3: DRB1 (DTCH)      → pending: <span class="n">300,000</span> bytes → allocate: <span class="r">1,496</span>
+
+<span class="c">// MAC PDU assembly:</span>
+[Subheader LCID=57 len=4] [Short BSR: LCG1=18] [Subheader LCID=3 len=1496 F=1] [DRB1 data: 1496 bytes]
+Total PDU size = <span class="r">1,504 bytes</span>  (fits exactly in TBS)</pre>
+</div>
+
+<div class="prose">
+<h2>MAC Control Elements (MAC CEs)</h2>
+<p>
+  MAC CEs are control information generated and consumed by the MAC layer itself — they don't come from upper layers. The most important ones we have already seen:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">Key MAC Control Elements</span><span class="ds-ref">TS 38.321 §6.1.3</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>MAC CE</th><th>LCID</th><th>Size</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">Timing Advance Command</td><td style="font-family:var(--mono);">61</td><td style="font-family:var(--mono);">2 bytes</td><td>TA group + TA value — adjust UL timing</td></tr>
+        <tr class="hl"><td class="t-pos">Contention Resolution ID</td><td style="font-family:var(--mono);">62</td><td style="font-family:var(--mono);">6 bytes</td><td>Copy of Msg3 CCCH SDU — resolves RACH collision</td></tr>
+        <tr><td class="t-pos">Short BSR</td><td style="font-family:var(--mono);">57</td><td style="font-family:var(--mono);">1 byte</td><td style="color:var(--text2)">Reports one LCG's buffer status</td></tr>
+        <tr><td class="t-pos">Long BSR</td><td style="font-family:var(--mono);">58</td><td style="font-family:var(--mono);">variable</td><td style="color:var(--text2)">Reports all LCGs' buffer status</td></tr>
+        <tr><td class="t-pos">Power Headroom Report</td><td style="font-family:var(--mono);">60</td><td style="font-family:var(--mono);">1 byte</td><td style="color:var(--text2)">Reports UE's available power margin above current TX power</td></tr>
+        <tr><td class="t-pos">C-RNTI</td><td style="font-family:var(--mono);">52</td><td style="font-family:var(--mono);">2 bytes</td><td style="color:var(--text2)">UE's C-RNTI — used when TC-RNTI active (Msg3)</td></tr>
+        <tr><td class="t-pos">DRX Command</td><td style="font-family:var(--mono);">60 (DL)</td><td style="font-family:var(--mono);">0 bytes</td><td style="color:var(--text2)">Network commands UE to enter DRX sleep immediately</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">MAC layer summary</div>
+  <div class="rb-line">Core function &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">mux logical channels into transport blocks</span></div>
+  <div class="rb-line">PDU structure &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">subheaders + payloads + MAC CEs + padding</span></div>
+  <div class="rb-line">Priority order &nbsp;&nbsp;&nbsp;→ <span class="rb-val">MAC CEs first, then by LCH priority and PBR</span></div>
+  <div class="rb-line">HARQ integration &nbsp;→ 16 DL + 16 UL processes, NDI toggle signals new vs retransmit</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="../module8/8-4-harq.html"><span class="pn-label">← Previous</span><span class="pn-title">HARQ</span></a>
   <a href="9-2-rlc.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">RLC Layer</span></a>
@@ -39,6 +169,47 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('9-1-mac.html');</script>
+<script>
+buildSidebar('9-1-mac.html');
+
+// MAC PDU diagram
+(function(){
+  const c=document.getElementById('mac-pdu-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const fields=[
+    {label:'Subheader',sub:'LCID=61\n(TA Cmd)',w:90,fill:C.amberL,stroke:C.amber},
+    {label:'TA Command',sub:'2 bytes\nMAC CE',w:80,fill:C.amberL,stroke:C.amber},
+    {label:'Subheader',sub:'LCID=57\n(Short BSR)',w:90,fill:C.purpleL,stroke:C.purple},
+    {label:'Short BSR',sub:'1 byte\nMAC CE',w:70,fill:C.purpleL,stroke:C.purple},
+    {label:'Subheader',sub:'LCID=1\n(SRB1)',w:90,fill:C.blueL,stroke:C.blue},
+    {label:'SRB1 data',sub:'RRC msg\n48 bytes',w:130,fill:C.blueL,stroke:C.blue},
+    {label:'Subheader',sub:'LCID=3\n(DRB1)',w:90,fill:C.tealL,stroke:C.teal},
+    {label:'DRB1 data',sub:'User data\n1,496 bytes',w:190,fill:C.tealL,stroke:C.teal},
+    {label:'Padding',sub:'LCID=63',w:60,fill:C.bg3,stroke:C.faint},
+  ];
+
+  const y=22, h=78, PAD=10;
+  let x=PAD;
+  fields.forEach(f=>{
+    ctx.fillStyle=f.fill; roundRect(ctx,x,y,f.w,h,4); ctx.fill();
+    ctx.strokeStyle=f.stroke; ctx.lineWidth=1; roundRect(ctx,x,y,f.w,h,4); ctx.stroke();
+    ctx.font='bold 11px Fraunces'; ctx.fillStyle=f.stroke==='rgba(0,0,0,0.08)'?C.muted:f.stroke; ctx.textAlign='center';
+    ctx.fillText(f.label,x+f.w/2,y+20);
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.text3;
+    f.sub.split('\n').forEach((l,i)=>ctx.fillText(l,x+f.w/2,y+36+i*13));
+    x+=f.w+3;
+  });
+
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('← MAC PDU (Transport Block given to PHY layer)',PAD,y+h+16);
+  ctx.fillStyle=C.amber; ctx.fillText('MAC CEs come first',PAD,y+h+30);
+  ctx.fillStyle=C.teal; ctx.fillText('Data logical channels after',PAD+160,y+h+30);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>

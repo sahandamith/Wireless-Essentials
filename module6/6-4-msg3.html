@@ -10,28 +10,204 @@
 <div class="site-wrap">
 <aside class="sidebar" id="sidebar"></aside>
 <main class="main">
+
 <div class="hero">
-  <div class="breadcrumb">Module 6 <span>›</span> Section 6.4</div>
-  <div class="module-tag" style="background:var(--bg2);border:1px solid var(--border);color:var(--text3);">
-    <span style="width:6px;height:6px;border-radius:50%;background:var(--muted);display:inline-block;"></span>
-    Module 6 — Coming Soon
+  <div class="breadcrumb">Module 6 <span>›</span> RACH <span>›</span> Section 6.4</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid var(--green-m);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    Module 6 — Random Access
   </div>
-  <h1>Msg3/4 — RRC Setup</h1>
-  <p class="hero-lead">This section is being written. It will include full 3GPP references, numerical examples, and interactive diagrams — consistent with the Module 2 style.</p>
+  <h1>Msg3/4 —<br><em>RRC Setup and Contention Resolution</em></h1>
+  <p class="hero-lead">
+    Msg3 carries the first real uplink data — an RRCSetupRequest identifying the UE. Msg4 resolves any preamble collision and delivers the RRCSetup message, which configures the UE with its dedicated radio bearers and moves it to RRC_CONNECTED. This section covers both messages and the transition to connected state.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.321 §5.1.5</span>
+    <span class="spec-pill">TS 38.331 §5.3.3</span>
+    <span class="spec-pill">TS 38.212 §6.1.3</span>
+  </div>
 </div>
+
 <div class="content">
-  <div class="coming-soon">
-    <div class="cs-icon">◎</div>
-    <h2>In progress</h2>
-    <p>This section will cover the following topics with the same depth as Module 2 — exact 3GPP spec quotes, step-by-step numerical examples, and interactive diagrams.</p>
-    <div class="topics">
-<div class="topic-item">RRCSetupRequest contents</div>
-<div class="topic-item">Contention resolution (Msg4)</div>
-<div class="topic-item">C-RNTI assignment</div>
-<div class="topic-item">RACH complete → RRC_CONNECTED</div>
+<div class="prose">
+
+<h2>Msg3 — RRCSetupRequest</h2>
+<p>
+  Using the UL grant received in the RAR (RBs 0–5, MCS 4) and the corrected uplink timing (TA=31), the UE transmits <strong>Msg3</strong> on the PUSCH. Msg3 contains the <code>RRCSetupRequest</code> message which identifies the UE and states why it is connecting.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The UE shall submit the CCCH SDU (RRCSetupRequest) to lower layers for transmission using the UL grant provided in the Random Access Response, applying the Temporary C-RNTI provided in the Random Access Response.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 5.3.3.2</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RRCSetupRequest — our UE</span><span class="cb-ref">TS 38.331 §6.2.2</span></div>
+  <pre><span class="c">// RRCSetupRequest ASN.1:</span>
+RRCSetupRequest ::= SEQUENCE {
+  ue-Identity:
+    randomValue = <span class="n">0x3F2A1C</span>   <span class="c">← 39-bit random number</span>
+    <span class="c">// (no valid IMSI-derived identity yet)</span>
+
+  establishmentCause = <span class="r">mo-Data</span>
+    <span class="c">// Other values: emergency, highPriorityAccess,</span>
+    <span class="c">// mt-Access, mo-Signalling, mo-VoiceCall...</span>
+}
+
+<span class="c">// Transport: CCCH (Common Control Channel) logical channel</span>
+<span class="c">// Physical: PUSCH, RBs 0–5, slot 3 (after TA applied)</span>
+<span class="c">// RNTI: TC-RNTI = 0x3A7F (from RAR)</span></pre>
+</div>
+
+<div class="prose">
+<h2>Contention resolution — the hidden problem</h2>
+<p>
+  Recall from 6.1: two UEs may have picked the same preamble. Both received the same RAR. Both sent Msg3 at the same time, on the same resources. Their transmissions <strong>collided</strong> at the gNB.
+</p>
+<p>
+  The gNB may have partially decoded one of them. Msg4 contains a <strong>contention resolution identity</strong> — the UE's own identity from Msg3. Each UE compares this against what it sent. Only one matches. The other UE declares failure and retries RACH.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The UE shall consider the contention resolution to be successful if the MAC CE containing the UE Contention Resolution Identity matches the CCCH SDU transmitted in Msg3. Otherwise, the UE shall consider the contention resolution to have been unsuccessful.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.1.5</div>
+</div>
+
+<h2>Msg4 — RRCSetup (Contention Resolution)</h2>
+<p>
+  Msg4 is delivered on the PDSCH, addressed by the TC-RNTI = 0x3A7F. It contains two things packed together in a MAC PDU:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Msg4 MAC PDU structure</span>
+    <span class="ds-ref">TS 38.321 §6.1.3.3, TS 38.331 §6.2.2</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="msg4-canvas" width="900" height="120" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>RRCSetup — what it contains</h2>
+<p>
+  The RRCSetup message is the most important RRC message for initial access. It provides the complete radio bearer and channel configuration the UE needs to operate in RRC_CONNECTED state.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>RRCSetup — key fields</span><span class="cb-ref">TS 38.331 §6.3.2</span></div>
+  <pre><span class="c">// RRCSetup ASN.1 (key fields):</span>
+RRCSetup ::= SEQUENCE {
+  rrc-TransactionIdentifier = <span class="n">0</span>,
+
+  criticalExtensions:
+    rrcSetup:
+      <span class="c">// Radio Bearer Configuration</span>
+      radioBearerConfig:
+        srb-ToAddModList:
+          SRB1 → <span class="r">established</span>
+          <span class="c">// SRB0: used for Msg3/4 (CCCH)</span>
+          <span class="c">// SRB1: first dedicated bearer → RLC-AM → PDCP</span>
+
+      <span class="c">// Master Cell Group configuration</span>
+      masterCellGroup:
+        cellGroupId = <span class="n">0</span>
+
+        <span class="c">// RLC bearer config for SRB1</span>
+        rlc-BearerToAddModList:
+          logicalChannelId = <span class="n">1</span>   <span class="c">← DCCH (Dedicated Control Channel)</span>
+          rlc-Config: am        <span class="c">← Acknowledged Mode</span>
+          mac-LogicalChannelConfig: priority=1
+
+        <span class="c">// MAC config</span>
+        mac-CellGroupConfig:
+          bsr-Config: periodicBSR-Timer = <span class="n">sf10</span>
+          sr-Config:  <span class="c">← Scheduling Request config</span>
+
+        <span class="c">// Physical layer config</span>
+        physicalCellGroupConfig:
+          p-NR-FR1 = <span class="n">23</span> dBm   <span class="c">← UE max power</span>
+
+        <span class="c">// Serving cell config</span>
+        spCellConfig:
+          servingCellIndex = <span class="n">0</span>
+          spCellConfigDedicated:
+            <span class="c">// Initial UL BWP</span>
+            uplinkConfig:
+              initialUplinkBWP:
+                pucch-Config: ...
+                pusch-Config: ...
+            <span class="c">// PDSCH/PDCCH for connected mode</span>
+            pdsch-ServingCellConfig: ...
+}</pre>
+</div>
+
+<div class="prose">
+<h2>After Msg4 — what changes</h2>
+<p>
+  Once the UE successfully receives and decodes Msg4 with matching contention resolution identity, a series of state transitions happen simultaneously:
+</p>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">Contention resolution confirmed</div>
+      <div class="step-text">Contention resolution MAC CE contains identity matching the UE's Msg3 (randomValue = 0x3F2A1C). Contention resolved. TC-RNTI 0x3A7F is now promoted to full C-RNTI.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">SRB1 established</div>
+      <div class="step-text">Signalling Radio Bearer 1 is now active — an RLC Acknowledged Mode bearer with full retransmission. From this point, RRC messages use SRB1 instead of the common CCCH channel.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);">3</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">State: RRC_CONNECTED</div>
+      <div class="step-text">UE transitions from RRC_IDLE to RRC_CONNECTED. It now has a dedicated C-RNTI, configured bearers, and a scheduled uplink resource. It can send and receive user data after NAS registration completes.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--green-l);color:var(--green);border:1px solid var(--green-m);">4</div></div>
+    <div class="step-body">
+      <div class="step-title">Send RRCSetupComplete → NAS Registration</div>
+      <div class="step-text">UE sends RRCSetupComplete on SRB1 including the NAS Registration Request message. The gNB forwards this to the AMF. NAS registration assigns a 5G-GUTI and establishes PDU sessions for data. Full connectivity follows.</div>
     </div>
   </div>
 </div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Complete RACH timeline — Msg1 through RRC_CONNECTED</span>
+    <span class="ds-ref">TS 38.321 §5.1, TS 38.331 §5.3.3</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="rach-timeline-canvas" width="900" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">RACH complete — UE is now RRC_CONNECTED</div>
+  <div class="rb-line">C-RNTI &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">0x3A7F</span> (TC-RNTI confirmed as C-RNTI)</div>
+  <div class="rb-line">SRB1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">established</span> (RLC-AM)</div>
+  <div class="rb-line">Timing Advance &nbsp;→ <span class="rb-val">TA=31</span> (uplink aligned)</div>
+  <div class="rb-line">State &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">RRC_CONNECTED</span></div>
+  <div class="rb-line">Next &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ NAS Registration → 5G-GUTI → PDU session → data</div>
+</div>
+
+</div>
+
 <div class="page-nav">
   <a href="6-3-msg2.html"><span class="pn-label">← Previous</span><span class="pn-title">Msg2 — RAR</span></a>
   <a href="../module7/7-1-rrc-states.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">RRC States</span></a>
@@ -39,6 +215,104 @@
 </main>
 </div>
 <script src="../js/main.js"></script>
-<script>buildSidebar('6-4-msg3.html');</script>
+<script>
+buildSidebar('6-4-msg3.html');
+
+// Msg4 structure
+(function(){
+  const c=document.getElementById('msg4-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+  const PAD=20, y=20, h=70;
+  const fields=[
+    {label:'MAC subheader',sub:'LCID = contention res.',w:160,fill:C.bg3,stroke:C.muted},
+    {label:'Contention Resolution',sub:'identity = 0x3F2A1C',w:220,fill:C.amberL,stroke:C.amber},
+    {label:'MAC subheader',sub:'LCID = CCCH (SRB0)',w:160,fill:C.bg3,stroke:C.muted},
+    {label:'RRCSetup',sub:'SRB1 + PHY/MAC config',w:240,fill:C.blueL,stroke:C.blue},
+    {label:'Padding',sub:'',w:80,fill:C.bg2,stroke:C.faint},
+  ];
+  let x=PAD;
+  fields.forEach(f=>{
+    ctx.fillStyle=f.fill; roundRect(ctx,x,y,f.w,h,5); ctx.fill();
+    ctx.strokeStyle=f.stroke; ctx.lineWidth=1.2; roundRect(ctx,x,y,f.w,h,5); ctx.stroke();
+    ctx.font='bold 11px Fraunces'; ctx.fillStyle=f.stroke==='rgba(0,0,0,0.08)'?C.muted:f.stroke; ctx.textAlign='center';
+    ctx.fillText(f.label,x+f.w/2,y+28);
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+    ctx.fillText(f.sub,x+f.w/2,y+48);
+    x+=f.w+4;
+  });
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('Msg4 MAC PDU (on PDSCH, addressed to TC-RNTI=0x3A7F)',PAD,y+h+18);
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+
+// RACH timeline
+(function(){
+  const c=document.getElementById('rach-timeline-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=40, slots=20, slotW=(W-PAD*2)/slots;
+  const events=[
+    {slot:0,label:'Msg1\n(PRACH)',color:C.blue,y:30},
+    {slot:4,label:'Msg2\n(RAR)',color:C.teal,y:100},
+    {slot:6,label:'Msg3\n(RRCSetupReq)',color:C.amber,y:30},
+    {slot:10,label:'Msg4\n(RRCSetup)',color:C.green,y:100},
+    {slot:14,label:'RRCSetup\nComplete',color:C.purple,y:30},
+  ];
+
+  // Timeline bar
+  ctx.strokeStyle=C.border2; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD,H/2); ctx.lineTo(W-PAD,H/2); ctx.stroke();
+
+  // Slot ticks
+  for(let s=0;s<=slots;s++){
+    const x=PAD+s*slotW;
+    ctx.strokeStyle=C.faint; ctx.lineWidth=0.5;
+    ctx.beginPath(); ctx.moveTo(x,H/2-5); ctx.lineTo(x,H/2+5); ctx.stroke();
+    if(s%2===0){
+      ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+      ctx.fillText(s,x,H/2+16);
+    }
+  }
+
+  events.forEach(e=>{
+    const x=PAD+e.slot*slotW;
+    const isAbove=e.y<H/2;
+    const dotY=H/2;
+    // Dot
+    ctx.fillStyle=e.color; ctx.beginPath(); ctx.arc(x,dotY,5,0,Math.PI*2); ctx.fill();
+    // Line
+    ctx.strokeStyle=e.color; ctx.lineWidth=1; ctx.setLineDash([3,2]);
+    ctx.beginPath(); ctx.moveTo(x,dotY); ctx.lineTo(x,e.y+20); ctx.stroke();
+    ctx.setLineDash([]);
+    // Label box
+    const lines=e.label.split('\n');
+    const bw=lines.reduce((m,l)=>Math.max(m,l.length*7),0)+16;
+    const bh=lines.length*15+10;
+    const bx=x-bw/2, by=isAbove?e.y-bh:e.y;
+    ctx.fillStyle=e.color==='rgba(0,0,0,0.08)'?C.bg2:e.color+'22';
+    roundRect(ctx,bx,by,bw,bh,4); ctx.fill();
+    ctx.strokeStyle=e.color; ctx.lineWidth=1; roundRect(ctx,bx,by,bw,bh,4); ctx.stroke();
+    ctx.font='bold 10px IBM Plex Mono'; ctx.fillStyle=e.color; ctx.textAlign='center';
+    lines.forEach((l,i)=>ctx.fillText(l,x,by+14+i*15));
+  });
+
+  // State labels
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
+  ctx.fillText('← RRC_IDLE',PAD,H-8);
+  ctx.fillStyle=C.green; ctx.textAlign='right';
+  ctx.fillText('RRC_CONNECTED →',W-PAD,H-8);
+  ctx.strokeStyle=C.green; ctx.lineWidth=1.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(PAD+14*slotW,H-20); ctx.lineTo(W-PAD,H-20); ctx.stroke();
+
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+  ctx.fillText('Slot index →',W/2,H/2+26);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
 </body>
 </html>
