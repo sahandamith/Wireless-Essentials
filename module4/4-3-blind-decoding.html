@@ -3,13 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blind Decoding | 5G From Scratch</title>
+<title>PDCCH Blind Decoding Explained | 5G NR From Scratch</title>
+  <meta name="description" content="How UEs decode PDCCH without knowing its exact location. RNTI types, DCI Format 1_0, 6 candidates per SS#0 occasion, CRC masking, SIB1 scheduling. TS 38.213 §10.1.">
+  <meta name="keywords" content="blind decoding 5G, PDCCH candidates, DCI format 1_0, SI-RNTI, SIB1 scheduling">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="5G NR From Scratch">
+  <link rel="canonical" href="https://ranbits.com/module4/4-3-blind-decoding.html">
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PDCCH Blind Decoding Explained | 5G NR From Scratch">
+  <meta property="og:description" content="How UEs decode PDCCH without knowing its exact location. RNTI types, DCI Format 1_0, 6 candidates per SS#0 occasion, CRC masking, SIB1 scheduling. TS 38.213 §10.1.">
+  <meta property="og:url" content="https://ranbits.com/module4/4-3-blind-decoding.html">
+  <meta property="og:site_name" content="5G NR From Scratch">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="PDCCH Blind Decoding Explained | 5G NR From Scratch">
+  <meta name="twitter:description" content="How UEs decode PDCCH without knowing its exact location. RNTI types, DCI Format 1_0, 6 candidates per SS#0 occasion, CRC masking, SIB1 scheduling. TS 38.213 §10.1.">
 <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
-<div class="site-wrap">
-<aside class="sidebar" id="sidebar"></aside>
-<main class="main">
+<div class="page-body">
 
 <div class="hero">
   <div class="breadcrumb">Module 4 <span>›</span> Control Channels <span>›</span> Section 4.3</div>
@@ -190,7 +203,6 @@ DCI 1_0 content:
   <a href="4-2-search-space.html"><span class="pn-label">← Previous</span><span class="pn-title">Search Space#0</span></a>
   <a href="../module5/5-1-sib1.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">SIB1 Contents</span></a>
 </div>
-</main>
 </div>
 <script src="../js/main.js"></script>
 <script>

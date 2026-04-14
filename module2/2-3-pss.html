@@ -3,16 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PSS Detection | 5G From Scratch</title>
+<title>PSS Detection & m-Sequence Correlation | 5G NR From Scratch</title>
+  <meta name="description" content="Primary Synchronisation Signal detection in 5G NR. m-sequence generation, cross-correlation algorithm, exact correlation peak t=4523 for PCI 442. TS 38.211 §7.4.2.2.">
+  <meta name="keywords" content="PSS detection 5G, primary synchronisation signal NR, m-sequence correlation, cell search NR">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="5G NR From Scratch">
+  <link rel="canonical" href="https://ranbits.com/module2/2-3-pss.html">
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="PSS Detection & m-Sequence Correlation | 5G NR From Scratch">
+  <meta property="og:description" content="Primary Synchronisation Signal detection in 5G NR. m-sequence generation, cross-correlation algorithm, exact correlation peak t=4523 for PCI 442. TS 38.211 §7.4.2.2.">
+  <meta property="og:url" content="https://ranbits.com/module2/2-3-pss.html">
+  <meta property="og:site_name" content="5G NR From Scratch">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="PSS Detection & m-Sequence Correlation | 5G NR From Scratch">
+  <meta name="twitter:description" content="Primary Synchronisation Signal detection in 5G NR. m-sequence generation, cross-correlation algorithm, exact correlation peak t=4523 for PCI 442. TS 38.211 §7.4.2.2.">
 <link rel="stylesheet" href="../css/main.css">
 <style>
 .pss-bar-wrap { position:relative; }
 </style>
 </head>
 <body>
-<div class="site-wrap">
-<aside class="sidebar" id="sidebar"></aside>
-<main class="main">
+<div class="page-body">
 
 <div class="hero">
   <div class="breadcrumb">Module 2 <span>›</span> Cell Search <span>›</span> Section 2.3</div>
@@ -287,9 +300,7 @@ rx_corrected[t] = rx[t] × e^(−j × 2π × <span class="n">120573</span> × t 
   </a>
 </div>
 
-</main>
 </div>
-
 <script src="../js/main.js"></script>
 <script>
 buildSidebar('2-3-pss.html');
