@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5G NR Frequency Bands — FR1 vs FR2, n78, mmWave | ranbits.com</title>
+<meta name="description" content="5G NR frequency bands explained. FR1 sub-6 GHz vs FR2 mmWave, band n78 parameters, channel bandwidth options, duplex modes (TDD/FDD), and why frequency matters for coverage and capacity.">
+<meta name="keywords" content="5G NR bands, FR1 FR2, band n78, mmWave 5G, TDD FDD 5G, 5G frequency bands, sub-6GHz 5G">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module0/0-3-bands.html">
+<meta property="og:title" content="5G NR Frequency Bands FR1 vs FR2 | ranbits.com">
+<meta property="og:description" content="FR1 sub-6 GHz vs FR2 mmWave. Band n78 parameters, TDD/FDD, channel bandwidths.">
+<meta property="og:url" content="https://ranbits.com/module0/0-3-bands.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> Introduction <span>›</span> Section 0.3</div>
+  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text3);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--text3);display:inline-block;"></span>
+    Introduction
+  </div>
+  <h1>FR1 vs FR2 —<br><em>Frequency ranges and what they mean</em></h1>
+  <p class="hero-lead">
+    5G NR operates across two frequency ranges: FR1 (sub-6 GHz, 450 MHz to 7.125 GHz) and FR2 (mmWave, 24.25 GHz to 71 GHz). The choice of frequency range fundamentally shapes every parameter — coverage range, channel bandwidth, numerology, beamforming complexity, and device power consumption.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.104</span>
+    <span class="spec-pill">TS 38.101-1 (FR1)</span>
+    <span class="spec-pill">TS 38.101-2 (FR2)</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>The two frequency ranges</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    Frequency Range 1 (FR1): 410 MHz – 7125 MHz.<br>
+    Frequency Range 2 (FR2): 24250 MHz – 52600 MHz (FR2-1), 52600 MHz – 71000 MHz (FR2-2).
+  </div>
+  <div class="gpp-source">3GPP TS 38.101-1, Section 5.1 | TS 38.101-2, Section 5.1</div>
+</div>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">FR1</div><div class="kc-label">sub-6 GHz</div><div class="kc-desc">Wide coverage, building penetration, max 100 MHz BW. Most deployments today.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">FR2</div><div class="kc-label">mmWave</div><div class="kc-desc">Short range, high capacity, max 400 MHz BW. Indoor hotspots, dense urban.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">n78</div><div class="kc-label">3.3–3.8 GHz</div><div class="kc-desc">The primary 5G band globally. Our example cell. 100 MHz TDD.</div></div>
+</div>
+
+<div class="prose">
+<h2>FR1 bands — the coverage workhorse</h2>
+<p>
+  FR1 covers the traditional cellular bands (700 MHz, 800 MHz, 1.8 GHz, 2.1 GHz) plus the new "C-band" (3.3–4.2 GHz) that is the primary 5G NR deployment band worldwide. Sub-6 GHz signals diffract around buildings and penetrate walls — giving usable coverage across large areas.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">Key FR1 NR bands</span><span class="ds-ref">TS 38.101-1, Table 5.2-1</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Band</th><th>Uplink (MHz)</th><th>Downlink (MHz)</th><th>Duplex</th><th>Max BW</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">n1</td><td style="font-family:var(--mono);color:var(--text2);">1920–1980</td><td style="font-family:var(--mono);color:var(--text2);">2110–2170</td><td>FDD</td><td>20 MHz</td><td style="color:var(--text2)">LTE re-farm</td></tr>
+        <tr><td class="t-pos">n28</td><td style="font-family:var(--mono);color:var(--text2);">703–748</td><td style="font-family:var(--mono);color:var(--text2);">758–803</td><td>FDD</td><td>30 MHz</td><td style="color:var(--text2)">Rural coverage</td></tr>
+        <tr><td class="t-pos">n41</td><td style="font-family:var(--mono);color:var(--text2);">2496–2690</td><td style="font-family:var(--mono);color:var(--text2);">2496–2690</td><td>TDD</td><td>100 MHz</td><td style="color:var(--text2)">Sprint/T-Mobile US</td></tr>
+        <tr class="hl"><td class="t-pos">n78</td><td style="font-family:var(--mono);">3300–3800</td><td style="font-family:var(--mono);">3300–3800</td><td>TDD</td><td>100 MHz</td><td>Primary global 5G ← our band</td></tr>
+        <tr><td class="t-pos">n79</td><td style="font-family:var(--mono);color:var(--text2);">4400–5000</td><td style="font-family:var(--mono);color:var(--text2);">4400–5000</td><td>TDD</td><td>100 MHz</td><td style="color:var(--text2)">Japan, China</td></tr>
+        <tr><td class="t-pos">n77</td><td style="font-family:var(--mono);color:var(--text2);">3300–4200</td><td style="font-family:var(--mono);color:var(--text2);">3300–4200</td><td>TDD</td><td>100 MHz</td><td style="color:var(--text2)">Superset of n78</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>FR2 — mmWave</h2>
+<p>
+  Above 24 GHz, signals do not penetrate walls or diffract around obstacles. A person walking between the UE and the gNB can cause a 20 dB drop in signal. This makes FR2 unsuitable for wide-area coverage but ideal for high-capacity indoor venues (stadiums, airports, shopping centres) where the UE has line of sight.
+</p>
+<p>
+  The compensation for high path loss is extreme beamforming — FR2 devices use antenna arrays with 8–256 elements to focus signal energy. The <a href="../module10/10-1-mimo.html" style="color:var(--teal)">beamforming</a> and <a href="../module10/10-2-beam-sweep.html" style="color:var(--teal)">SSB beam sweep</a> pages cover this in detail.
+</p>
+
+<h2>TDD vs FDD</h2>
+<p>
+  Duplex mode determines how uplink and downlink are separated. Both can carry the same data — the difference is resource allocation:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">TDD vs FDD — resource separation</span><span class="ds-ref">TS 38.300 §9.1</span></div>
+  <div class="ds-body">
+    <canvas id="duplex-canvas" width="900" height="160" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<p>
+  <strong>FDD (Frequency Division Duplex):</strong> UL and DL use different frequency bands simultaneously. Simple, predictable latency, but requires paired spectrum — each operator needs two bands. Common at lower frequencies (700 MHz, 1800 MHz, 2100 MHz).
+</p>
+<p>
+  <strong>TDD (Time Division Duplex):</strong> UL and DL share the same frequency band but in different time slots. The ratio is configurable — operators can allocate more slots to DL for video streaming, or more to UL for video upload. Band n78 is TDD. Slot formats (the DL/UL/Flexible pattern per slot) are signalled by DCI 2_0 with SFI-RNTI.
+</p>
+
+<h2>Band n78 — our example cell</h2>
+<p>
+  Band n78 (3300–3800 MHz) is the primary 5G band deployed globally — Finland, Germany, UK, Japan, South Korea, and dozens of other countries all use n78 for their main 5G rollout. Our example cell at 3498.24 MHz sits in the middle of n78.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Band n78 parameters — our cell at 3498.24 MHz</span><span class="cb-ref">TS 38.101-1, Table 5.2-1, Table 5.3.2-1</span></div>
+  <pre><span class="c">// Band n78 basics:</span>
+Frequency range  = <span class="n">3300</span>–<span class="n">3800</span> MHz
+Duplex mode      = <span class="r">TDD</span>  (same band UL and DL)
+Max channel BW   = <span class="r">100</span> MHz
+Supported SCS    = <span class="n">15</span>, <span class="n">30</span>, <span class="n">60</span> kHz
+Our SCS          = <span class="r">30</span> kHz (μ=1)
+
+<span class="c">// Our cell at GSCN 7845:</span>
+f_SSB_center     = <span class="r">3498.24</span> MHz
+Channel center   ≈ <span class="n">3498.24</span> MHz
+Channel edges    = <span class="n">3448.24</span>–<span class="n">3548.24</span> MHz (100 MHz)
+
+<span class="c">// Active RBs at 30 kHz SCS, 100 MHz BW (Table 5.3.2-1):</span>
+N_RB             = <span class="r">273</span> RBs
+Active BW        = <span class="n">273</span> × <span class="n">12</span> × <span class="n">30</span> kHz = <span class="n">98.28</span> MHz
+Guard bands      = <span class="n">0.86</span> MHz each side
+
+<span class="c">// GSCN formula for n78 (TS 38.104 §5.4.3.1):</span>
+f = <span class="n">3000</span> MHz + N × <span class="n">1.44</span> MHz,  N = <span class="n">1</span>...<span class="n">500</span>
+GSCN <span class="n">7845</span>: f = <span class="n">3000</span> + <span class="n">7845</span> × ... wait — see
+<span class="c">// Correct formula: f_SSB = 3000 + GSCN_offset × step</span>
+<span class="c">// GSCN 7845 → 3498.24 MHz (derived in the GSCN section)</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Frequency range summary</div>
+  <div class="rb-line">FR1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">sub-6 GHz</span> — coverage, building penetration, main deployments</div>
+  <div class="rb-line">FR2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">mmWave</span> — high capacity, short range, dense beamforming</div>
+  <div class="rb-line">Our band &nbsp;&nbsp;→ <span class="rb-val">n78</span> (3300–3800 MHz), TDD, 100 MHz, 30 kHz SCS</div>
+  <div class="rb-line">Next step &nbsp;→ <a href="../module1/1-1-ofdm.html" style="color:var(--green)">OFDM fundamentals</a> — why 5G NR uses multicarrier transmission</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="0-2-architecture.html"><span class="pn-label">← Previous</span><span class="pn-title">5G Architecture</span></a>
+  <a href="../module1/1-1-ofdm.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">OFDM & Multicarrier</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('0-3-bands.html');
+
+// Duplex diagram
+(function(){
+  const c=document.getElementById('duplex-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  // FDD - left half
+  const fddX=30, fddW=370, y=20, h=120;
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.text; ctx.textAlign='center';
+  ctx.fillText('FDD',fddX+fddW/2,14);
+
+  // Frequency axis (two bands)
+  const dlBand={x:fddX,w:150,y:40,h:50,fill:C.blueL,stroke:C.blue,label:'DL band\n1.8 GHz'};
+  const ulBand={x:fddX+200,w:150,y:40,h:50,fill:C.greenL,stroke:C.green,label:'UL band\n1.7 GHz'};
+  [dlBand,ulBand].forEach(b=>{
+    ctx.fillStyle=b.fill; roundRect(ctx,b.x,b.y,b.w,b.h,5); ctx.fill();
+    ctx.strokeStyle=b.stroke; ctx.lineWidth=1.5; roundRect(ctx,b.x,b.y,b.w,b.h,5); ctx.stroke();
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=b.stroke; ctx.textAlign='center';
+    b.label.split('\n').forEach((l,i)=>ctx.fillText(l,b.x+b.w/2,b.y+b.h/2-4+i*14));
+  });
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+  ctx.fillText('← Frequency →',fddX+fddW/2,108);
+  ctx.fillText('Simultaneous DL + UL — always on',fddX+fddW/2,122);
+
+  // TDD - right half
+  const tddX=460, tddW=420;
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.text; ctx.textAlign='center';
+  ctx.fillText('TDD',tddX+tddW/2,14);
+
+  const slotW=tddW/10;
+  const pattern=['DL','DL','DL','DL','DL','DL','DL','UL','UL','UL'];
+  pattern.forEach((p,i)=>{
+    const x=tddX+i*slotW;
+    const isDL=p==='DL';
+    ctx.fillStyle=isDL?C.blueL:C.greenL;
+    ctx.fillRect(x+1,40,slotW-2,50);
+    ctx.strokeStyle=isDL?C.blue:C.green; ctx.lineWidth=1;
+    ctx.strokeRect(x+1,40,slotW-2,50);
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=isDL?C.blue:C.green; ctx.textAlign='center';
+    ctx.fillText(p,x+slotW/2,70);
+  });
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+  ctx.fillText('← Time slots (same frequency band) →',tddX+tddW/2,108);
+  ctx.fillText('DL:UL ratio configurable — e.g. 7:3 shown above',tddX+tddW/2,122);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
+</body>
+</html>

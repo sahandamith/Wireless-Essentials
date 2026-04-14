@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5G NR Handover Procedure — Xn and N2 Handover | ranbits.com</title>
+<meta name="description" content="5G NR handover procedure explained. A3 event trigger, measurement report, handover decision, RRCReconfiguration, RACH on target cell, path switch. Xn handover step by step. TS 38.300, TS 38.331.">
+<meta name="keywords" content="5G handover, NR handover procedure, Xn handover, A3 event 5G, measurement report handover, RRCReconfiguration handover, path switch 5G">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module12/12-1-handover.html">
+<meta property="og:title" content="5G NR Handover Procedure | ranbits.com">
+<meta property="og:description" content="A3 event, measurement report, Xn handover, RACH target cell, path switch — complete with exact numbers.">
+<meta property="og:url" content="https://ranbits.com/module12/12-1-handover.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> Mobility <span>›</span> Section 12.1</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid var(--green-m);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    Mobility
+  </div>
+  <h1>Handover —<br><em>Switching cells without dropping the call</em></h1>
+  <p class="hero-lead">
+    The UE moves away from PCI 442, signal weakens, and a neighbour cell becomes stronger. The network decides to hand over the connection. This section traces the complete Xn-based handover — from A3 event trigger through measurement report, handover command, RACH on target cell, and path switch — with exact timing and message contents.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.331 §5.4</span>
+    <span class="spec-pill">TS 38.300 §9.2.3</span>
+    <span class="spec-pill">TS 38.423 (Xn-AP)</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>Two types of handover</h2>
+<p>
+  5G NR supports two handover paths depending on whether the source and target gNBs have an Xn interface between them:
+</p>
+<p>
+  <strong>Xn-based handover</strong> — source gNB sends handover request directly to target gNB over Xn. Faster, no AMF involvement until path switch. This is the common case for intra-operator handovers.
+</p>
+<p>
+  <strong>N2-based handover</strong> — no Xn interface. All coordination goes through AMF over N2 (NGAP). Slower but works between different operators or when gNBs are geographically distant.
+</p>
+<p>
+  This section covers Xn-based handover — the mechanism that keeps a moving UE connected with minimal interruption.
+</p>
+
+<h2>Step 1 — A3 event trigger</h2>
+<p>
+  The handover starts when the UE measures that a neighbour cell has become better than the serving cell by more than a configured offset. This is the <strong>A3 event</strong>.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    Event A3: Neighbour becomes offset better than serving. The entering condition is: Mn + Ofn + Ocn − Hys > Ms + Ofs + Ocs + Off, where Mn/Ms are neighbour/serving RSRP, O terms are offsets, Hys is hysteresis, and Off is A3 offset.
+  </div>
+  <div class="gpp-source">3GPP TS 38.331, Section 5.5.4.4</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>A3 event evaluation — our UE moving away from PCI 442</span><span class="cb-ref">TS 38.331 §5.5.4.4</span></div>
+  <pre><span class="c">// A3 parameters (from RRCReconfiguration measurement config):</span>
+A3-offset (Off) = <span class="n">3</span> dB
+Hysteresis (Hys) = <span class="n">1</span> dB
+Time To Trigger = <span class="n">160</span> ms  <span class="c">← condition must hold this long</span>
+
+<span class="c">// Measurements (UE-filtered RSRP, L3 filtered):</span>
+Ms (serving PCI 442) = <span class="n">−95</span> dBm  <span class="c">← weakening as UE moves</span>
+Mn (neighbour PCI 87) = <span class="n">−85</span> dBm  <span class="c">← strengthening</span>
+
+<span class="c">// A3 entering condition (simplified, no offsets configured):</span>
+Mn − Hys &gt; Ms + Off
+<span class="n">−85</span> − <span class="n">1</span> &gt; <span class="n">−95</span> + <span class="n">3</span>
+<span class="n">−86</span> &gt; <span class="n">−92</span>  → <span class="r">TRUE ✓</span>
+
+<span class="c">// Condition holds for 160 ms → A3 triggered</span>
+<span class="c">// UE sends Measurement Report to serving gNB</span></pre>
+</div>
+
+<div class="prose">
+<h2>Step 2 — Measurement Report</h2>
+<p>
+  The UE sends a <code>MeasurementReport</code> RRC message on SRB1 to the serving gNB. It contains the measured RSRP and RSRQ for the serving and neighbour cells.
+</p>
+
+<h2>Step 3 — Handover decision and Xn Handover Request</h2>
+<p>
+  The serving gNB receives the measurement report and decides to handover. It sends a <strong>Handover Request</strong> over Xn to the target gNB (PCI 87), including the UE's RRC context (current configuration, security keys, PDU session info).
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The source NG-RAN node shall send a Handover Request message to the target NG-RAN node via the Xn interface. The Handover Request shall include the UE X2AP ID, cause, target cell ID, UE context, source-to-target transparent container, and PDU session resource handover list.
+  </div>
+  <div class="gpp-source">3GPP TS 38.423, Section 8.3.1</div>
+</div>
+
+<h2>Step 4 — Target cell preparation</h2>
+<p>
+  The target gNB (PCI 87) reserves radio resources for the UE, generates a new K_gNB* (derived from the current K_gNB and the target cell PCI), and sends a <strong>Handover Request Acknowledge</strong> back. This contains the <strong>RRCReconfiguration</strong> message that the source gNB will forward to the UE.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>K_gNB* derivation — handover key</span><span class="cb-ref">TS 33.501 §6.9.2.1</span></div>
+  <pre><span class="c">// Current K_gNB (from registration/last handover):</span>
+K_gNB = <span class="n">0xA3F2...</span>  (256-bit key)
+
+<span class="c">// Target cell physical cell ID:</span>
+PCI_target = <span class="n">87</span>
+
+<span class="c">// New K_gNB* for target cell:</span>
+K_gNB* = KDF(K_gNB, "NH", PCI_target, ARFCN_target)
+       = <span class="r">0xC7D4...</span>  (new 256-bit key, target gNB derives same value)
+
+<span class="c">// New RRC/UP keys derived from K_gNB* at target:</span>
+K_RRCint*, K_RRCenc*, K_UPenc* = KDF(K_gNB*, ...)</pre>
+</div>
+
+<div class="prose">
+<h2>Step 5 — RRCReconfiguration (Handover Command)</h2>
+<p>
+  The source gNB sends the <strong>RRCReconfiguration</strong> message to the UE on the source cell. This message tells the UE to switch to the target cell. The UE must act on this immediately — there is no response on the source cell.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Xn handover — complete message flow</span>
+    <span class="ds-ref">TS 38.300 §9.2.3, TS 38.423</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="ho-canvas" width="900" height="340" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Step 6 — RACH on target cell</h2>
+<p>
+  The UE stops transmitting on the source cell immediately after receiving the handover command. It performs a <strong>contention-free RACH</strong> on the target cell using a dedicated preamble assigned by the target gNB in the RRCReconfiguration. This avoids collision with other UEs.
+</p>
+<p>
+  The timing advance from the source cell is used as a starting estimate. The target cell fine-tunes timing via the RAR if needed.
+</p>
+
+<h2>Step 7 — Path switch</h2>
+<p>
+  After the target gNB receives the RRCReconfigurationComplete, it sends a <strong>Path Switch Request</strong> to the AMF (via N2). The AMF updates the UPF to redirect the downlink N3 tunnel from source gNB to target gNB. The UE's IP address remains the same — no PDU session interruption.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Path switch — GTP-U tunnel update</span><span class="cb-ref">TS 23.502 §4.9.1</span></div>
+  <pre><span class="c">// Before handover:</span>
+UPF N3 tunnel → source gNB (TEID: 0x0002C4D5, IP: 10.1.1.1)
+
+<span class="c">// Target gNB sends Path Switch Request to AMF:</span>
+New N3 endpoint: <span class="r">TEID 0x0003E5F6</span>, IP: 10.1.2.1 (target gNB)
+
+<span class="c">// AMF sends N4 Modify to UPF:</span>
+Update N3 tunnel → target gNB (TEID: 0x0003E5F6, IP: 10.1.2.1)
+
+<span class="c">// After path switch:</span>
+Internet → UPF → <span class="r">new GTP-U tunnel</span> → target gNB → DRB1 → UE
+UE IP 192.168.1.47 unchanged ← seamless from application perspective</pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Handover complete — UE on new cell</div>
+  <div class="rb-line">Old cell &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">PCI 442</span> (source, left behind)</div>
+  <div class="rb-line">New cell &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">PCI 87</span> (target, now serving)</div>
+  <div class="rb-line">Interruption time →  typically <span class="rb-val">&lt;30 ms</span> for Xn handover</div>
+  <div class="rb-line">UE IP address &nbsp;&nbsp;&nbsp;→ <span class="rb-val">unchanged</span> (192.168.1.47)</div>
+  <div class="rb-line">Security keys &nbsp;&nbsp;&nbsp;→ <span class="rb-val">refreshed</span> (K_gNB* → new K_RRCenc/K_UPenc)</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="../module11/11-3-pdu-session.html"><span class="pn-label">← Previous</span><span class="pn-title">PDU Session Establishment</span></a>
+  <a href="12-2-tdd.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">TDD Slot Formats</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('12-1-handover.html');
+
+(function(){
+  const c=document.getElementById('ho-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const nodes=[
+    {x:80,label:'UE',fill:C.blueL,stroke:C.blue},
+    {x:300,label:'Source gNB\n(PCI 442)',fill:C.tealL,stroke:C.teal},
+    {x:560,label:'Target gNB\n(PCI 87)',fill:C.greenL,stroke:C.green},
+    {x:790,label:'AMF/UPF',fill:C.purpleL,stroke:C.purple},
+  ];
+  nodes.forEach(n=>{
+    ctx.fillStyle=n.fill; roundRect(ctx,n.x-65,8,130,44,6); ctx.fill();
+    ctx.strokeStyle=n.stroke; ctx.lineWidth=1.5; roundRect(ctx,n.x-65,8,130,44,6); ctx.stroke();
+    ctx.font='bold 10px Fraunces'; ctx.fillStyle=n.stroke; ctx.textAlign='center';
+    n.label.split('\n').forEach((l,i)=>ctx.fillText(l,n.x,26+i*13));
+    ctx.strokeStyle=C.faint; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(n.x,52); ctx.lineTo(n.x,H-8); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  const msgs=[
+    {y:72,x1:80,x2:300,label:'MeasurementReport (A3: PCI87 > PCI442+3dB)',col:C.blue},
+    {y:97,x1:300,x2:560,label:'Xn: HO Request (UE context, PDU sessions)',col:C.teal},
+    {y:122,x1:560,x2:300,label:'Xn: HO Request Acknowledge + RRCReconfiguration',col:C.green},
+    {y:147,x1:300,x2:80,label:'RRCReconfiguration (HO Command: target=PCI87)',col:C.teal},
+    {y:172,label:'UE detaches from source cell',col:C.blue,noarrow:true,cx:190},
+    {y:197,x1:80,x2:560,label:'RACH preamble on target cell (dedicated, contention-free)',col:C.blue},
+    {y:222,x1:560,x2:80,label:'RAR + timing advance',col:C.green},
+    {y:247,x1:80,x2:560,label:'RRCReconfigurationComplete',col:C.blue},
+    {y:272,x1:560,x2:790,label:'Path Switch Request (N2)',col:C.green},
+    {y:297,x1:790,x2:560,label:'Path Switch Acknowledge (N3 tunnel updated)',col:C.purple},
+    {y:322,x1:560,x2:300,label:'Xn: UE Context Release',col:C.green},
+  ];
+
+  msgs.forEach(m=>{
+    if(m.noarrow){
+      ctx.font='9px IBM Plex Mono'; ctx.fillStyle=m.col; ctx.textAlign='center';
+      ctx.fillText('✗ '+m.label,m.cx,m.y);
+      return;
+    }
+    const d=m.x2>m.x1?1:-1;
+    ctx.strokeStyle=m.col; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(m.x1,m.y); ctx.lineTo(m.x2,m.y); ctx.stroke();
+    ctx.fillStyle=m.col; ctx.beginPath();
+    ctx.moveTo(m.x2,m.y); ctx.lineTo(m.x2-d*10,m.y-4); ctx.lineTo(m.x2-d*10,m.y+4); ctx.closePath(); ctx.fill();
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=m.col; ctx.textAlign='center';
+    ctx.fillText(m.label,(m.x1+m.x2)/2,m.y-4);
+  });
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
+</body>
+</html>

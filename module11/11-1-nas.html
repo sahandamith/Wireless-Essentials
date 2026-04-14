@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAS Layer in 5G NR — 5GMM and 5GSM | ranbits.com</title>
+<meta name="description" content="5G NAS (Non-Access Stratum) layer explained. 5GMM mobility management, 5GSM session management, NAS states, message types, and how NAS sits above RRC in the protocol stack.">
+<meta name="keywords" content="NAS 5G NR, 5GMM, 5GSM, non-access stratum, NAS layer, NAS registration, 5G NAS protocol">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module11/11-1-nas.html">
+<meta property="og:title" content="NAS Layer in 5G NR | ranbits.com">
+<meta property="og:description" content="5GMM mobility management and 5GSM session management — the NAS layer explained with exact 3GPP references.">
+<meta property="og:url" content="https://ranbits.com/module11/11-1-nas.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> NAS & Core <span>›</span> Section 11.1</div>
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
+    NAS & Core
+  </div>
+  <h1>NAS Layer —<br><em>Above the radio, below the application</em></h1>
+  <p class="hero-lead">
+    The Non-Access Stratum is the protocol layer between the UE and the 5G Core Network that handles identity, mobility, and session management. NAS messages travel transparently through the RAN — the gNB passes them between UE and AMF without looking at their content. This section explains the NAS architecture, states, and message types.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 24.501</span>
+    <span class="spec-pill">TS 23.501 §5.3</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>What NAS is and what it does</h2>
+<p>
+  The radio protocol stack (PHY/MAC/RLC/PDCP/RRC) handles the air interface between UE and gNB. NAS sits one layer above RRC and communicates end-to-end between the UE and the AMF in the 5G Core. The gNB is transparent to NAS — it simply forwards NAS PDUs between UE and AMF.
+</p>
+<p>
+  NAS is split into two sublayers:
+</p>
+<p>
+  <strong>5GMM (5G Mobility Management)</strong> — handles UE registration, authentication, security, paging, tracking area updates, and emergency services.
+</p>
+<p>
+  <strong>5GSM (5G Session Management)</strong> — handles PDU session establishment, modification, and release. A PDU session is the connection between the UE and a data network (internet, corporate intranet, IMS).
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The 5GS NAS protocol is used between UE and AMF (5GMM) and between UE and SMF (5GSM, via AMF). The NAS protocol includes procedures for mobility management, session management, security, and capability negotiation between the UE and the network.
+  </div>
+  <div class="gpp-source">3GPP TS 24.501, Section 4.1</div>
+</div>
+
+<h2>NAS states</h2>
+<p>
+  The UE has independent NAS states for mobility management and session management:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">5GMM states and transitions</span><span class="ds-ref">TS 24.501 §5.1</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>5GMM State</th><th>Meaning</th><th>RRC State</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">5GMM-DEREGISTERED</td><td style="color:var(--text2)">UE not registered. No 5G-GUTI. Cannot receive services.</td><td style="color:var(--text3)">RRC_IDLE</td></tr>
+        <tr class="hl"><td class="t-pos">5GMM-REGISTERED</td><td>UE registered. Has 5G-GUTI. Can receive and initiate services.</td><td>Any RRC state</td></tr>
+        <tr><td class="t-pos">5GMM-REGISTERED.NORMAL-SERVICE</td><td style="color:var(--text2)">Sub-state — full service available</td><td style="color:var(--text3)">RRC_IDLE/INACTIVE/CONNECTED</td></tr>
+        <tr><td class="t-pos">5GMM-REGISTERED.LIMITED-SERVICE</td><td style="color:var(--text2)">Emergency calls only — PLMN not fully accepted</td><td style="color:var(--text3)">RRC_IDLE</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>NAS message structure</h2>
+<p>
+  Every NAS message has a common header followed by message-specific information elements. The header identifies the protocol discriminator (5GMM or 5GSM), security header type, and message type.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    Every 5GS NAS message is coded with: Extended protocol discriminator (1 byte), Security header type (4 bits), Spare (4 bits) or PDU session identity (1 byte), and Message type (1 byte). The security header indicates whether and how the message is integrity protected and ciphered.
+  </div>
+  <div class="gpp-source">3GPP TS 24.501, Section 9.1.1</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>NAS message types — key 5GMM messages</span><span class="cb-ref">TS 24.501 §9.7</span></div>
+  <pre><span class="c">// 5GMM Message Types (Protocol Discriminator = 0x7E):</span>
+0x41  <span class="r">Registration Request</span>     <span class="c">← UE → AMF, initiates connection</span>
+0x42  <span class="r">Registration Accept</span>      <span class="c">← AMF → UE, assigns 5G-GUTI</span>
+0x43  Registration Complete    <span class="c">← UE → AMF, acknowledges</span>
+0x44  Registration Reject      <span class="c">← AMF → UE, with cause value</span>
+0x45  Deregistration Request   <span class="c">← UE → AMF (UE-initiated power off)</span>
+0x54  Authentication Request   <span class="c">← AMF → UE, sends RAND/AUTN</span>
+0x55  Authentication Response  <span class="c">← UE → AMF, sends RES*</span>
+0x58  Security Mode Command    <span class="c">← AMF → UE, activate ciphering</span>
+0x59  Security Mode Complete   <span class="c">← UE → AMF, first NAS-ciphered msg</span>
+0x68  <span class="r">DL NAS Transport</span>         <span class="c">← AMF → UE, carries 5GSM PDUs</span>
+0x67  <span class="r">UL NAS Transport</span>         <span class="c">← UE → AMF, carries 5GSM PDUs</span>
+
+<span class="c">// 5GSM Message Types (carried inside NAS Transport):</span>
+0xC1  PDU Session Establishment Request
+0xC2  PDU Session Establishment Accept
+0xCB  PDU Session Modification Request</pre>
+</div>
+
+<div class="prose">
+<h2>NAS security</h2>
+<p>
+  NAS messages are protected by two mechanisms:
+</p>
+<p>
+  <strong>Integrity protection</strong> — a 32-bit NAS-MAC (Message Authentication Code) appended to each NAS PDU, computed using the NAS integrity algorithm (NIA0/NIA1/NIA2) keyed with K_NASint derived during authentication.
+</p>
+<p>
+  <strong>Ciphering</strong> — the NAS payload is encrypted using the NAS ciphering algorithm (NEA0/NEA1/NEA2) keyed with K_NASenc. Note: the NAS header (discriminator, security header type, message type) is never ciphered — only the content.
+</p>
+<p>
+  NAS security is activated by the <strong>Security Mode Command</strong> procedure. From that point, all NAS messages are integrity-protected, and most are also ciphered. The Registration Request (first message) is sent without protection because keys do not exist yet.
+</p>
+
+<h2>NAS transport over RRC</h2>
+<p>
+  NAS PDUs are carried over SRB1 inside <code>dedicatedNAS-Message</code> or <code>nas-PDU</code> fields within RRC messages. The gNB extracts them and forwards via NGAP to the AMF. The gNB never deciphers NAS content — it has no NAS keys.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">NAS transport — UE to AMF through gNB</span><span class="ds-ref">TS 24.501 §5.4, TS 38.331</span></div>
+  <div class="ds-body">
+    <canvas id="nas-transport-canvas" width="900" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">NAS layer summary</div>
+  <div class="rb-line">5GMM &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">mobility</span> — registration, authentication, security, paging</div>
+  <div class="rb-line">5GSM &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">sessions</span> — PDU session establishment and management</div>
+  <div class="rb-line">Transport →  NAS PDUs carried in <span class="rb-val">RRC messages</span> on SRB1 → NGAP → AMF</div>
+  <div class="rb-line">Security &nbsp;→ <span class="rb-val">K_NASint + K_NASenc</span> — gNB is transparent to NAS content</div>
+  <div class="rb-line">Next &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <a href="11-2-registration.html" style="color:var(--green)">Registration & Authentication</a> — the full procedure</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="../module10/10-3-tci.html"><span class="pn-label">← Previous</span><span class="pn-title">TCI States</span></a>
+  <a href="11-2-registration.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Registration & Authentication</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('11-1-nas.html');
+
+(function(){
+  const c=document.getElementById('nas-transport-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const nodes=[{x:80,label:'UE',fill:C.blueL,stroke:C.blue},{x:440,label:'gNB',fill:C.tealL,stroke:C.teal},{x:780,label:'AMF',fill:C.purpleL,stroke:C.purple}];
+  nodes.forEach(n=>{
+    ctx.fillStyle=n.fill; roundRect(ctx,n.x-60,20,120,50,7); ctx.fill();
+    ctx.strokeStyle=n.stroke; ctx.lineWidth=1.5; roundRect(ctx,n.x-60,20,120,50,7); ctx.stroke();
+    ctx.font='bold 13px Fraunces'; ctx.fillStyle=n.stroke; ctx.textAlign='center';
+    ctx.fillText(n.label,n.x,51);
+    // Lifeline
+    ctx.strokeStyle=C.faint; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(n.x,70); ctx.lineTo(n.x,H-10); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  function arrow(x1,y,x2,label,col,sub){
+    ctx.strokeStyle=col; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke();
+    const d=x2>x1?1:-1;
+    ctx.fillStyle=col; ctx.beginPath();
+    ctx.moveTo(x2,y); ctx.lineTo(x2-d*12,y-5); ctx.lineTo(x2-d*12,y+5); ctx.closePath(); ctx.fill();
+    ctx.font='bold 11px Fraunces'; ctx.fillStyle=col; ctx.textAlign='center';
+    ctx.fillText(label,(x1+x2)/2,y-8);
+    if(sub){ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.fillText(sub,(x1+x2)/2,y+16);}
+  }
+
+  arrow(80,100,440,'NAS PDU in RRCSetupComplete → SRB1',C.blue,'dedicatedNAS-Message');
+  arrow(440,130,780,'NGAP: Initial UE Message',C.teal,'NAS-PDU forwarded opaquely');
+  arrow(780,160,440,'NGAP: Downlink NAS Transport',C.purple,'Authentication Request');
+  arrow(440,190,80,'NAS PDU in DLInformationTransfer → SRB1',C.teal,'gNB never deciphers NAS');
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
+</body>
+</html>

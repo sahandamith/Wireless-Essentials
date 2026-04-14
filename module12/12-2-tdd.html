@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5G NR TDD Slot Formats — DL/UL/Flexible Symbols | ranbits.com</title>
+<meta name="description" content="TDD slot formats in 5G NR explained. DL, UL, and Flexible symbols, TDD-UL-DL-Config, DCI 2_0 SFI, DDDSUUDDDDSUUU pattern, guard period, and how TDD impacts scheduling on band n78.">
+<meta name="keywords" content="TDD 5G NR, slot format 5G, DL UL flexible symbols, TDD-UL-DL-Config, SFI DCI 2_0, DDDSUUDDDDSUUU, 5G NR TDD pattern">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module12/12-2-tdd.html">
+<meta property="og:title" content="TDD Slot Formats in 5G NR | ranbits.com">
+<meta property="og:description" content="DL/UL/Flexible symbols, TDD patterns, guard period, DCI 2_0 SFI — explained with exact 3GPP references.">
+<meta property="og:url" content="https://ranbits.com/module12/12-2-tdd.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> Mobility <span>›</span> Section 12.2</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid var(--green-m);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    Mobility
+  </div>
+  <h1>TDD Slot Formats —<br><em>Who transmits when</em></h1>
+  <p class="hero-lead">
+    Band n78 is TDD — uplink and downlink share the same frequency but at different times. Every slot is divided into Downlink, Uplink, and Flexible symbols. The TDD pattern is semi-statically configured by RRC and can be dynamically updated slot-by-slot via DCI 2_0. This section explains the complete TDD structure with the actual pattern used on our n78 cell.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.213 §11.1</span>
+    <span class="spec-pill">TS 38.331 §6.3.2</span>
+    <span class="spec-pill">TS 38.211 §4.3.2</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>The three symbol types</h2>
+<p>
+  In TDD, each OFDM symbol within a slot is one of three types:
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    Downlink (D): The UE shall not transmit in downlink symbols. The gNB may transmit in downlink symbols.<br>
+    Uplink (U): The gNB shall not transmit in uplink symbols. The UE may transmit in uplink symbols.<br>
+    Flexible (F): May be used for either downlink or uplink. The actual usage is indicated dynamically by DCI or configured by higher layers.
+  </div>
+  <div class="gpp-source">3GPP TS 38.213, Section 11.1</div>
+</div>
+
+<p>
+  The purpose of Flexible symbols is to allow dynamic TDD — the network can change the DL/UL split on a per-slot basis depending on traffic load. A cell with mostly video downloads can allocate more DL symbols; one serving many IoT devices uploading sensor data can flip to more UL.
+</p>
+
+<h2>TDD configuration — two layers</h2>
+<p>
+  TDD patterns are configured at two timescales:
+</p>
+<p>
+  <strong>Semi-static (RRC)</strong> — <code>TDD-UL-DL-ConfigCommon</code> and <code>TDD-UL-DL-ConfigDedicated</code> configure a repeating pattern of D/U/F symbols across a period. This is signalled in SIB1 (for cell-wide) and RRCReconfiguration (per-UE override).
+</p>
+<p>
+  <strong>Dynamic (DCI 2_0)</strong> — the SFI (Slot Format Indicator) DCI overrides Flexible symbols slot-by-slot. Addressed by SFI-RNTI, monitored in a dedicated Search Space.
+</p>
+
+<h2>Our n78 cell — TDD pattern</h2>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>TDD-UL-DL-ConfigCommon — our n78 cell</span><span class="cb-ref">TS 38.331 §6.3.2, TS 38.213 §11.1</span></div>
+  <pre><span class="c">// From SIB1 tdd-UL-DL-ConfigurationCommon:</span>
+referenceSubcarrierSpacing = <span class="n">30</span> kHz (μ=1)
+dl-UL-TransmissionPeriodicity = <span class="n">ms5</span>  ← 5 ms = 10 slots
+
+<span class="c">// Pattern 1 (applies to all slots in period):</span>
+nrofDownlinkSlots   = <span class="n">7</span>   ← slots 0–6: all symbols DL
+nrofDownlinkSymbols = <span class="n">6</span>   ← slot 7: first 6 symbols DL
+nrofUplinkSymbols   = <span class="n">4</span>   ← slot 7: last 4 symbols UL
+nrofUplinkSlots     = <span class="n">2</span>   ← slots 8–9: all symbols UL
+
+<span class="c">// Resulting pattern per 5 ms (10 slots, μ=1):</span>
+Slot:  0   1   2   3   4   5   6   7   8   9
+Type:  DL  DL  DL  DL  DL  DL  DL  S   UL  UL
+<span class="c">// S = Special slot (mixed DL/Guard/UL within one slot)</span>
+
+<span class="c">// Special slot 7 symbol breakdown:</span>
+Symbols 0–5:   <span class="r">DL</span>  (6 symbols) — PDCCH, PDSCH
+Symbol  6–9:   <span class="k">GP</span>  (4 symbols) — Guard Period (silence)
+Symbols 10–13: <span class="s">UL</span>  (4 symbols) — PUCCH, PUSCH, SRS</pre>
+</div>
+
+<div class="prose">
+<h2>Guard period — why it exists</h2>
+<p>
+  Between the last DL symbol and first UL symbol, there must be a silent period called the <strong>Guard Period (GP)</strong>. Without it, the UE's UL signal would arrive at the gNB while the gNB's DL transmission is still ringing in the receive chain — causing self-interference.
+</p>
+<p>
+  The guard period must be long enough to cover the maximum round-trip propagation delay in the cell. For a 5 km cell radius: one-way delay = 5000/3×10⁸ = 16.7 μs, round-trip = 33.3 μs. At 30 kHz SCS each symbol = 35.7 μs. A 1-symbol guard period is marginally sufficient; 2–4 symbols provide more margin.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">TDD slot pattern — n78, 10 slots (5 ms period)</span>
+    <span class="ds-ref">TS 38.213 §11.1</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="tdd-canvas" width="900" height="180" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>DL:UL ratio and throughput impact</h2>
+<p>
+  Our pattern has 7.6 DL slots and 2.4 UL slots per 10-slot period (counting the special slot proportionally). This is roughly a <strong>76:24 DL:UL split</strong> — appropriate for a consumer broadband cell where users mostly download.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Throughput impact of TDD ratio</span></div>
+  <pre><span class="c">// From our DL scheduling example:</span>
+DL throughput per DL slot ≈ <span class="n">29</span> Mbps  (37 RBs, MCS 20)
+
+<span class="c">// DL duty cycle = 7.6 / 10 = 76%</span>
+DL peak throughput ≈ <span class="n">29</span> × <span class="n">0.76</span> × <span class="n">2000</span> slots/s = <span class="r">~44 Mbps</span>
+
+<span class="c">// If DL:UL ratio changed to 8:2 (more DL):</span>
+DL peak ≈ <span class="n">29</span> × <span class="n">0.80</span> × <span class="n">2000</span> = <span class="r">~46 Mbps</span>  (+5%)
+
+<span class="c">// Dynamic SFI can change Flexible symbols each slot</span>
+<span class="c">// within the bounds set by the semi-static config</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">TDD summary — our n78 cell</div>
+  <div class="rb-line">Period &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">10 slots = 5 ms</span> (30 kHz SCS)</div>
+  <div class="rb-line">Pattern &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">DDDDDDD S UU</span> (7 DL + special + 2 UL)</div>
+  <div class="rb-line">DL:UL ratio &nbsp;→ approximately <span class="rb-val">76:24</span></div>
+  <div class="rb-line">Guard period &nbsp;→ <span class="rb-val">4 symbols</span> in special slot (~143 μs)</div>
+  <div class="rb-line">Dynamic SFI &nbsp;→ DCI 2_0 with SFI-RNTI overrides Flexible symbols</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="12-1-handover.html"><span class="pn-label">← Previous</span><span class="pn-title">Handover Procedure</span></a>
+  <a href="12-3-ca.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Carrier Aggregation</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('12-2-tdd.html');
+
+(function(){
+  const c=document.getElementById('tdd-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const PAD=40, slotW=(W-PAD*2)/10, symH=100, startY=40;
+  const pattern=['DL','DL','DL','DL','DL','DL','DL','S','UL','UL'];
+  const colors={DL:C.blueL,UL:C.greenL,S:C.amberL};
+  const strokes={DL:C.blue,UL:C.green,S:C.amber};
+
+  pattern.forEach((type,i)=>{
+    const x=PAD+i*slotW;
+    if(type==='S'){
+      // Special slot: 6DL + 4GP + 4UL
+      const total=14;
+      const dl=6, gp=4, ul=4;
+      ctx.fillStyle=C.blueL; ctx.fillRect(x+1,startY,slotW*dl/total-2,symH);
+      ctx.strokeStyle=C.blue; ctx.lineWidth=0.8; ctx.strokeRect(x+1,startY,slotW*dl/total-2,symH);
+      ctx.fillStyle=C.bg3; ctx.fillRect(x+slotW*dl/total,startY,slotW*gp/total,symH);
+      ctx.strokeStyle=C.muted; ctx.lineWidth=0.8; ctx.strokeRect(x+slotW*dl/total,startY,slotW*gp/total,symH);
+      ctx.fillStyle=C.greenL; ctx.fillRect(x+slotW*(dl+gp)/total,startY,slotW*ul/total-2,symH);
+      ctx.strokeStyle=C.green; ctx.lineWidth=0.8; ctx.strokeRect(x+slotW*(dl+gp)/total,startY,slotW*ul/total-2,symH);
+      ctx.font='8px IBM Plex Mono'; ctx.textAlign='center'; ctx.fillStyle=C.blue;
+      ctx.fillText('DL',x+slotW*dl/(total*2),startY+symH/2+3);
+      ctx.fillStyle=C.muted; ctx.fillText('GP',x+slotW*(dl+gp/2)/total,startY+symH/2+3);
+      ctx.fillStyle=C.green; ctx.fillText('UL',x+slotW*(dl+gp+ul/2)/total,startY+symH/2+3);
+    } else {
+      ctx.fillStyle=colors[type]; ctx.fillRect(x+1,startY,slotW-2,symH);
+      ctx.strokeStyle=strokes[type]; ctx.lineWidth=1; ctx.strokeRect(x+1,startY,slotW-2,symH);
+      ctx.font='bold 11px Fraunces'; ctx.fillStyle=strokes[type]; ctx.textAlign='center';
+      ctx.fillText(type,x+slotW/2,startY+symH/2+5);
+    }
+    ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='center';
+    ctx.fillText(i,x+slotW/2,startY+symH+16);
+  });
+
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='left';
+  ctx.fillText('← 5 ms period = 10 slots (30 kHz SCS) →',PAD,startY-10);
+  ctx.fillStyle=C.blue; ctx.fillText('■ DL',PAD,startY+symH+32);
+  ctx.fillStyle=C.amber; ctx.fillText('■ Special',PAD+48,startY+symH+32);
+  ctx.fillStyle=C.green; ctx.fillText('■ UL',PAD+130,startY+symH+32);
+  ctx.fillStyle=C.muted; ctx.fillText('■ Guard Period',PAD+180,startY+symH+32);
+})();
+</script>
+</body>
+</html>

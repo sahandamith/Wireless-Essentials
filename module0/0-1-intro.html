@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is 5G NR? Introduction to 5G New Radio | ranbits.com</title>
+<meta name="description" content="Introduction to 5G NR (New Radio). What makes 5G different from LTE, the three use cases eMBB/URLLC/mMTC, 3GPP release history, and where 5G NR fits in the wireless ecosystem.">
+<meta name="keywords" content="5G NR introduction, what is 5G NR, 5G vs LTE, eMBB URLLC mMTC, 3GPP Release 15, 5G new radio explained">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module0/0-1-intro.html">
+<meta property="og:title" content="What is 5G NR? | ranbits.com">
+<meta property="og:description" content="Introduction to 5G New Radio — use cases, 3GPP releases, and how 5G differs from LTE.">
+<meta property="og:url" content="https://ranbits.com/module0/0-1-intro.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> Introduction <span>›</span> Section 0.1</div>
+  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text3);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--text3);display:inline-block;"></span>
+    Introduction
+  </div>
+  <h1>What is 5G NR?</h1>
+  <p class="hero-lead">
+    5G NR (New Radio) is the 3GPP radio access technology defined starting from Release 15. Before diving into PSS sequences and CORESET tables, this section answers the fundamental question: what problem does 5G NR solve, and how does it differ from what came before?
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.300</span>
+    <span class="spec-pill">3GPP Rel-15/16/17</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>Three use cases, one standard</h2>
+<p>
+  5G NR was designed around three fundamentally different use cases, each demanding capabilities that a single optimised system could not simultaneously achieve in LTE. IMT-2020 (the ITU framework that 5G NR satisfies) defines them as:
+</p>
+</div>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--blue)">eMBB</div>
+    <div class="kc-label">Enhanced Mobile Broadband</div>
+    <div class="kc-desc">Peak DL 20 Gbps, 100 MHz+ channels, massive MIMO. Mobile video, fixed wireless access.</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--teal)">URLLC</div>
+    <div class="kc-label">Ultra-Reliable Low Latency</div>
+    <div class="kc-desc">&lt;1 ms latency, 99.9999% reliability. Industrial automation, remote surgery, V2X.</div>
+  </div>
+  <div class="key-callout-item">
+    <div class="kc-num" style="color:var(--amber)">mMTC</div>
+    <div class="kc-label">Massive Machine-Type Comms</div>
+    <div class="kc-desc">1M devices/km², years of battery life. IoT sensors, smart meters, agriculture.</div>
+  </div>
+</div>
+
+<div class="prose">
+<p>
+  These three use cases have contradictory requirements. eMBB needs wide channels and complex modulation. URLLC needs minimal latency and extreme reliability. mMTC needs tiny devices and multi-year battery life. NR's flexible numerology — configurable subcarrier spacing, slot structure, and channel coding — is the mechanism that allows one air interface to serve all three.
+</p>
+
+<h2>What is actually new in NR vs LTE</h2>
+<p>
+  LTE (Long Term Evolution) was already a capable system. 5G NR is not a clean break — many design principles carry over. But several fundamental changes were made:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">LTE vs 5G NR — key differences</span><span class="ds-ref">TS 38.300, TS 36.300</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Feature</th><th>LTE (4G)</th><th>5G NR</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">Subcarrier spacing</td><td style="color:var(--text2)">Fixed 15 kHz</td><td>5 numerologies: 15/30/60/120/240 kHz</td></tr>
+        <tr><td class="t-pos">Max channel BW</td><td style="color:var(--text2)">20 MHz</td><td>100 MHz (FR1), 400 MHz (FR2)</td></tr>
+        <tr><td class="t-pos">Channel coding (data)</td><td style="color:var(--text2)">Turbo codes</td><td>LDPC codes</td></tr>
+        <tr><td class="t-pos">Channel coding (control)</td><td style="color:var(--text2)">Tail-biting convolutional</td><td>Polar codes</td></tr>
+        <tr><td class="t-pos">Massive MIMO</td><td style="color:var(--text2)">Limited (up to 8 ports)</td><td>Up to 256 ports, full 3D beamforming</td></tr>
+        <tr><td class="t-pos">mmWave support</td><td style="color:var(--text2)">No</td><td>Yes (FR2: 24–52 GHz)</td></tr>
+        <tr><td class="t-pos">Self-contained slots</td><td style="color:var(--text2)">No</td><td>Yes — DL + UL in same slot (URLLC)</td></tr>
+        <tr><td class="t-pos">Standalone core</td><td style="color:var(--text2)">EPC</td><td>5GC (5G Core) — service-based architecture</td></tr>
+        <tr><td class="t-pos">RRC_INACTIVE state</td><td style="color:var(--text2)">No</td><td>Yes — power-efficient IoT connectivity</td></tr>
+        <tr><td class="t-pos">Forward compatibility</td><td style="color:var(--text2)">Limited</td><td>Reserved fields, NR-U, sidelink built in</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>3GPP Release history — what each one added</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    3GPP Release 15 introduced the first complete specification of 5G NR, including both Non-Standalone (NSA) operation using LTE anchor and Standalone (SA) operation with the 5G Core Network. Release 15 defined the baseline NR physical layer, radio protocols, and procedures.
+  </div>
+  <div class="gpp-source">3GPP Release 15 Summary, 2018</div>
+</div>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">3GPP Release timeline — 5G NR features</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Release</th><th>Date</th><th>Key 5G NR additions</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">Rel-15</td><td style="font-family:var(--mono);">2018</td><td>First complete NR spec. NSA + SA. eMBB baseline. FR1 + FR2.</td></tr>
+        <tr><td class="t-pos">Rel-16</td><td style="font-family:var(--mono);color:var(--text2);">2020</td><td style="color:var(--text2)">URLLC enhancements, NR-V2X, NR-U (unlicensed), IAB (backhaul), positioning, industrial IoT.</td></tr>
+        <tr><td class="t-pos">Rel-17</td><td style="font-family:var(--mono);color:var(--text2);">2022</td><td style="color:var(--text2)">NR-Light (RedCap for IoT), sidelink enhancements, NTN (satellite), multi-SIM, 52–71 GHz FR2-2.</td></tr>
+        <tr><td class="t-pos">Rel-18</td><td style="font-family:var(--mono);color:var(--text2);">2024</td><td style="color:var(--text2)">5G-Advanced. AI/ML in RAN, XR optimisations, network energy efficiency, NTN IoT.</td></tr>
+        <tr><td class="t-pos">Rel-19</td><td style="font-family:var(--mono);color:var(--text2);">2025+</td><td style="color:var(--text2)">5G-Advanced continued. Foundation for 6G research items.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Standalone vs Non-Standalone</h2>
+<p>
+  When 5G first deployed, operators reused their existing LTE core network (EPC) as an anchor. The UE connects to LTE for control plane (signalling) and uses NR for data. This is <strong>Non-Standalone (NSA)</strong> — Option 3x in 3GPP terms.
+</p>
+<p>
+  <strong>Standalone (SA)</strong> uses the full 5G Core (5GC). NR handles both control and data. SA enables all 5G features — network slicing, URLLC, RRC_INACTIVE, and true end-to-end 5G QoS. This site covers SA operation throughout.
+</p>
+
+<h2>What this site covers</h2>
+<p>
+  Every page on this site follows the same cell: a UE on band n78 (3.5 GHz), 100 MHz channel, 30 kHz SCS, connecting to a cell with PCI 442. The same numbers flow through every section — from the GSCN sweep that finds the SSB frequency, through PSS/SSS, MIB decoding, CORESET derivation, SIB1, RACH, RRC connection, scheduling, and beamforming.
+</p>
+<p>
+  This is not a summary of 5G. It is a derivation. Every number is computed from the 3GPP specifications cited on each page. If you follow every section, you will be able to decode a live 5G capture by hand.
+</p>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">The example cell used throughout this site</div>
+  <div class="rb-line">Band &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">n78</span> (3.3–3.8 GHz, TDD)</div>
+  <div class="rb-line">Channel BW &nbsp;&nbsp;→ <span class="rb-val">100 MHz</span></div>
+  <div class="rb-line">SCS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">30 kHz</span> (μ=1)</div>
+  <div class="rb-line">SSB center &nbsp;&nbsp;→ <span class="rb-val">3498.24 MHz</span> (GSCN 7845)</div>
+  <div class="rb-line">PCI &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">442</span> (N¹_ID=147, N²_ID=1)</div>
+  <div class="rb-line">Operator &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">PLMN 244-05</span> (Elisa, Finland)</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="../index.html"><span class="pn-label">← Home</span><span class="pn-title">All topics</span></a>
+  <a href="0-2-architecture.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">5G Architecture</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>buildSidebar('0-1-intro.html');</script>
+</body>
+</html>

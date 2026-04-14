@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDU Session Establishment in 5G NR | ranbits.com</title>
+<meta name="description" content="5G NR PDU session establishment procedure. PDU session request, SMF selection, UPF N4 setup, QoS flow mapping, DRB establishment, and GTP-U tunnel creation. TS 23.502, TS 24.501.">
+<meta name="keywords" content="PDU session 5G, PDU session establishment, SMF UPF 5G, QoS flow DRB mapping, GTP-U tunnel, N4 interface, 5G data path">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module11/11-3-pdu-session.html">
+<meta property="og:title" content="PDU Session Establishment in 5G NR | ranbits.com">
+<meta property="og:description" content="Complete PDU session establishment — from UE request to GTP-U tunnel and DRB setup.">
+<meta property="og:url" content="https://ranbits.com/module11/11-3-pdu-session.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> NAS & Core <span>›</span> Section 11.3</div>
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
+    NAS & Core
+  </div>
+  <h1>PDU Session —<br><em>Opening the data path</em></h1>
+  <p class="hero-lead">
+    Registration gave the UE an identity. A PDU session gives it a data path — an IP address, a GTP-U tunnel from gNB to UPF, and radio bearers with defined QoS. This section traces the full establishment procedure from the UE's NAS request through SMF/UPF setup to the first user data packet.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 23.502 §4.3.2</span>
+    <span class="spec-pill">TS 24.501 §6.4.1</span>
+    <span class="spec-pill">TS 38.331 §5.3.4</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>What a PDU session is</h2>
+<p>
+  A <strong>PDU Session</strong> is an association between a UE and a Data Network (DN) — typically the internet or an IMS core. Each PDU session has:
+</p>
+<p>
+  An <strong>IP address</strong> (IPv4, IPv6, or both) assigned by the SMF/UPF. A set of <strong>QoS flows</strong>, each with a QFI and guaranteed/non-guaranteed bit rate. A <strong>GTP-U tunnel</strong> between gNB and UPF over N3. One or more <strong>DRBs</strong> in the RAN, mapped from QoS flows by <a href="../module9/9-4-sdap.html" style="color:var(--teal)">SDAP</a>.
+</p>
+<p>
+  A UE can have up to 15 concurrent PDU sessions. In practice, most devices have 1–3: internet, IMS, and perhaps an enterprise VPN.
+</p>
+
+<h2>Trigger — when PDU session is established</h2>
+<p>
+  PDU session establishment can be triggered by the UE (sending a PDU Session Establishment Request) or by the network (via a network-triggered service request). The UE typically requests it immediately after Registration Accept, piggybacked in the RRCSetupComplete.
+</p>
+<p>
+  In our example, the UE sends a PDU session request for SST=1 (eMBB) in the Registration Request. The AMF includes the PDU session response in the Registration Accept.
+</p>
+
+<h2>Full establishment procedure</h2>
+</div>
+
+<div class="steps reveal">
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m);">1</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">UE sends PDU Session Establishment Request (NAS)</div>
+      <div class="step-text">Carried in UL NAS Transport (message type 0x67). Contains PDU session ID=1, PDU type=IPv4, SST=1 (eMBB), DNN="internet". AMF forwards to selected SMF via N11.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-m);">2</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">SMF selects UPF and establishes N4 session</div>
+      <div class="step-text">SMF sends N4 Session Establishment Request to UPF. UPF allocates a TEID (Tunnel Endpoint ID) for the N3 GTP-U tunnel and returns it to SMF. UPF also assigns the UE's IP address from its pool.</div>
+      <div class="code-block" style="margin-top:10px;">
+        <div class="cb-header"><span>N4 Session Establishment — SMF → UPF</span></div>
+        <pre>UE IP address:   <span class="r">192.168.1.47</span>  (assigned by UPF)
+UPF N3 TEID:     <span class="r">0x0001A2B3</span>   (tunnel endpoint for gNB→UPF)
+UPF N3 address:  <span class="n">10.0.0.1</span>      (UPF's N3 interface IP)
+QoS rules:       QFI=1 → 5QI=9 (best-effort internet)</pre>
+      </div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);">3</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">AMF sends PDU Session Resource Setup Request to gNB (NGAP)</div>
+      <div class="step-text">The AMF forwards the session parameters to the gNB via NGAP. This includes the QoS profiles, UPF's GTP-U TEID and IP, and the NAS PDU (PDU Session Establishment Accept) to forward to the UE.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--purple-l);color:var(--purple);border:1px solid var(--purple-m);">4</div><div class="step-line"></div></div>
+    <div class="step-body">
+      <div class="step-title">gNB sends RRCReconfiguration — establishes DRB1</div>
+      <div class="step-text">The gNB configures a DRB for the PDU session and sends RRCReconfiguration to the UE. The UE applies the DRB config (SDAP, PDCP, RLC-AM, MAC, PHY), sends RRCReconfigurationComplete, then responds with PDU Session Establishment Accept on the new DRB.</div>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-left"><div class="step-dot" style="background:var(--green-l);color:var(--green);border:1px solid var(--green-m);">5</div></div>
+    <div class="step-body">
+      <div class="step-title">gNB responds with PDU Session Resource Setup Response — GTP-U tunnel up</div>
+      <div class="step-text">gNB allocates its own GTP-U TEID and sends it to AMF/UPF. The N3 tunnel is now bidirectional. User data can flow: UE → DRB1 → gNB → GTP-U → UPF → internet.</div>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>The complete data path</h2>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>Data path after PDU session establishment</span><span class="cb-ref">TS 23.502 §4.3.2</span></div>
+  <pre><span class="c">// Downlink: internet → UE</span>
+Internet ──► UPF (N6) ──► GTP-U tunnel (N3) ──► gNB ──► DRB1 ──► UE
+              UE IP: <span class="r">192.168.1.47</span>
+              TEID (gNB→UPF): <span class="n">0x0001A2B3</span>
+              QFI=1, 5QI=9 (best-effort)
+
+<span class="c">// Uplink: UE → internet</span>
+UE ──► DRB1 ──► gNB ──► GTP-U tunnel (N3) ──► UPF ──► Internet
+              TEID (UPF→gNB): <span class="n">0x0002C4D5</span>  (gNB's TEID)
+
+<span class="c">// Full protocol stack (downlink, from internet to UE):</span>
+Internet: IP packet (src: 8.8.8.8, dst: 192.168.1.47)
+N6:  UDP/IP encap (trivial routing)
+N3:  GTP-U header + UDP/IP (TEID 0x0001A2B3)
+N3:  Ethernet/IP transport
+Air: SDAP (QFI=1) → PDCP → RLC → MAC → PHY → OFDM → UE</pre>
+</div>
+
+<div class="prose">
+<h2>QoS flow to DRB mapping in the RAN</h2>
+<p>
+  The SMF specifies QoS flow rules in the N4 session. These flow to the gNB via NGAP. The gNB maps each QFI to a DRB — flows with similar QoS (same 5QI) can share one DRB. The <a href="../module9/9-4-sdap.html" style="color:var(--teal)">SDAP layer</a> in the UE applies this mapping and adds QFI headers to uplink packets.
+</p>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">PDU session established — data path open</div>
+  <div class="rb-line">UE IP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">192.168.1.47</span></div>
+  <div class="rb-line">GTP-U tunnel &nbsp;&nbsp;&nbsp;→ gNB TEID ↔ UPF TEID <span class="rb-val">0x0001A2B3</span></div>
+  <div class="rb-line">QoS flow &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ QFI=1, 5QI=9 (best-effort internet)</div>
+  <div class="rb-line">DRB &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">DRB1 established</span> — SDAP + PDCP + RLC-AM + MAC + PHY</div>
+  <div class="rb-line">UE is now fully connected — <span class="rb-val">data flows</span></div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="11-2-registration.html"><span class="pn-label">← Previous</span><span class="pn-title">Registration & Authentication</span></a>
+  <a href="../module12/12-1-handover.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Handover Procedure</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>buildSidebar('11-3-pdu-session.html');</script>
+</body>
+</html>

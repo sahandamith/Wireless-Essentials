@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrier Aggregation in 5G NR — PCell SCell | ranbits.com</title>
+<meta name="description" content="Carrier aggregation in 5G NR. PCell and SCell, intra-band vs inter-band CA, SCC activation via MAC CE, cross-carrier scheduling, and throughput multiplication. TS 38.300, TS 38.331.">
+<meta name="keywords" content="carrier aggregation 5G NR, PCell SCell, secondary cell NR, CA 5G, cross-carrier scheduling, SCC activation MAC CE, intra-band inter-band CA">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module12/12-3-ca.html">
+<meta property="og:title" content="Carrier Aggregation in 5G NR | ranbits.com">
+<meta property="og:description" content="PCell/SCell, intra/inter-band CA, SCC activation, cross-carrier scheduling — with exact 3GPP references.">
+<meta property="og:url" content="https://ranbits.com/module12/12-3-ca.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> Mobility <span>›</span> Section 12.3</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid var(--green-m);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    Mobility
+  </div>
+  <h1>Carrier Aggregation —<br><em>Combining multiple cells for higher throughput</em></h1>
+  <p class="hero-lead">
+    A single 100 MHz carrier on n78 gives ~44 Mbps DL in our example. Carrier aggregation (CA) lets the UE receive simultaneously from multiple component carriers — potentially stacking 100 MHz of n78 + 40 MHz of n28 + 400 MHz of FR2 for multi-Gbps peak rates. This section explains how CA works, how cells are activated, and how scheduling spans carriers.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.300 §6.3</span>
+    <span class="spec-pill">TS 38.331 §6.3.2</span>
+    <span class="spec-pill">TS 38.321 §5.20</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>Primary Cell and Secondary Cells</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For a UE configured with carrier aggregation, one cell provides the NAS mobility information and security input — this is the Primary Cell (PCell). The other cells are Secondary Cells (SCells). SCells may be activated or deactivated by the network.
+  </div>
+  <div class="gpp-source">3GPP TS 38.300, Section 6.3.2</div>
+</div>
+
+<p>
+  The <strong>PCell (Primary Cell)</strong> is the anchor — it carries SRB1/SRB2, handles RACH, and provides the security context. The UE always maintains connection to the PCell. RRC connection management happens only on the PCell.
+</p>
+<p>
+  <strong>SCells (Secondary Cells)</strong> are additional carriers added to boost throughput. They carry DRBs (data bearers) but not SRBs. The UE can have up to 31 SCells configured (in 3GPP Rel-16+), though devices typically support 2–5.
+</p>
+
+<div class="key-callout reveal">
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--blue)">PCell</div><div class="kc-label">Primary Cell</div><div class="kc-desc">Always active. SRBs + DRBs. RACH, security, RRC.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--teal)">SCell</div><div class="kc-label">Secondary Cell</div><div class="kc-desc">DRBs only. Activated/deactivated by gNB. Up to 31.</div></div>
+  <div class="key-callout-item"><div class="kc-num" style="color:var(--amber)">CA</div><div class="kc-label">Carrier Aggregation</div><div class="kc-desc">Aggregate up to 5 component carriers. Max 1 Gbps+.</div></div>
+</div>
+
+<h2>Intra-band vs inter-band CA</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">CA types</span><span class="ds-ref">TS 38.300 §6.3</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>Type</th><th>Description</th><th>Example</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="t-pos">Intra-band contiguous</td><td style="color:var(--text2)">Same band, adjacent channels</td><td style="color:var(--text2)">n78: 100+100 MHz</td><td style="color:var(--text2)">One RF chain, easiest</td></tr>
+        <tr><td class="t-pos">Intra-band non-contiguous</td><td style="color:var(--text2)">Same band, non-adjacent</td><td style="color:var(--text2)">n78: 3.4+3.7 GHz</td><td style="color:var(--text2)">Gap between carriers</td></tr>
+        <tr class="hl"><td class="t-pos">Inter-band</td><td>Different bands</td><td>n78 (3.5G) + n28 (700M)</td><td>Two RF chains, more complex</td></tr>
+        <tr><td class="t-pos">FR1+FR2</td><td style="color:var(--text2)">Sub-6G + mmWave</td><td style="color:var(--text2)">n78 + n258 (26 GHz)</td><td style="color:var(--text2)">Very high peak rates</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>SCell activation — MAC CE</h2>
+<p>
+  SCells are configured by RRC but start in <strong>deactivated</strong> state to save power. The gNB activates them using a <strong>Scell Activation/Deactivation MAC CE</strong> when traffic demand increases.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    For SCells that are deactivated, the UE shall stop all SCell-specific activity including transmission and reception. A UE shall activate an SCell upon receiving an Activation/Deactivation MAC CE with the corresponding SCell index bit set to 1.
+  </div>
+  <div class="gpp-source">3GPP TS 38.321, Section 5.9</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>SCell Activation MAC CE and timing</span><span class="cb-ref">TS 38.321 §6.1.3.8, §5.9</span></div>
+  <pre><span class="c">// Scell Activation/Deactivation MAC CE (1 byte per octet):</span>
+Octet 1: [C7][C6][C5][C4][C3][C2][C1][C0]
+<span class="c">// Bit C_i = 1 → activate SCell with index i</span>
+<span class="c">// Bit C_i = 0 → deactivate SCell with index i</span>
+
+<span class="c">// Example: activate SCell index 1 (n28 carrier):</span>
+MAC CE = <span class="n">0b00000010</span>  → SCell 1 activated, others unchanged
+
+<span class="c">// Activation timing:</span>
+MAC CE received in slot n
+UE applies SCell activation: slot n + <span class="r">8</span> ms
+<span class="c">// UE must perform SCell sync, CSI-RS measurement within this time</span>
+
+<span class="c">// Power saving: gNB deactivates SCells during idle periods</span>
+<span class="c">// sCellDeactivationTimer: if no PDSCH/PUSCH for 80 ms → auto-deactivate</span></pre>
+</div>
+
+<div class="prose">
+<h2>Cross-carrier scheduling</h2>
+<p>
+  By default, each cell schedules its own PDSCH (self-scheduling). With <strong>cross-carrier scheduling</strong>, the PCell's PDCCH can schedule PDSCH on an SCell. This is useful when the SCell has no PDCCH configured (reducing overhead) or when the PCell has better control channel coverage.
+</p>
+<p>
+  The DCI field <strong>Carrier Indicator (CIF)</strong> identifies which component carrier the DCI is scheduling. CIF = 0 means the same carrier; CIF = 1..7 selects a different SCell.
+</p>
+
+<h2>MAC layer with CA — one MAC, multiple CCs</h2>
+<p>
+  With CA, there is still only <strong>one MAC entity</strong> per UE. The MAC scheduler operates across all active component carriers and fills each with transport blocks independently. HARQ processes are per-carrier. BSR and scheduling requests are handled by the PCell.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">CA architecture — one UE, two carriers active</span><span class="ds-ref">TS 38.300 §6.3</span></div>
+  <div class="ds-body">
+    <canvas id="ca-canvas" width="900" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>CA throughput — PCell n78 + SCell n28</span></div>
+  <pre><span class="c">// PCell (n78, 100 MHz, 30 kHz SCS, TDD 76% DL duty):</span>
+DL throughput ≈ <span class="r">44 Mbps</span>
+
+<span class="c">// SCell (n28, 30 MHz, 15 kHz SCS, FDD):</span>
+Active RBs      = <span class="n">79</span>  (30 MHz at 15 kHz SCS)
+MCS 20, 256-QAM → similar spectral efficiency
+DL slots/s      = <span class="n">1000</span> (FDD, always on)
+TBS per slot    ≈ <span class="n">8,500</span> bits
+SCell DL        ≈ <span class="r">8.5 Mbps</span>
+
+<span class="c">// CA total:</span>
+Total DL        = <span class="n">44</span> + <span class="n">8.5</span> ≈ <span class="r">52 Mbps</span>
+
+<span class="c">// With 5 carriers (n78 + 4×n78 @ 100 MHz each):</span>
+Peak DL         ≈ <span class="n">44</span> × <span class="n">5</span> = <span class="r">220 Mbps</span>  (theoretical peak, single UE)</pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Carrier aggregation summary</div>
+  <div class="rb-line">PCell &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">n78 (PCI 442)</span> — always on, carries SRBs + DRBs</div>
+  <div class="rb-line">SCell activation &nbsp;→ <span class="rb-val">MAC CE</span>, takes effect 8 ms later</div>
+  <div class="rb-line">Deactivation &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ auto after <span class="rb-val">sCellDeactivationTimer</span> (power saving)</div>
+  <div class="rb-line">Scheduling &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ independent per carrier, or cross-carrier via CIF</div>
+  <div class="rb-line">MAC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">one entity</span> — aggregates all CCs transparently</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="12-2-tdd.html"><span class="pn-label">← Previous</span><span class="pn-title">TDD Slot Formats</span></a>
+  <a href="../index.html" class="next"><span class="pn-label">↑ Back to</span><span class="pn-title">All topics</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('12-3-ca.html');
+
+(function(){
+  const c=document.getElementById('ca-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  // UE
+  ctx.fillStyle=C.blueL; roundRect(ctx,30,70,100,80,8); ctx.fill();
+  ctx.strokeStyle=C.blue; ctx.lineWidth=1.5; roundRect(ctx,30,70,100,80,8); ctx.stroke();
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.blue; ctx.textAlign='center';
+  ctx.fillText('UE',80,105);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+  ctx.fillText('1 MAC entity',80,120);
+  ctx.fillText('2 RF chains',80,133);
+
+  // RF 1 → PCell
+  ctx.strokeStyle=C.teal; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(130,95); ctx.lineTo(300,95); ctx.stroke();
+  ctx.fillStyle=C.teal; ctx.beginPath(); ctx.moveTo(300,95); ctx.lineTo(290,89); ctx.lineTo(290,101); ctx.closePath(); ctx.fill();
+  ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.teal; ctx.textAlign='center';
+  ctx.fillText('n78 3498 MHz',215,87);
+  ctx.fillText('100 MHz TDD',215,100);
+
+  // RF 2 → SCell
+  ctx.strokeStyle=C.amber; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(130,130); ctx.lineTo(300,130); ctx.stroke();
+  ctx.fillStyle=C.amber; ctx.beginPath(); ctx.moveTo(300,130); ctx.lineTo(290,124); ctx.lineTo(290,136); ctx.closePath(); ctx.fill();
+  ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.amber; ctx.textAlign='center';
+  ctx.fillText('n28 750 MHz',215,122);
+  ctx.fillText('30 MHz FDD',215,135);
+
+  // PCell box
+  ctx.fillStyle=C.tealL; roundRect(ctx,300,60,180,70,8); ctx.fill();
+  ctx.strokeStyle=C.teal; ctx.lineWidth=1.5; roundRect(ctx,300,60,180,70,8); ctx.stroke();
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.teal; ctx.textAlign='center';
+  ctx.fillText('PCell — gNB (n78)',390,85);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+  ctx.fillText('PCI 442, SRBs + DRBs',390,100);
+  ctx.fillText('PDCCH, RACH, security',390,113);
+
+  // SCell box
+  ctx.fillStyle=C.amberL; roundRect(ctx,300,145,180,50,8); ctx.fill();
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1.5; roundRect(ctx,300,145,180,50,8); ctx.stroke();
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.amber; ctx.textAlign='center';
+  ctx.fillText('SCell (n28)',390,165);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+  ctx.fillText('DRBs only, DL boost',390,180);
+
+  // Core
+  ctx.fillStyle=C.purpleL; roundRect(ctx,560,80,160,60,8); ctx.fill();
+  ctx.strokeStyle=C.purple; ctx.lineWidth=1.5; roundRect(ctx,560,80,160,60,8); ctx.stroke();
+  ctx.font='bold 12px Fraunces'; ctx.fillStyle=C.purple; ctx.textAlign='center';
+  ctx.fillText('5GC / AMF',640,105);
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.text3;
+  ctx.fillText('One PDU session',640,120);
+
+  // Connections
+  ctx.strokeStyle=C.teal; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(480,95); ctx.lineTo(560,110); ctx.stroke();
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(480,160); ctx.lineTo(480,110); ctx.lineTo(560,110); ctx.stroke();
+
+  ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.purple; ctx.textAlign='center';
+  ctx.fillText('N2/N3',520,102);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
+</body>
+</html>

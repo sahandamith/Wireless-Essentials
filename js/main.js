@@ -19,6 +19,11 @@ const C = {
 // NAVIGATION DATA
 // ═══════════════════════════════════════════
 const MODULES = [
+  { num:'0', label:'Introduction', items:[
+    { title:'What is 5G NR?', href:'../module0/0-1-intro.html' },
+    { title:'5G Architecture', href:'../module0/0-2-architecture.html' },
+    { title:'FR1 vs FR2 Bands', href:'../module0/0-3-bands.html' },
+  ]},
   { num:'1', label:'Fundamentals', items:[
     { title:'OFDM & Multicarrier', href:'../module1/1-1-ofdm.html' },
     { title:'Numerology & Frame Structure', href:'../module1/1-2-numerology.html' },
@@ -72,9 +77,20 @@ const MODULES = [
     { title:'SSB Beam Sweep', href:'../module10/10-2-beam-sweep.html' },
     { title:'TCI States', href:'../module10/10-3-tci.html' },
   ]},
+  { num:'11', label:'NAS & Core', items:[
+    { title:'NAS Layer Overview', href:'../module11/11-1-nas.html' },
+    { title:'Registration & Authentication', href:'../module11/11-2-registration.html' },
+    { title:'PDU Session Establishment', href:'../module11/11-3-pdu-session.html' },
+  ]},
+  { num:'12', label:'Mobility', items:[
+    { title:'Handover Procedure', href:'../module12/12-1-handover.html' },
+    { title:'TDD Slot Formats', href:'../module12/12-2-tdd.html' },
+    { title:'Carrier Aggregation', href:'../module12/12-3-ca.html' },
+  ]},
 ];
 
 const COMPLETE_FILES = [
+  '0-1-intro.html','0-2-architecture.html','0-3-bands.html',
   '1-1-ofdm.html','1-2-numerology.html','1-3-resource-grid.html',
   '2-1-gscn.html','2-2-ssb.html','2-3-pss.html','2-4-sss.html','2-5-pci.html',
   '3-1-pbch.html','3-2-mib.html',
@@ -85,6 +101,8 @@ const COMPLETE_FILES = [
   '8-1-dci.html','8-2-dl-scheduling.html','8-3-ul-scheduling.html','8-4-harq.html',
   '9-1-mac.html','9-2-rlc.html','9-3-pdcp.html','9-4-sdap.html',
   '10-1-mimo.html','10-2-beam-sweep.html','10-3-tci.html',
+  '11-1-nas.html','11-2-registration.html','11-3-pdu-session.html',
+  '12-1-handover.html','12-2-tdd.html','12-3-ca.html',
 ];
 
 // ═══════════════════════════════════════════

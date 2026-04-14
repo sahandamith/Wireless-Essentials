@@ -60,4 +60,19 @@
   <url><loc>https://ranbits.com/module10/10-2-beam-sweep.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://ranbits.com/module10/10-3-tci.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
+  <!-- Module 0 — Introduction -->
+  <url><loc>https://ranbits.com/module0/0-1-intro.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ranbits.com/module0/0-2-architecture.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ranbits.com/module0/0-3-bands.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+
+  <!-- Module 11 — NAS & Core -->
+  <url><loc>https://ranbits.com/module11/11-1-nas.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ranbits.com/module11/11-2-registration.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ranbits.com/module11/11-3-pdu-session.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+
+  <!-- Module 12 — Mobility -->
+  <url><loc>https://ranbits.com/module12/12-1-handover.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ranbits.com/module12/12-2-tdd.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://ranbits.com/module12/12-3-ca.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+
 </urlset>

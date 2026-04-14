@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5G Network Architecture — gNB, AMF, UPF, SMF | ranbits.com</title>
+<meta name="description" content="5G NR system architecture explained. gNB, AMF, SMF, UPF, UDM — what each network function does, how the NG interface connects RAN to core, and the service-based architecture of 5GC.">
+<meta name="keywords" content="5G architecture, gNB AMF UPF SMF, 5G core network, NG interface, service-based architecture, N2 N3 interface">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module0/0-2-architecture.html">
+<meta property="og:title" content="5G Architecture — gNB, AMF, UPF | ranbits.com">
+<meta property="og:description" content="5G NR system architecture: gNB, AMF, SMF, UPF, UDM and how they connect.">
+<meta property="og:url" content="https://ranbits.com/module0/0-2-architecture.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> Introduction <span>›</span> Section 0.2</div>
+  <div class="module-tag" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text3);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--text3);display:inline-block;"></span>
+    Introduction
+  </div>
+  <h1>5G Architecture —<br><em>Who does what</em></h1>
+  <p class="hero-lead">
+    A 5G network is split into a Radio Access Network (RAN) and a Core Network (5GC). Each function has a precise role. This section maps every node, interface, and protocol to what you will see in the rest of the site — so when a page mentions "the AMF" or "the N2 interface", you know exactly what is meant.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 38.300</span>
+    <span class="spec-pill">TS 23.501</span>
+    <span class="spec-pill">TS 38.401</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>The high-level split</h2>
+<p>
+  5G separates the network into two domains:
+</p>
+<p>
+  The <strong>RAN (Radio Access Network)</strong> handles everything wireless — cell search, radio scheduling, beamforming, and the radio protocol stack (PHY, MAC, RLC, PDCP, SDAP, RRC). The RAN is what this site covers in depth.
+</p>
+<p>
+  The <strong>5GC (5G Core Network)</strong> handles identity, authentication, session management, and routing of user data to the internet. The 5GC is a <strong>service-based architecture</strong> — network functions expose HTTP/2 APIs to each other, replacing the point-to-point interfaces of the EPC.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">5G system architecture — key nodes and interfaces</span>
+    <span class="ds-ref">TS 23.501 §4.2, TS 38.300 §6</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="arch-canvas" width="900" height="280" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>RAN nodes — gNB and ng-eNB</h2>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    A gNB provides NR user plane and control plane protocol terminations towards the UE, and is connected via the NG interface to the 5GC. gNBs can be interconnected via the Xn interface.
+  </div>
+  <div class="gpp-source">3GPP TS 38.300, Section 6.1</div>
+</div>
+
+<p>
+  The <strong>gNB (next-generation Node B)</strong> is the 5G base station. It terminates all radio protocols (PHY through RRC) and connects to the 5GC via the NG interface. A single gNB cell serves our example UE on PCI 442.
+</p>
+<p>
+  A gNB can optionally be split into a <strong>gNB-CU</strong> (Central Unit, handles RRC/PDCP) and a <strong>gNB-DU</strong> (Distributed Unit, handles RLC/MAC/PHY), connected via the F1 interface. This split enables centralised processing and fronthaul flexibility.
+</p>
+
+<h2>Core network functions</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">5GC network functions — roles and interfaces</span><span class="ds-ref">TS 23.501 §6</span></div>
+  <div class="ds-body" style="padding:16px 20px;">
+    <table class="seq-table">
+      <thead><tr><th>NF</th><th>Full name</th><th>Role</th><th>Interface to gNB</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="t-pos">AMF</td><td>Access and Mobility Mgmt Function</td><td>UE registration, authentication orchestration, NAS signalling, paging, mobility</td><td>N2 (NG-C)</td></tr>
+        <tr class="hl"><td class="t-pos">UPF</td><td>User Plane Function</td><td>Data plane anchor, packet routing, QoS enforcement, traffic measurement</td><td>N3 (NG-U)</td></tr>
+        <tr><td class="t-pos">SMF</td><td>Session Mgmt Function</td><td style="color:var(--text2)">PDU session creation, IP address allocation, UPF selection and control</td><td style="color:var(--text3)">Via AMF (N11)</td></tr>
+        <tr><td class="t-pos">UDM</td><td>Unified Data Mgmt</td><td style="color:var(--text2)">Subscriber data, authentication credentials, subscription management</td><td style="color:var(--text3)">N8, N10</td></tr>
+        <tr><td class="t-pos">AUSF</td><td>Authentication Server Function</td><td style="color:var(--text2)">5G-AKA and EAP-AKA' authentication, key derivation</td><td style="color:var(--text3)">N12</td></tr>
+        <tr><td class="t-pos">PCF</td><td>Policy Control Function</td><td style="color:var(--text2)">QoS policy, charging rules, slice policy</td><td style="color:var(--text3)">N7, N15</td></tr>
+        <tr><td class="t-pos">NRF</td><td>NF Repository Function</td><td style="color:var(--text2)">Service discovery — NFs register here and find each other</td><td style="color:var(--text3)">N27</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="prose">
+<h2>The two NG interfaces</h2>
+<p>
+  The gNB connects to the 5GC via two logically separate interfaces, both running over the same physical transport:
+</p>
+<p>
+  <strong>N2 (NG-C)</strong> — the control plane. Carries NGAP (NG Application Protocol) messages between gNB and AMF. Used for UE registration, handover, paging, PDU session setup requests. Protocol stack: SCTP/IP.
+</p>
+<p>
+  <strong>N3 (NG-U)</strong> — the user plane. Carries GTP-U (GPRS Tunnelling Protocol User Plane) encapsulated user data between gNB and UPF. One GTP-U tunnel per PDU session per UE. Protocol stack: UDP/IP.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The NG interface supports the separation of NG-C and NG-U. The NG-C plane carries signalling between gNB and AMF. The NG-U plane carries user data between gNB and UPF. The two planes may be terminated at different nodes within the NG-RAN.
+  </div>
+  <div class="gpp-source">3GPP TS 38.410, Section 4.1</div>
+</div>
+
+<h2>Protocol stack — control and user plane</h2>
+<p>
+  The full end-to-end protocol stack from UE to internet involves both radio protocols (covered in detail throughout this site) and core network protocols:
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">End-to-end protocol stacks — control and user plane</span><span class="ds-ref">TS 38.300 §6.7</span></div>
+  <div class="ds-body">
+    <canvas id="stack-canvas" width="900" height="200" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Network slicing</h2>
+<p>
+  5G introduces <strong>network slicing</strong> — the ability to run multiple logical networks on shared physical infrastructure. Each slice has its own AMF, SMF, and UPF instances (or shared instances) with different QoS profiles.
+</p>
+<p>
+  Slices are identified by an <strong>S-NSSAI</strong> (Single Network Slice Selection Assistance Information): a Slice/Service Type (SST) and optional Slice Differentiator (SD). The UE requests specific slices in the Registration Request. The AMF selects the appropriate SMF/UPF for each slice.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>S-NSSAI examples — standardised SST values</span><span class="cb-ref">TS 23.501 §5.15</span></div>
+  <pre><span class="c">// Standardised Slice/Service Type (SST) values:</span>
+SST=<span class="n">1</span>  → eMBB     (enhanced Mobile Broadband)
+SST=<span class="n">2</span>  → URLLC    (Ultra-Reliable Low-Latency)
+SST=<span class="n">3</span>  → MIoT     (Massive IoT)
+SST=<span class="n">4</span>  → V2X      (Vehicle-to-X)
+
+<span class="c">// Example S-NSSAI in Registration Request:</span>
+requestedNSSAI:
+  S-NSSAI 1: SST=<span class="n">1</span>, SD=<span class="n">0x000001</span>  <span class="c">← eMBB, operator-specific</span>
+  S-NSSAI 2: SST=<span class="n">2</span>, SD=<span class="n">absent</span>   <span class="c">← URLLC, no differentiator</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Architecture summary</div>
+  <div class="rb-line">RAN &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">gNB</span> handles all radio — PHY through RRC</div>
+  <div class="rb-line">Control plane →  <span class="rb-val">N2/NGAP</span> between gNB and AMF (SCTP/IP)</div>
+  <div class="rb-line">User plane &nbsp;&nbsp;→  <span class="rb-val">N3/GTP-U</span> between gNB and UPF (UDP/IP)</div>
+  <div class="rb-line">5GC &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→  Service-based — NFs use HTTP/2 APIs</div>
+  <div class="rb-line">Slicing &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→  S-NSSAI selects dedicated SMF/UPF per slice</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="0-1-intro.html"><span class="pn-label">← Previous</span><span class="pn-title">What is 5G NR?</span></a>
+  <a href="0-3-bands.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">FR1 vs FR2 Bands</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('0-2-architecture.html');
+
+// Architecture diagram
+(function(){
+  const c=document.getElementById('arch-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  function box(x,y,w,h,label,sub,fill,stroke){
+    ctx.fillStyle=fill; roundRect(ctx,x,y,w,h,7); ctx.fill();
+    ctx.strokeStyle=stroke; ctx.lineWidth=1.5; roundRect(ctx,x,y,w,h,7); ctx.stroke();
+    ctx.font='bold 12px Fraunces'; ctx.fillStyle=stroke; ctx.textAlign='center';
+    ctx.fillText(label,x+w/2,y+h/2-(sub?5:0));
+    if(sub){ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.fillText(sub,x+w/2,y+h/2+10);}
+  }
+  function line(x1,y1,x2,y2,label,col){
+    ctx.strokeStyle=col||C.border2; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    if(label){ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center'; ctx.fillText(label,(x1+x2)/2,(y1+y2)/2-5);}
+  }
+
+  // UE
+  box(30,110,80,60,'UE','PCI 442',C.blueL,C.blue);
+  // gNB
+  box(180,90,100,100,'gNB','PCI 442\nn78 3.5GHz',C.tealL,C.teal);
+  // 5GC box
+  ctx.fillStyle=C.bg2; roundRect(ctx,360,20,520,240,10); ctx.fill();
+  ctx.strokeStyle=C.border2; ctx.lineWidth=1; roundRect(ctx,360,20,520,240,10); ctx.stroke();
+  ctx.font='10px IBM Plex Mono'; ctx.fillStyle=C.muted; ctx.textAlign='left';
+  ctx.fillText('5G Core Network (5GC)',370,38);
+
+  // Core NFs
+  box(380,50,80,50,'AMF','N2 ctrl',C.purpleL,C.purple);
+  box(480,50,80,50,'SMF','sessions',C.amberL,C.amber);
+  box(580,50,80,50,'UDM','subscriber',C.bg3,C.text3);
+  box(680,50,80,50,'AUSF','auth',C.bg3,C.text3);
+  box(380,140,80,50,'UPF','N3 data',C.greenL,C.green);
+  box(480,140,80,50,'PCF','policy',C.bg3,C.text3);
+  box(580,140,80,50,'NRF','discovery',C.bg3,C.text3);
+
+  // Internet
+  box(760,160,110,50,'Internet','PDN',C.bg2,C.muted);
+
+  // Connections
+  line(110,140,180,140,'Uu',C.blue);
+  line(280,110,380,80,'N2',C.purple);
+  line(280,140,380,165,'N3',C.green);
+  line(460,75,480,75,'N11',C.amber);
+  line(420,100,420,140,'',C.border2);
+  line(460,165,480,165,'',C.border2);
+  line(840,165,870,185,'N6',C.muted);
+
+  // Service-based arrow
+  ctx.strokeStyle=C.amber; ctx.lineWidth=1; ctx.setLineDash([3,2]);
+  ctx.beginPath(); ctx.moveTo(420,50); ctx.lineTo(420,25); ctx.lineTo(770,25); ctx.lineTo(770,50); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.amber; ctx.textAlign='center';
+  ctx.fillText('Service-Based Architecture — HTTP/2 APIs',590,22);
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+
+// Protocol stack diagram
+(function(){
+  const c=document.getElementById('stack-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const cols=[
+    {x:30, label:'UE', layers:['NAS','RRC','SDAP','PDCP','RLC','MAC','PHY'], colors:[C.purpleL,C.blueL,C.greenL,C.blueL,C.amberL,C.tealL,C.coralL], strokes:[C.purple,C.blue,C.green,C.blue,C.amber,C.teal,C.coral]},
+    {x:320, label:'gNB', layers:['','RRC','SDAP','PDCP','RLC','MAC','PHY'], colors:[C.bg2,C.blueL,C.greenL,C.blueL,C.amberL,C.tealL,C.coralL], strokes:[C.border,C.blue,C.green,C.blue,C.amber,C.teal,C.coral]},
+    {x:610, label:'AMF / UPF', layers:['NAS','','GTP-U','','','','IP/UDP'], colors:[C.purpleL,C.bg2,C.greenL,C.bg2,C.bg2,C.bg2,C.bg2], strokes:[C.purple,C.border,C.green,C.border,C.border,C.border,C.muted]},
+  ];
+  const bw=120, bh=22, gap=2;
+
+  cols.forEach(col=>{
+    ctx.font='bold 11px Fraunces'; ctx.fillStyle=C.text; ctx.textAlign='center';
+    ctx.fillText(col.label,col.x+bw/2,14);
+    col.layers.forEach((l,i)=>{
+      const y=20+i*(bh+gap);
+      if(!l){
+        ctx.fillStyle=C.bg2; ctx.fillRect(col.x,y,bw,bh);
+        ctx.strokeStyle=C.border; ctx.lineWidth=0.5; ctx.strokeRect(col.x,y,bw,bh);
+        return;
+      }
+      ctx.fillStyle=col.colors[i]; ctx.fillRect(col.x,y,bw,bh);
+      ctx.strokeStyle=col.strokes[i]; ctx.lineWidth=1; ctx.strokeRect(col.x,y,bw,bh);
+      ctx.font='10px IBM Plex Mono'; ctx.fillStyle=col.strokes[i]; ctx.textAlign='center';
+      ctx.fillText(l,col.x+bw/2,y+bh/2+3);
+    });
+  });
+
+  // Interface labels between columns
+  ctx.font='9px IBM Plex Mono'; ctx.fillStyle=C.text3; ctx.textAlign='center';
+  ctx.fillText('← Uu (air) →',240,H/2);
+  ctx.fillText('← NG →',500,H/2);
+})();
+</script>
+</body>
+</html>

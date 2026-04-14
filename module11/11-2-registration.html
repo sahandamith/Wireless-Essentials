@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5G Registration & Authentication — SUCI, 5G-AKA, 5G-GUTI | ranbits.com</title>
+<meta name="description" content="5G NR registration and authentication procedure. SUCI privacy, 5G-AKA authentication, key hierarchy K_AUSF/K_AMF/K_gNB, Security Mode Command, and 5G-GUTI assignment. TS 24.501, TS 33.501.">
+<meta name="keywords" content="5G registration, 5G authentication, SUCI 5G, 5G-AKA, 5G-GUTI, K_AMF K_gNB, security mode command 5G">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/module11/11-2-registration.html">
+<meta property="og:title" content="5G Registration & Authentication | ranbits.com">
+<meta property="og:description" content="SUCI privacy, 5G-AKA, key derivation, Security Mode Command, 5G-GUTI assignment — complete with exact numbers.">
+<meta property="og:url" content="https://ranbits.com/module11/11-2-registration.html">
+<meta property="og:site_name" content="ranbits.com">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">5G NR <span>›</span> NAS & Core <span>›</span> Section 11.2</div>
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid var(--purple-m);color:var(--purple);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
+    NAS & Core
+  </div>
+  <h1>Registration &amp; Authentication —<br><em>Proving identity, getting a temporary ID</em></h1>
+  <p class="hero-lead">
+    After the <a href="../module6/6-4-msg3.html" style="color:var(--blue)">RRC connection</a> is established, the UE must register with the 5G Core. This involves concealing its real identity (SUCI), proving it is legitimate (5G-AKA), activating NAS security, and receiving a temporary identity (5G-GUTI). This section traces every message with exact field values.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">TS 24.501 §5.5</span>
+    <span class="spec-pill">TS 33.501 §6</span>
+    <span class="spec-pill">TS 23.501 §5.9</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<h2>SUCI — Subscription Concealed Identifier</h2>
+<p>
+  In LTE, the UE transmitted its IMSI (International Mobile Subscriber Identity) in plaintext during initial attach. Anyone with a passive scanner could link the IMSI to a device and track it across cells. 5G fixes this with the <strong>SUCI</strong>.
+</p>
+<p>
+  The SUCI is computed by the UE using <strong>ECIES (Elliptic Curve Integrated Encryption Scheme)</strong> — the IMSI is encrypted with the home network's public key, which is stored on the SIM. The ciphertext changes each time, so even the serving network cannot correlate two registrations.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    The UE shall use the SUCI when the UE does not have a valid 5G-GUTI, or when the AMF requests the UE to provide its identity. The SUCI is generated from the SUPI using the ECIES protection scheme with the home network public key stored on the USIM.
+  </div>
+  <div class="gpp-source">3GPP TS 24.501, Section 5.4.4.1</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>SUCI structure — our UE example</span><span class="cb-ref">TS 23.003 §2.2B</span></div>
+  <pre><span class="c">// SUPI (true identity on SIM, never transmitted):</span>
+SUPI = IMSI = <span class="n">244051234567890</span>
+  MCC = <span class="n">244</span>, MNC = <span class="n">05</span>, MSIN = <span class="n">1234567890</span>
+
+<span class="c">// SUCI (what is actually transmitted):</span>
+SUCI = [SUPI type][Home Network Identifier][Routing Indicator]
+       [Protection Scheme ID][Home Network Public Key ID]
+       [Scheme Output]
+
+Protection Scheme = <span class="r">Profile A</span>  (ECIES, curve25519)
+Public Key ID     = <span class="n">1</span>           (index into key list on SIM)
+Scheme Output     = <span class="n">0x7A3F9C12...</span> (128-byte ECIES ciphertext)
+<span class="c">// Scheme Output = ENC_pk(MSIN) — changes every registration</span>
+
+<span class="c">// MSIN encrypted — AMF forwards to UDM/AUSF for decryption</span>
+<span class="c">// Only the home network (UDM) can decrypt with private key</span></pre>
+</div>
+
+<div class="prose">
+<h2>Registration procedure — step by step</h2>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">5G registration procedure — full message flow</span>
+    <span class="ds-ref">TS 24.501 §5.5.1</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="reg-flow-canvas" width="900" height="380" style="width:100%;"></canvas>
+  </div>
+</div>
+
+<div class="prose">
+<h2>5G-AKA — Authentication and Key Agreement</h2>
+<p>
+  5G-AKA is the primary authentication mechanism. It provides mutual authentication — the UE authenticates the network and the network authenticates the UE. Both derive the same root key (K_AUSF) from the long-term key K on the SIM.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    In 5G-AKA, the AUSF sends an Authentication Request containing RAND and AUTN to the UE. The UE verifies AUTN (authenticating the network), computes RES from RAND and K, and returns RES*. The AUSF verifies RES* against XRES* to authenticate the UE.
+  </div>
+  <div class="gpp-source">3GPP TS 33.501, Section 6.1.3</div>
+</div>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>5G-AKA key derivation chain</span><span class="cb-ref">TS 33.501 §A.2</span></div>
+  <pre><span class="c">// Root key (on SIM, never leaves device):</span>
+K = <span class="n">128-bit</span> symmetric key (provisioned at SIM manufacture)
+
+<span class="c">// Network sends: RAND (random 128-bit), AUTN (authentication token)</span>
+<span class="c">// UE computes:</span>
+CK, IK   = f3(K, RAND), f4(K, RAND)    <span class="c">← cipher/integrity keys</span>
+RES      = f2(K, RAND)                  <span class="c">← response</span>
+AUTN_verify = check MAC in AUTN         <span class="c">← authenticate network</span>
+
+<span class="c">// Key derivation (TS 33.501 Annex A):</span>
+K_AUSF   = KDF(CK||IK, "5G HE AV", SNN)   <span class="c">← home auth key</span>
+K_SEAF   = KDF(K_AUSF, "K_SEAF", SNN)     <span class="c">← serving auth key</span>
+K_AMF    = KDF(K_SEAF, "K_AMF", ABBA)     <span class="c">← AMF key</span>
+K_gNB    = KDF(K_AMF, "K_gNB", UL_NAS_COUNT) <span class="c">← gNB key</span>
+K_RRCint, K_RRCenc = KDF(K_gNB, ...)      <span class="c">← RRC protection</span>
+K_UPint,  K_UPenc  = KDF(K_gNB, ...)      <span class="c">← user plane protection</span>
+K_NASint, K_NASenc = KDF(K_AMF, ...)      <span class="c">← NAS protection</span></pre>
+</div>
+
+<div class="prose">
+<h2>Security Mode Command — activating NAS security</h2>
+<p>
+  After successful authentication, the AMF sends a <strong>Security Mode Command</strong> to activate NAS ciphering and integrity protection. The UE responds with a <strong>Security Mode Complete</strong> — the first NAS message that is both integrity-protected and ciphered.
+</p>
+
+<div class="gpp-quote reveal">
+  <div class="gpp-text">
+    Upon receiving the Security Mode Command, the UE shall check the integrity of the message using the indicated NAS integrity algorithm and K_NASint. The UE shall send the Security Mode Complete message ciphered and integrity protected.
+  </div>
+  <div class="gpp-source">3GPP TS 24.501, Section 5.4.2.3</div>
+</div>
+
+<h2>5G-GUTI — the temporary identity</h2>
+<p>
+  After successful registration, the AMF assigns a <strong>5G-GUTI (Globally Unique Temporary Identifier)</strong>. From this point, the UE uses the 5G-GUTI in future registrations instead of the SUCI. The gNB can address the UE using the 5G-S-TMSI (a short form of 5G-GUTI) for paging.
+</p>
+</div>
+
+<div class="code-block reveal">
+  <div class="cb-header"><span>5G-GUTI structure — Registration Accept</span><span class="cb-ref">TS 23.003 §2.10</span></div>
+  <pre><span class="c">// 5G-GUTI = MCC + MNC + AMF Region ID + AMF Set ID + AMF Pointer + 5G-TMSI</span>
+5G-GUTI:
+  PLMN:            <span class="r">244-05</span>           (Elisa Finland)
+  AMF Region ID:   <span class="n">0x01</span>              (1 byte)
+  AMF Set ID:      <span class="n">0x001</span>             (10 bits)
+  AMF Pointer:     <span class="n">0x3F</span>              (6 bits)
+  5G-TMSI:         <span class="r">0x3A7F9C12</span>       (32 bits, random)
+
+<span class="c">// 5G-S-TMSI (used for paging) = AMF Set ID + AMF Pointer + 5G-TMSI</span>
+<span class="c">// gNB sends paging with 5G-S-TMSI → UE recognises its own identity</span>
+
+<span class="c">// TAI (Tracking Area Identity) in Registration Accept:</span>
+TAI = <span class="n">244-05</span>-<span class="n">0x1F4</span>    (PLMN + TAC = 500)
+<span class="c">// UE monitors this TA — triggers TAU if it enters a new TA</span></pre>
+</div>
+
+<div class="result-box reveal">
+  <div class="rb-title">Registration complete — UE now has:</div>
+  <div class="rb-line">Identity &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">5G-GUTI assigned</span> (no longer needs SUCI)</div>
+  <div class="rb-line">Authentication →  <span class="rb-val">mutual — network and UE verified</span></div>
+  <div class="rb-line">NAS security &nbsp;→ <span class="rb-val">K_NASint + K_NASenc active</span></div>
+  <div class="rb-line">RAN security &nbsp;→ <span class="rb-val">K_gNB → K_RRCint/enc, K_UPenc</span></div>
+  <div class="rb-line">Location &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">TAI 244-05-500</span> registered with AMF</div>
+  <div class="rb-line">Next &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <a href="11-3-pdu-session.html" style="color:var(--green)">PDU session establishment</a> → data path open</div>
+</div>
+
+</div>
+
+<div class="page-nav">
+  <a href="11-1-nas.html"><span class="pn-label">← Previous</span><span class="pn-title">NAS Layer Overview</span></a>
+  <a href="11-3-pdu-session.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">PDU Session Establishment</span></a>
+</div>
+</div>
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('11-2-registration.html');
+
+(function(){
+  const c=document.getElementById('reg-flow-canvas');
+  const ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle=C.bg; ctx.fillRect(0,0,W,H);
+
+  const nodes=[
+    {x:80,label:'UE',fill:C.blueL,stroke:C.blue},
+    {x:340,label:'gNB',fill:C.tealL,stroke:C.teal},
+    {x:580,label:'AMF',fill:C.purpleL,stroke:C.purple},
+    {x:800,label:'UDM/AUSF',fill:C.amberL,stroke:C.amber},
+  ];
+  nodes.forEach(n=>{
+    ctx.fillStyle=n.fill; roundRect(ctx,n.x-55,8,110,40,6); ctx.fill();
+    ctx.strokeStyle=n.stroke; ctx.lineWidth=1.5; roundRect(ctx,n.x-55,8,110,40,6); ctx.stroke();
+    ctx.font='bold 11px Fraunces'; ctx.fillStyle=n.stroke; ctx.textAlign='center';
+    ctx.fillText(n.label,n.x,33);
+    ctx.strokeStyle=C.faint; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(n.x,48); ctx.lineTo(n.x,H-8); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  const msgs=[
+    {y:70,x1:80,x2:340,label:'Registration Request (SUCI)',col:C.blue},
+    {y:95,x1:340,x2:580,label:'Initial UE Message / NGAP',col:C.teal},
+    {y:120,x1:580,x2:800,label:'UE Authentication (SUCI → AUSF)',col:C.purple},
+    {y:145,x1:800,x2:580,label:'5G-HE-AV: RAND, AUTN, HXRES*',col:C.amber},
+    {y:170,x1:580,x2:340,label:'Authentication Request (RAND, AUTN)',col:C.purple},
+    {y:195,x1:340,x2:80,label:'Auth Request in DLInformationTransfer',col:C.teal},
+    {y:220,x1:80,x2:340,label:'Authentication Response (RES*)',col:C.blue},
+    {y:245,x1:340,x2:580,label:'UL NAS via NGAP',col:C.teal},
+    {y:270,x1:580,x2:800,label:'Nudr: verify RES* vs HXRES*',col:C.purple},
+    {y:295,x1:580,x2:340,label:'Security Mode Command',col:C.purple},
+    {y:320,x1:340,x2:80,label:'Security Mode Command',col:C.teal},
+    {y:345,x1:80,x2:340,label:'Security Mode Complete (CIPHERED)',col:C.blue},
+    {y:365,x1:580,x2:80,label:'Registration Accept (5G-GUTI)',col:C.purple},
+  ];
+
+  msgs.forEach(m=>{
+    const d=m.x2>m.x1?1:-1;
+    ctx.strokeStyle=m.col; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(m.x1,m.y); ctx.lineTo(m.x2,m.y); ctx.stroke();
+    ctx.fillStyle=m.col; ctx.beginPath();
+    ctx.moveTo(m.x2,m.y); ctx.lineTo(m.x2-d*10,m.y-4); ctx.lineTo(m.x2-d*10,m.y+4); ctx.closePath(); ctx.fill();
+    ctx.font='9px IBM Plex Mono'; ctx.fillStyle=m.col; ctx.textAlign='center';
+    ctx.fillText(m.label,(m.x1+m.x2)/2,m.y-4);
+  });
+
+  function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+})();
+</script>
+</body>
+</html>

@@ -25,10 +25,10 @@
 <div class="page-body">
 
 <div class="hero">
-  <div class="breadcrumb">Module 5 <span>›</span> SIB1 & Camp <span>›</span> Section 5.1</div>
+  <div class="breadcrumb">5G NR <span>›</span> SIB1 &amp; Cell Selection <span>›</span> Section 5.1</div>
   <div class="module-tag" style="background:var(--blue-l);border:1px solid var(--blue-m);color:var(--blue);">
     <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
-    Module 5 — SIB1 & Cell Selection
+    SIB1 &amp; Cell Selection
   </div>
   <h1>SIB1 —<br><em>The cell's first real message</em></h1>
   <p class="hero-lead">
@@ -46,7 +46,7 @@
 
 <h2>What SIB1 is and how it arrives</h2>
 <p>
-  System Information Block 1 (SIB1) is carried on <strong>PDSCH</strong>, scheduled by DCI 1_0 with SI-RNTI. We just decoded that DCI in the previous section: SIB1 is at RBs 24–38, symbols 2–12, of slot 2, using MCS 5 (QPSK, code rate 0.38).
+  System Information Block 1 (SIB1) is carried on <strong>PDSCH</strong>, scheduled by DCI 1_0 with SI-RNTI. It is scheduled by the DCI decoded in <a href="../module4/4-3-blind-decoding.html" style="color:var(--teal)">blind decoding</a>: SIB1 is at RBs 24–38, symbols 2–12, of slot 2, using MCS 5 (QPSK, code rate 0.38).
 </p>
 <p>
   SIB1 is transmitted <strong>periodically every 160 ms</strong> (default), with up to 8 repetitions within that period for coverage. A UE that misses one can catch the next repetition without waiting the full 160 ms.
@@ -87,7 +87,7 @@
 <div class="prose">
 <h2>Field 1 — cellSelectionInfo</h2>
 <p>
-  This is the most important field for determining whether the UE can camp on the cell. It provides the threshold values used in the S-criterion (covered in the next section).
+  This is the most important field for determining whether the UE can camp on the cell. It provides the threshold values used in the <a href="5-2-s-criterion.html" style="color:var(--text2)">S-criterion</a>.
 </p>
 
 <div class="gpp-quote reveal">
