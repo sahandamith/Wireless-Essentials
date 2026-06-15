@@ -130,66 +130,81 @@ const SIXG_NAV = [
 // BUILD VERTICAL SIDE NAV
 // ═══════════════════════════════════════════
 function buildSidebar(currentFile) {
-  // Create hamburger toggle
   const toggle = document.createElement('button');
   toggle.className = 'nav-toggle';
   toggle.setAttribute('aria-label', 'Open navigation');
   toggle.innerHTML = '<span></span><span></span><span></span>';
   document.body.insertBefore(toggle, document.body.firstChild);
 
-  // Create overlay
   const overlay = document.createElement('div');
   overlay.className = 'nav-overlay';
   document.body.appendChild(overlay);
 
-  // Create sidebar
   const nav = document.createElement('nav');
   nav.className = 'side-nav';
   nav.setAttribute('aria-label', 'Site navigation');
+
+  // Which 5G module is the current page in (null on 6G pages)?
+  const currentMod = MODULES.find(m => m.items.some(i => i.href.endsWith(currentFile)));
 
   let html = `<a href="../index.html" class="side-nav-logo">
     <span class="wordmark">ranbits</span>
     <span class="sub">Tracking 3GPP 6G</span>
   </a>`;
 
-  // 6G — primary section (all live)
-  SIXG_NAV.forEach(group => {
-    html += `<div class="nav-group">
-      <span class="nav-group-label">${group.label}</span>`;
-    group.items.forEach(item => {
-      const isCurrent = item.href.endsWith(currentFile);
-      const cls = 'nav-item' + (isCurrent ? ' active' : '');
-      const aria = isCurrent ? ' aria-current="page"' : '';
-      html += `<a href="${item.href}" class="${cls}"${aria}>${item.title}</a>`;
-    });
-    html += `</div>`;
-  });
+  // ── Quick links ──────────────────────────
+  html += `<div class="nav-group"><span class="nav-group-label">Navigate</span>
+    <a href="../index.html" class="nav-item">Home</a>
+    <a href="../tracker/index.html" class="nav-item${currentFile === 'index.html' && !currentMod ? ' active' : ''}">6G Tracker ●</a>
+  </div>`;
 
-  // Foundations — the original 5G NR course (kept, same URLs)
-  html += `<div class="nav-group"><span class="nav-group-label" style="color:var(--teal);">▸ Foundations — 5G NR</span></div>`;
+  // ── 6G Topics (numbered 01–09) ───────────
+  const sixgItems = SIXG_NAV[1].items;
+  html += `<div class="nav-group"><span class="nav-group-label">6G Topics</span>`;
+  sixgItems.forEach((item, idx) => {
+    const isCurrent = item.href.endsWith(currentFile);
+    const num = `<span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-right:6px;flex-shrink:0;">${String(idx + 1).padStart(2, '0')}</span>`;
+    html += `<a href="${item.href}" class="nav-item${isCurrent ? ' active' : ''}" style="display:flex;align-items:baseline;gap:0;"${isCurrent ? ' aria-current="page"' : ''}>${num}${item.title}</a>`;
+  });
+  html += `</div>`;
+
+  // ── Foundations — 5G NR ─────────────────
+  // Each module shows as one line. The active module expands to show sub-items.
+  html += `<div class="nav-group"><span class="nav-group-label" style="color:var(--teal);margin-top:4px;">Foundations — 5G NR</span>`;
 
   MODULES.forEach(mod => {
-    html += `<div class="nav-group">
-      <span class="nav-group-label">Module ${mod.num} — ${mod.label}</span>`;
-    mod.items.forEach(item => {
-      const file = item.href.split('/').pop();
-      const isCurrent = item.href.endsWith(currentFile);
-      const isDone = COMPLETE_FILES.includes(file);
-      let cls = 'nav-item';
-      if (isCurrent) cls += ' active';
-      else if (isDone) cls += ' done';
-      else cls += ' locked';
-      const href = (isDone || isCurrent) ? item.href : '#';
-      const aria = isCurrent ? ' aria-current="page"' : '';
-      html += `<a href="${href}" class="${cls}"${aria}>${item.title}</a>`;
-    });
-    html += `</div>`;
+    const isActiveMod = mod === currentMod;
+    const firstHref = mod.items[0].href;
+    const allDone = mod.items.every(i => COMPLETE_FILES.includes(i.href.split('/').pop()));
+    const numTag = `<span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-right:6px;flex-shrink:0;">${mod.num.padStart(2, '0')}</span>`;
+
+    if (isActiveMod) {
+      // Module header row (not a link, just a label)
+      html += `<div style="display:flex;align-items:baseline;padding:6px 10px 2px;font-size:13px;font-weight:500;color:var(--text);">${numTag}${mod.label}</div>`;
+      // Sub-items indented
+      mod.items.forEach(item => {
+        const file = item.href.split('/').pop();
+        const isCurrent = item.href.endsWith(currentFile);
+        const isDone = COMPLETE_FILES.includes(file);
+        let cls = 'nav-item';
+        if (isCurrent) cls += ' active';
+        else if (isDone) cls += ' done';
+        else cls += ' locked';
+        const href = (isDone || isCurrent) ? item.href : '#';
+        html += `<a href="${href}" class="${cls}" style="padding-left:24px;"${isCurrent ? ' aria-current="page"' : ''}>${item.title}</a>`;
+      });
+    } else {
+      // Collapsed: single line linking to first lesson
+      const cls = 'nav-item' + (allDone ? ' done' : '');
+      html += `<a href="${allDone ? firstHref : '#'}" class="${cls}" style="display:flex;align-items:baseline;">${numTag}${mod.label}</a>`;
+    }
   });
+
+  html += `</div>`;
 
   nav.innerHTML = html;
   document.body.insertBefore(nav, document.body.firstChild);
 
-  // Mobile toggle logic
   toggle.addEventListener('click', () => {
     nav.classList.toggle('open');
     overlay.classList.toggle('open');
@@ -198,8 +213,6 @@ function buildSidebar(currentFile) {
     nav.classList.remove('open');
     overlay.classList.remove('open');
   });
-
-  // Close nav on link click (mobile)
   nav.querySelectorAll('.nav-item').forEach(link => {
     link.addEventListener('click', () => {
       nav.classList.remove('open');
@@ -207,12 +220,9 @@ function buildSidebar(currentFile) {
     });
   });
 
-  // Scroll active item into view
   const activeItem = nav.querySelector('.nav-item.active');
   if (activeItem) {
-    setTimeout(() => {
-      activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }, 100);
+    setTimeout(() => activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 100);
   }
 }
 
