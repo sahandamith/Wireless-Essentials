@@ -109,6 +109,64 @@
 <p>
   Why keep OFDM? Three practical reasons recur in the literature: it composes cleanly with massive MIMO; the ecosystem (chips, test, algorithms) is mature; and a familiar waveform makes a <em>unified 5G/6G frame</em> — and therefore smooth coexistence and migration — far easier.
 </p>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">Waveform candidates — properties comparison</span>
+    <span class="stc-src">TR 38.914 · RAN1 working assumption Aug 2025 (secondary)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Waveform</th>
+        <th>Signal domain</th>
+        <th>PAPR</th>
+        <th>Multipath</th>
+        <th>High mobility</th>
+        <th>Sensing</th>
+        <th>6G status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">CP-OFDM</td>
+        <td>Frequency</td>
+        <td>High</td>
+        <td>Excellent</td>
+        <td>Moderate</td>
+        <td>Good</td>
+        <td><span class="clabel clabel-cand">candidate</span> Baseline DL+UL</td>
+      </tr>
+      <tr>
+        <td class="td-name">DFT-s-OFDM</td>
+        <td>Frequency (spread)</td>
+        <td>Low</td>
+        <td>Good</td>
+        <td>Moderate</td>
+        <td>Limited</td>
+        <td><span class="clabel clabel-cand">candidate</span> Baseline UL option</td>
+      </tr>
+      <tr>
+        <td class="td-name">OTFS</td>
+        <td>Delay-Doppler</td>
+        <td>Moderate</td>
+        <td>Good</td>
+        <td>Excellent</td>
+        <td>Good</td>
+        <td><span class="clabel clabel-cand">candidate</span> Under study</td>
+      </tr>
+      <tr>
+        <td class="td-name">AFDM</td>
+        <td>Chirp (DAFT)</td>
+        <td>Moderate</td>
+        <td>Good</td>
+        <td>Excellent</td>
+        <td>Good</td>
+        <td><span class="clabel clabel-cand">candidate</span> Under study</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 
 <div class="diagram-section reveal">
@@ -145,6 +203,56 @@
   <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">SCS = 15 × 2<sup>μ</sup> kHz; symbol time scales inversely</span></div>
   <p>For numerology μ, subcarrier spacing Δf = 15·2<sup>μ</sup> kHz and the useful OFDM symbol duration is 1/Δf. A slot always holds 14 OFDM symbols, so higher μ packs more slots into a millisecond. This established 5G relationship is the template 6G extends.</p>
   <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-06-15</span></span>
+</div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">OFDM numerology — baseline and 6G study extensions (normal CP)</span>
+    <span class="stc-src">TS 38.211 §4.2 Table 4.2-1 (μ=0–4) · TR 38.914 study direction (μ=5–6)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>μ</th>
+        <th>SCS (kHz)</th>
+        <th>Useful symbol (μs)</th>
+        <th>Normal CP (μs)</th>
+        <th>Slots / 1 ms</th>
+        <th>Slot duration (μs)</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0</td><td class="td-val">15</td><td>66.67</td><td>4.69</td><td>1</td><td>1000.00</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td>1</td><td class="td-val">30</td><td>33.33</td><td>2.34</td><td>2</td><td>500.00</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td>2</td><td class="td-val">60</td><td>16.67</td><td>1.17</td><td>4</td><td>250.00</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td>3</td><td class="td-val">120</td><td>8.33</td><td>0.57</td><td>8</td><td>125.00</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td>4</td><td class="td-val">240</td><td>4.17</td><td>0.29</td><td>16</td><td>62.50</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr class="row-study">
+        <td>5</td><td class="td-val">480</td><td>2.08</td><td>~0.14</td><td>32</td><td>31.25</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+      <tr class="row-study">
+        <td>6</td><td class="td-val">960</td><td>1.04</td><td>~0.07</td><td>64</td><td>15.63</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <div class="claim cand">
