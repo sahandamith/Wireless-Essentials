@@ -106,6 +106,89 @@
   <p>These concepts shape the architecture debate and appear across vendor and study material, but the normative design lands in Release 21. Present them as where 6G is heading, clearly distinct from what is decided.</p>
   <span class="src"><a href="https://www.qualcomm.com/news/onq/2025/06/3gpp-release-20-completing-5g-advanced-evolution-preparing-for-global-6g-standardization" target="_blank" rel="noopener">qualcomm.com</a> <span class="src-date">2025-06</span> <span class="src-tier">secondary</span></span>
 </div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">5G core network functions (SBA) and 6G evolution direction</span>
+    <span class="stc-src">TS 23.501 (5G System Architecture, foundation) · TR 23.801 (6G architecture study, candidate)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>NF</th>
+        <th>Full name</th>
+        <th>Core role (5G)</th>
+        <th>6G evolution direction</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-val">AMF</td>
+        <td class="td-name">Access &amp; Mobility Management</td>
+        <td class="td-desc">Registration, mobility, reachability, NAS termination, paging</td>
+        <td class="td-desc">Extend for seamless terrestrial / NTN mobility</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">SMF</td>
+        <td class="td-name">Session Management</td>
+        <td class="td-desc">PDU session setup/modification, IP allocation, QoS enforcement</td>
+        <td class="td-desc">Unified session model for communication + sensing data flows</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">UPF</td>
+        <td class="td-name">User Plane Function</td>
+        <td class="td-desc">Packet routing, forwarding, QoS marking, traffic reporting</td>
+        <td class="td-desc">Intent-driven traffic steering; sensing data path</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">AUSF</td>
+        <td class="td-name">Authentication Server</td>
+        <td class="td-desc">Primary authentication server, 5G-AKA / EAP-AKA′ functions</td>
+        <td class="td-desc">Post-quantum algorithm support (PQC key exchange)</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">UDM</td>
+        <td class="td-name">Unified Data Management</td>
+        <td class="td-desc">Subscriber data, access authorisation, credential management</td>
+        <td class="td-desc">Federated identity across terrestrial and NTN domains</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">PCF</td>
+        <td class="td-name">Policy Control</td>
+        <td class="td-desc">Policy rules, QoS framework, charging control</td>
+        <td class="td-desc">Intent translation — operator states outcome, PCF enforces</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">NEF</td>
+        <td class="td-name">Network Exposure</td>
+        <td class="td-desc">North-bound API exposure to applications and third parties</td>
+        <td class="td-desc">AI/ML model exchange, sensing-as-a-service APIs</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">NRF</td>
+        <td class="td-name">Network Repository</td>
+        <td class="td-desc">NF discovery and registration across the service bus</td>
+        <td class="td-desc">Dynamic service mesh for AI-native network functions</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr class="row-study">
+        <td class="td-val">AI-NF ?</td>
+        <td class="td-name">AI-native Network Function</td>
+        <td class="td-desc">—</td>
+        <td class="td-desc">New function class for ML model hosting, inference, lifecycle management — under study in TR 23.801</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 
 <!-- TRACKER:core-architecture -->

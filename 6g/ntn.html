@@ -98,6 +98,112 @@
   <p>The 6G goal is deeper than "satellites can connect too": a single architecture where terrestrial and non-terrestrial access are managed together, with seamless mobility between them. How the 6G core models this convergence is part of the architecture study, and is not yet specified.</p>
   <span class="src"><a href="https://wirelessbrew.com/6g/6G-Study-Items-Rel-20/" target="_blank" rel="noopener">wirelessbrew.com</a> <span class="src-date">2026-03</span> <span class="src-tier">secondary</span></span>
 </div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">NTN orbit tiers — physics and 6G role</span>
+    <span class="stc-src">Standard orbital mechanics · 3GPP TR 38.811 (5G NTN) · TR 38.914 (6G scenarios)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Orbit tier</th>
+        <th>Altitude range</th>
+        <th>Best-case one-way delay</th>
+        <th>Orbital period</th>
+        <th>Doppler</th>
+        <th>5G support</th>
+        <th>6G role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">LEO</td>
+        <td>300–1,200 km</td>
+        <td class="td-val">~1–4 ms</td>
+        <td>~90–110 min</td>
+        <td>High (fast pass)</td>
+        <td><span class="clabel clabel-found">foundation</span> Rel-17</td>
+        <td><span class="clabel clabel-cand">candidate</span> primary 6G path</td>
+      </tr>
+      <tr>
+        <td class="td-name">MEO</td>
+        <td>8,000–20,000 km</td>
+        <td class="td-val">~27–67 ms</td>
+        <td>~2–12 h</td>
+        <td>Moderate</td>
+        <td><span class="clabel clabel-found">foundation</span> partial</td>
+        <td><span class="clabel clabel-cand">candidate</span> positioning / filler</td>
+      </tr>
+      <tr>
+        <td class="td-name">GEO</td>
+        <td>35,786 km (fixed)</td>
+        <td class="td-val">~119 ms</td>
+        <td>24 h (stationary)</td>
+        <td>Near-zero</td>
+        <td><span class="clabel clabel-found">foundation</span> Rel-17</td>
+        <td><span class="clabel clabel-cand">candidate</span> broadcast / wide-area</td>
+      </tr>
+      <tr>
+        <td class="td-name">HAPS</td>
+        <td>~20 km (stratosphere)</td>
+        <td class="td-val">~0.07 ms</td>
+        <td>N/A (station-keeping)</td>
+        <td>Low</td>
+        <td><span class="clabel clabel-found">foundation</span> Rel-17 study</td>
+        <td><span class="clabel clabel-cand">candidate</span> regional coverage</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">NTN-specific radio challenges vs terrestrial 5G</span>
+    <span class="stc-src">3GPP TR 38.821 (NTN solutions) · TR 38.811</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Challenge</th>
+        <th>Terrestrial 5G</th>
+        <th>LEO NTN</th>
+        <th>GEO NTN</th>
+        <th>Mitigation (5G foundation)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Propagation delay</td>
+        <td>&lt; 1 ms</td>
+        <td class="td-val">1–4 ms (one-way)</td>
+        <td class="td-val">~119 ms (one-way)</td>
+        <td class="td-desc">Extended timing advance; pre-compensation by UE</td>
+      </tr>
+      <tr>
+        <td class="td-name">Doppler shift</td>
+        <td>Small (UE speed)</td>
+        <td class="td-val">up to ±24 kHz @2 GHz</td>
+        <td class="td-val">near zero</td>
+        <td class="td-desc">Frequency pre-compensation at UE or satellite</td>
+      </tr>
+      <tr>
+        <td class="td-name">Path loss</td>
+        <td>~100–130 dB</td>
+        <td class="td-val">~170–185 dB @2 GHz</td>
+        <td class="td-val">~190 dB @2 GHz</td>
+        <td class="td-desc">High-gain satellite antennas; spot beams</td>
+      </tr>
+      <tr>
+        <td class="td-name">Handover rate</td>
+        <td>Minutes–hours</td>
+        <td class="td-val">Every ~5–10 min (LEO pass)</td>
+        <td class="td-val">Rare (fixed)</td>
+        <td class="td-desc">Predictive HO; ephemeris-assisted timing</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 
 <!-- TRACKER:ntn -->

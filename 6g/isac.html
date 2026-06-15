@@ -105,6 +105,94 @@
   <p>Wideband OFDM — 6G's baseline — supports accurate delay and Doppler estimation, which is exactly why "reuse the comms waveform for sensing" is plausible rather than fanciful. The continuity argument from the radio page applies here too.</p>
   <span class="src"><a href="radio-physical-layer.html">ranbits — 6G radio physical layer</a> <span class="src-date">2026</span></span>
 </div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">ISAC sensing architectures — monostatic vs bistatic vs multistatic</span>
+    <span class="stc-src">arxiv.org 2025-08 (secondary) · TR 22.870</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Mode</th>
+        <th>TX and RX at</th>
+        <th>Self-interference</th>
+        <th>Sync requirement</th>
+        <th>Typical use cases</th>
+        <th>6G study direction</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Monostatic</td>
+        <td>Same node</td>
+        <td>High — TX leaks into RX, needs isolation</td>
+        <td>None (co-located)</td>
+        <td class="td-desc">Vehicle detection, intrusion, presence sensing</td>
+        <td><span class="clabel clabel-cand">candidate</span> leading early direction</td>
+      </tr>
+      <tr>
+        <td class="td-name">Bistatic</td>
+        <td>Separate TX, RX nodes</td>
+        <td>None</td>
+        <td>Tight time/phase sync over backhaul</td>
+        <td class="td-desc">Cooperative environment mapping, NLoS sensing</td>
+        <td><span class="clabel clabel-cand">candidate</span> under study</td>
+      </tr>
+      <tr>
+        <td class="td-name">Multistatic</td>
+        <td>Multiple distributed RX</td>
+        <td>None</td>
+        <td>Tight sync across multiple nodes</td>
+        <td class="td-desc">High-accuracy 3D localisation, gesture</td>
+        <td><span class="clabel clabel-cand">candidate</span> under study</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">ISAC sensing physics — range resolution vs signal bandwidth</span>
+    <span class="stc-src">Established radar theory (δR = c / 2B) — physical relationship, not a 6G spec value</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Signal bandwidth B</th>
+        <th>Range resolution δR = c / (2B)</th>
+        <th>Representative 6G band</th>
+        <th>Sensing capability</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>100 MHz</td>
+        <td class="td-val">1.5 m</td>
+        <td>Lower FR3 / cmWave</td>
+        <td class="td-desc">Large object / vehicle detection</td>
+      </tr>
+      <tr>
+        <td>500 MHz</td>
+        <td class="td-val">0.30 m</td>
+        <td>cmWave / mid FR3</td>
+        <td class="td-desc">Person detection, parking</td>
+      </tr>
+      <tr>
+        <td>1 GHz</td>
+        <td class="td-val">0.15 m</td>
+        <td>Upper FR3</td>
+        <td class="td-desc">Fine object discrimination</td>
+      </tr>
+      <tr class="row-study">
+        <td>4 GHz</td>
+        <td class="td-val">0.038 m ≈ 3.8 cm</td>
+        <td>sub-THz</td>
+        <td class="td-desc">Gesture, high-precision mapping</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 
 <!-- TRACKER:isac -->

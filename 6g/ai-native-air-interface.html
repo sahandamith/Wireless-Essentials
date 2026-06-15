@@ -107,6 +107,59 @@
   <p>The functions ML aims to improve are not new — 5G NR already has CSI reporting and a beam-management framework (SSB/CSI-RS beam sweeping, reporting, indication). Understanding the 5G versions is the fastest way to see precisely what ML changes and what stays the same.</p>
   <span class="src"><a href="../module2/2-2-ssb.html">ranbits — Foundations (5G beam sweep)</a> <span class="src-date">2025</span></span>
 </div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">AI/ML use cases for the air interface — 5G approach vs 6G candidate</span>
+    <span class="stc-src">TR 38.843 (Rel-18) · wirelessbrew.com 2026-03 (secondary)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Use case</th>
+        <th>5G NR approach (foundation)</th>
+        <th>AI/ML candidate approach</th>
+        <th>Key challenge</th>
+        <th>3GPP study</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">CSI feedback compression</td>
+        <td class="td-desc">Codebook-based Type I / Type II reporting; fixed compression</td>
+        <td class="td-desc">Neural encoder (UE) + decoder (gNB) — data-driven; latent as small as 16 values</td>
+        <td class="td-desc">Two-sided model: vendor interoperability, versioning, retraining</td>
+        <td>TR 38.843 (Rel-18) — feasibility confirmed</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+      <tr>
+        <td class="td-name">Beam management</td>
+        <td class="td-desc">SSB / CSI-RS sweep → UE reports RSRP → gNB selects TCI state</td>
+        <td class="td-desc">ML predicts best beam from history / position, reducing sweep overhead</td>
+        <td class="td-desc">Generalisation across environments; beam-failure latency</td>
+        <td>TR 38.843 (Rel-18) — studied</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+      <tr>
+        <td class="td-name">Positioning</td>
+        <td class="td-desc">OTDOA / UL-TDOA (Rel-16); DL-AoD / UL-AoA (Rel-17)</td>
+        <td class="td-desc">ML exploits multipath fingerprinting for sub-meter NLOS accuracy</td>
+        <td class="td-desc">Training data per deployment; NLOS vs LOS classification</td>
+        <td>Rel-18/19 study</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+      <tr>
+        <td class="td-name">Channel estimation</td>
+        <td class="td-desc">Pilot-based MMSE / LS; interpolation across REs</td>
+        <td class="td-desc">Model-aided / deep learning CE — better in sparse-pilot scenarios</td>
+        <td class="td-desc">Complexity vs gain trade-off; low-latency inference on UE</td>
+        <td>6G study item</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 
 <!-- TRACKER:ai-air-interface -->

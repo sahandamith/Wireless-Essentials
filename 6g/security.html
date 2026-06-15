@@ -70,6 +70,61 @@
   <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-06-15</span></span>
 </div>
 
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">5G security architecture — features 6G inherits (TS 33.501 foundation)</span>
+    <span class="stc-src">3GPP TS 33.501 (5G Security Architecture) — all entries are foundation</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Mechanism</th>
+        <th>5G spec reference</th>
+        <th>6G evolution direction</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Subscriber identity concealment</td>
+        <td class="td-desc">SUPI encrypted to SUCI using ECIES with home-network public key before transmission over the air</td>
+        <td>TS 33.501 §6.12</td>
+        <td><span class="clabel clabel-cand">candidate</span> PQC-hardened key</td>
+      </tr>
+      <tr>
+        <td class="td-name">Mutual authentication</td>
+        <td class="td-desc">5G-AKA or EAP-AKA′ — both UE and network prove identity; eliminates passive IMSI-catcher attack</td>
+        <td>TS 33.501 §6.1</td>
+        <td><span class="clabel clabel-cand">candidate</span> PQC key exchange</td>
+      </tr>
+      <tr>
+        <td class="td-name">NAS signalling integrity</td>
+        <td class="td-desc">NAS messages integrity-protected from registration; mandatory from connection setup</td>
+        <td>TS 33.501 §5.3.1</td>
+        <td><span class="clabel clabel-found">foundation</span> carried forward</td>
+      </tr>
+      <tr>
+        <td class="td-name">RRC signalling integrity</td>
+        <td class="td-desc">RRC integrity protection activated at RRC connection establishment</td>
+        <td>TS 33.501 §5.3.4</td>
+        <td><span class="clabel clabel-found">foundation</span> carried forward</td>
+      </tr>
+      <tr>
+        <td class="td-name">User-plane confidentiality</td>
+        <td class="td-desc">Encryption of UP traffic; operator-optional in 5G (AES-128/256, SNOW 3G, ZUC)</td>
+        <td>TS 33.501 §5.3.5</td>
+        <td><span class="clabel clabel-cand">candidate</span> mandatory direction for 6G</td>
+      </tr>
+      <tr>
+        <td class="td-name">Security algorithm negotiation</td>
+        <td class="td-desc">UE sends security capabilities; gNB/AMF select algorithm; bidding-down protected</td>
+        <td>TS 33.501 §6.7</td>
+        <td><span class="clabel clabel-cand">candidate</span> add PQC algorithm classes</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 <h2>Why the quantum era changes the maths</h2>
 <p>
   Today's key exchange relies on problems (factoring, discrete logs) that a large quantum computer could break with Shor's algorithm. The threat is not only future: an attacker can <em>harvest now, decrypt later</em> — record encrypted traffic today and decrypt it once a quantum computer exists. For a network whose data must stay secret for a decade-plus, that makes post-quantum cryptography (PQC) a design-time concern, not a later patch.
@@ -79,6 +134,59 @@
   <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Post-quantum cryptography migration is a 6G research direction</span></div>
   <p>Moving key exchange and signatures to quantum-resistant algorithms (the kind standardised by NIST's PQC programme) is widely expected to shape 6G security, but the specific 6G mechanisms are not defined — this is direction-setting research, not a 3GPP specification yet.</p>
   <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int — IMT-2030</a> <span class="src-date">2023-11</span></span>
+</div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">NIST post-quantum cryptography standards (Aug 2024) — candidates relevant to 6G</span>
+    <span class="stc-src">NIST FIPS 203–206 (Aug 2024) — standardised algorithms; 6G adoption is a candidate direction</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Algorithm</th>
+        <th>NIST standard</th>
+        <th>Family</th>
+        <th>Purpose</th>
+        <th>Replaces</th>
+        <th>6G relevance</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">CRYSTALS-Kyber (ML-KEM)</td>
+        <td>FIPS 203</td>
+        <td>Lattice (Module-LWE)</td>
+        <td>Key Encapsulation Mechanism</td>
+        <td>ECDH / RSA key exchange</td>
+        <td class="td-desc">Secures key agreement in mutual authentication (replaces ECDH in AKA)</td>
+      </tr>
+      <tr>
+        <td class="td-name">CRYSTALS-Dilithium (ML-DSA)</td>
+        <td>FIPS 204</td>
+        <td>Lattice (Module-LWE)</td>
+        <td>Digital signature</td>
+        <td>ECDSA / RSA signatures</td>
+        <td class="td-desc">Certificate and message signing in NF authentication</td>
+      </tr>
+      <tr>
+        <td class="td-name">FALCON (FN-DSA)</td>
+        <td>FIPS 206</td>
+        <td>Lattice (NTRU)</td>
+        <td>Compact digital signature</td>
+        <td>ECDSA (compact use cases)</td>
+        <td class="td-desc">Low-bandwidth signature for constrained devices / IoT UEs</td>
+      </tr>
+      <tr>
+        <td class="td-name">SPHINCS+ (SLH-DSA)</td>
+        <td>FIPS 205</td>
+        <td>Hash-based (stateless)</td>
+        <td>Conservative backup signature</td>
+        <td>RSA (high-assurance contexts)</td>
+        <td class="td-desc">Fallback where lattice assumptions are not trusted; larger signature size</td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 <div class="claim req">

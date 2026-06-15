@@ -127,6 +127,122 @@
 <p>
   5G already opened mmWave (FR2). 6G's interest in 7–15 GHz is a direct response to what operators learned: mmWave's bandwidth is real but its coverage economics are punishing — many small cells, line-of-sight sensitivity, indoor penetration problems. The upper mid-band keeps a large slice of the capacity while restoring enough range to reuse existing macro grids. It is, deliberately, a compromise band.
 </p>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">6G spectrum landscape — band tiers compared</span>
+    <span class="stc-src">3GPP TR 38.914 · ericsson.com 2026-01 (secondary) · nokia.com 2026-01 (secondary)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Band tier</th>
+        <th>Range</th>
+        <th>Typical BW</th>
+        <th>Coverage</th>
+        <th>Propagation</th>
+        <th>6G role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Sub-6 GHz / FR1</td>
+        <td>0.6–7.125 GHz</td>
+        <td>up to ~100 MHz</td>
+        <td>km-scale</td>
+        <td>Good indoors, penetrates walls</td>
+        <td>Coverage layer (reused)</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-name">Upper mid-band / cmWave</td>
+        <td>7–15 GHz (within FR3)</td>
+        <td>up to ~500 MHz</td>
+        <td>100 m–1 km</td>
+        <td>Good outdoors, limited indoor</td>
+        <td>Primary 6G target</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+      <tr>
+        <td class="td-name">FR3 upper</td>
+        <td>15–24.25 GHz</td>
+        <td>up to ~800 MHz</td>
+        <td>100–500 m</td>
+        <td>LOS sensitive</td>
+        <td>Capacity extension</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+      <tr>
+        <td class="td-name">FR2 mmWave</td>
+        <td>24.25–71 GHz</td>
+        <td>up to ~2 GHz</td>
+        <td>10–200 m</td>
+        <td>LOS only, easily blocked</td>
+        <td>Hot-spot / fixed access</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr class="row-study">
+        <td class="td-name">sub-THz</td>
+        <td>100–300 GHz</td>
+        <td>several GHz</td>
+        <td>&lt; 50 m</td>
+        <td>Very short range, rain/O₂ absorption</td>
+        <td>Later-phase / ultra-dense (~2035+)</td>
+        <td><span class="clabel clabel-cand">candidate</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">WRC-27 agenda item 1.2 — candidate IMT/6G study ranges</span>
+    <span class="stc-src">WRC-23 Resolution 256 · ericsson.com 2026-01 (secondary)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Frequency range</th>
+        <th>Scope</th>
+        <th>Notes</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-val">4.4–4.8 GHz</td>
+        <td>Global candidate</td>
+        <td class="td-desc">Complements mid-band; adjacent to existing 5G n77/n79</td>
+        <td><span class="clabel clabel-req">requirement</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">6.425–7.125 GHz</td>
+        <td>Regional candidate</td>
+        <td class="td-desc">Lower part of FR3; bridges sub-6 GHz and upper mid-band</td>
+        <td><span class="clabel clabel-req">requirement</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">7.125–8.4 GHz</td>
+        <td>Global candidate</td>
+        <td class="td-desc">Core cmWave range; primary 6G initial deployment target</td>
+        <td><span class="clabel clabel-req">requirement</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">10–10.5 GHz</td>
+        <td>Regional candidate</td>
+        <td class="td-desc">Complements cmWave; subject to interference studies</td>
+        <td><span class="clabel clabel-req">requirement</span></td>
+      </tr>
+      <tr>
+        <td class="td-val">14.8–15.35 GHz</td>
+        <td>Global candidate</td>
+        <td class="td-desc">Upper mid-band extension; shares with fixed satellite service</td>
+        <td><span class="clabel clabel-req">requirement</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 
 <!-- TRACKER:spectrum -->

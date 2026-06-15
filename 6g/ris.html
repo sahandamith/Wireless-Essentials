@@ -102,6 +102,89 @@
 <p>
   RIS demos dazzle, but the hard problems are practical: estimating the channel <em>through</em> a passive surface (it has no receiver to measure with), signalling phase updates fast enough as users move, powering and siting thousands of panels, and proving the cost beats simply adding a small cell. These are why RIS sits in the candidate column, not the requirement column.
 </p>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">RIS vs alternatives — coverage extension technology comparison</span>
+    <span class="stc-src">ericsson.com 2026-01 (secondary) · 3GPP Rel-19 RIS study</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Technology</th>
+        <th>Power consumption</th>
+        <th>Channel estimation</th>
+        <th>Deployment cost</th>
+        <th>Array gain</th>
+        <th>6G status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Small cell / relay (active)</td>
+        <td>Full TX + processing</td>
+        <td>Direct — has receiver</td>
+        <td>High (power, backhaul)</td>
+        <td>Full TX power</td>
+        <td><span class="clabel clabel-found">foundation</span></td>
+      </tr>
+      <tr>
+        <td class="td-name">Passive RIS</td>
+        <td>Near-zero (control only)</td>
+        <td>Indirect — no receiver (hard)</td>
+        <td>Low (panel + control link)</td>
+        <td>∝ N² (N = element count)</td>
+        <td><span class="clabel clabel-cand">candidate</span> Rel-19 studied</td>
+      </tr>
+      <tr class="row-study">
+        <td class="td-name">Active RIS (semi-passive)</td>
+        <td>Low amplifiers per element</td>
+        <td>Better — has some receive chain</td>
+        <td>Medium</td>
+        <td>Higher than passive</td>
+        <td><span class="clabel clabel-cand">candidate</span> early research</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="spec-table-wrap">
+  <div class="spec-table-cap">
+    <span class="stc-title">Passive RIS — key open engineering problems</span>
+    <span class="stc-src">3GPP Rel-19 RIS study · ericsson.com 2026-01 (secondary)</span>
+  </div>
+  <table class="spec-table">
+    <thead>
+      <tr>
+        <th>Problem</th>
+        <th>Why it is hard</th>
+        <th>Study status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-name">Channel estimation</td>
+        <td class="td-desc">No receiver on the surface — must estimate cascaded BS→RIS→UE channel from UE measurements only</td>
+        <td><span class="clabel clabel-cand">candidate</span> open</td>
+      </tr>
+      <tr>
+        <td class="td-name">Phase control latency</td>
+        <td class="td-desc">Phases must update faster than channel coherence time; control link adds delay</td>
+        <td><span class="clabel clabel-cand">candidate</span> open</td>
+      </tr>
+      <tr>
+        <td class="td-name">Interference management</td>
+        <td class="td-desc">Uncontrolled reflections can create interference for other users</td>
+        <td><span class="clabel clabel-cand">candidate</span> open</td>
+      </tr>
+      <tr>
+        <td class="td-name">Deployment economics</td>
+        <td class="td-desc">Must beat cost of adding a small cell; unclear in dense urban scenarios</td>
+        <td><span class="clabel clabel-cand">candidate</span> open</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 </div>
 
 <!-- TRACKER:ris -->
