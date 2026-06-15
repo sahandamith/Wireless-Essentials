@@ -152,25 +152,26 @@ function buildSidebar(currentFile) {
     <span class="sub">Tracking 3GPP 6G</span>
   </a>`;
 
-  // ── Quick links ──────────────────────────
-  html += `<div class="nav-group"><span class="nav-group-label">Navigate</span>
+  // ── Home + Tracker ───────────────────────
+  html += `<div class="nav-group" style="padding-bottom:6px;">
     <a href="../index.html" class="nav-item">Home</a>
-    <a href="../tracker/index.html" class="nav-item${currentFile === 'index.html' && !currentMod ? ' active' : ''}">6G Tracker ●</a>
+    <a href="../tracker/index.html" class="nav-item">6G Tracker ●</a>
   </div>`;
 
   // ── 6G Topics (numbered 01–09) ───────────
   const sixgItems = SIXG_NAV[1].items;
-  html += `<div class="nav-group"><span class="nav-group-label">6G Topics</span>`;
+  html += `<div class="nav-group" style="border-top:1px solid var(--border);padding-top:10px;">
+    <span class="nav-group-label">6G Topics</span>`;
   sixgItems.forEach((item, idx) => {
     const isCurrent = item.href.endsWith(currentFile);
     const num = `<span style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-right:6px;flex-shrink:0;">${String(idx + 1).padStart(2, '0')}</span>`;
-    html += `<a href="${item.href}" class="nav-item${isCurrent ? ' active' : ''}" style="display:flex;align-items:baseline;gap:0;"${isCurrent ? ' aria-current="page"' : ''}>${num}${item.title}</a>`;
+    html += `<a href="${item.href}" class="nav-item${isCurrent ? ' active' : ''}" style="display:flex;align-items:baseline;"${isCurrent ? ' aria-current="page"' : ''}>${num}${item.title}</a>`;
   });
   html += `</div>`;
 
   // ── Foundations — 5G NR ─────────────────
-  // Each module shows as one line. The active module expands to show sub-items.
-  html += `<div class="nav-group"><span class="nav-group-label" style="color:var(--teal);margin-top:4px;">Foundations — 5G NR</span>`;
+  html += `<div class="nav-group" style="border-top:1px solid var(--border);padding-top:10px;">
+    <span class="nav-group-label" style="color:var(--teal);">Foundations — 5G NR</span>`;
 
   MODULES.forEach(mod => {
     const isActiveMod = mod === currentMod;
