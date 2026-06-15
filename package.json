@@ -1,0 +1,19 @@
+{
+  "name": "ranbits-6g",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ranbits.com — learn 6G from first principles, tracking 3GPP as it is standardized. Static site (GitHub Pages) with a data-driven 6G standardization tracker.",
+  "homepage": "https://ranbits.com",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "fetch": "node scripts/fetch-3gpp-status.js",
+    "fetch:write": "node scripts/fetch-3gpp-status.js --write",
+    "update": "node scripts/fetch-3gpp-status.js --write && node scripts/build.js",
+    "reframe-foundations": "node scripts/reframe-foundations.js"
+  },
+  "dependencies": {}
+}

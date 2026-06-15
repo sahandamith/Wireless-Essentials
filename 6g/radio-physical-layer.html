@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6G Radio (6GR) Physical Layer — waveform, numerology, frame structure | ranbits</title>
+<meta name="description" content="The 6G radio physical layer from first principles: why RAN1 keeps CP-OFDM and DFT-s-OFDM as the 6G baseline waveform, the alternative waveform candidates, numerology for wider bandwidths, and the idea of a unified 5G/6G frame. Labelled and sourced.">
+<meta name="keywords" content="6G radio, 6GR, 6G physical layer, 6G waveform, CP-OFDM, DFT-s-OFDM, OTFS, AFDM, 6G numerology, unified frame structure, TR 38.914, RAN1">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/radio-physical-layer.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="6G Radio (6GR) Physical Layer — waveform, numerology, frame">
+<meta property="og:description" content="Why RAN1 keeps CP-OFDM/DFT-s-OFDM for 6G, the alternatives under study, and numerology for wider bandwidths. Sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/radio-physical-layer.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="6G Radio (6GR) Physical Layer">
+<meta name="twitter:description" content="6G waveform, numerology and frame structure — decided vs under study, sourced.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "6G Radio (6GR) Physical Layer — waveform, numerology and frame structure",
+  "description": "First-principles guide to the 6G radio physical layer: baseline waveform, candidate waveforms, numerology and a unified 5G/6G frame structure.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/radio-physical-layer.html",
+  "about": ["6G radio", "OFDM", "DFT-s-OFDM", "numerology", "3GPP RAN1"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will 6G use a new waveform?",
+      "acceptedAnswer": { "@type": "Answer", "text": "As a study-phase working assumption, 3GPP RAN1 has agreed to use CP-OFDM and DFT-s-OFDM — the same waveform families as 5G NR — as the baseline/benchmark for 6G, while leaving room for enhancements. Alternative waveforms such as OTFS and AFDM are studied as candidates but are not the baseline. Nothing is frozen because 6G is still in the study phase." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a unified 5G/6G frame structure?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It is a study direction in which 6G reuses the OFDM slot/symbol framing concepts of 5G NR so that 5G and 6G can coexist and migrate smoothly. The details are part of the 6G Radio study and TR 38.914, and are not yet specified." }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Radio (6GR) Physical Layer</div>
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid rgba(245,166,35,0.25);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    6G Topic 02 — Radio / PHY
+  </div>
+  <h1>The 6G <em>radio</em> physical layer</h1>
+  <p class="hero-lead">
+    The surprising headline of early 6G radio design is continuity. The waveform that carries your bits in 6G looks a lot like 5G's — and that is a deliberate, sourced engineering choice, not a lack of ambition. This page builds the physical layer from OFDM first principles, then shows exactly where 6G keeps, extends, or is still deciding.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">6GR Study (RAN1)</span>
+    <span class="spec-pill">TR 38.914</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> The 6G Radio (6GR) study is underway in 3GPP RAN — it is a study, not a specification. Waveform "agreements" here are RAN1 <em>working assumptions</em> that can still change; numerology and frame numbers shown for 6G are study directions, not freezes.
+</div>
+
+<h2>Foundation: why OFDM, and what a waveform must do</h2>
+<p>
+  Start from the problem. A radio channel smears symbols in time (multipath echoes) and the smearing gets worse with bandwidth. Orthogonal Frequency-Division Multiplexing (OFDM) solves this by slicing one wide, fragile channel into thousands of narrow <em>subcarriers</em>, each so slow that the echoes fall inside a short guard interval — the <strong>cyclic prefix (CP)</strong>. Equalisation then becomes a single complex multiply per subcarrier. This is the bedrock 5G NR is built on, and 6G inherits it.
+</p>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">OFDM with a cyclic prefix is the established multicarrier basis</span></div>
+  <p>5G NR uses CP-OFDM in the downlink and adds DFT-spread-OFDM (DFT-s-OFDM) as an uplink option for lower peak-to-average power ratio (PAPR), improving power-amplifier efficiency and coverage. These are well-specified, well-understood techniques — the concrete part of the 6G physical layer you can learn in full today.</p>
+  <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org — Release 20</a> <span class="src-date">2026-06-15</span></span>
+</div>
+
+<h2>The 6G waveform decision (so far)</h2>
+<p>
+  Every generation re-asks "do we need a new waveform?". For 6G, dozens of candidates were proposed — OTFS, AFDM, OTSM, FM-OFDM and more — each promising advantages for high mobility or sensing. After study, RAN1 landed on continuity.
+</p>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">RAN1 baseline: CP-OFDM and DFT-s-OFDM</span></div>
+  <p>3GPP RAN1 has agreed, as a study-phase working assumption, to use <strong>CP-OFDM and DFT-s-OFDM</strong> as the baseline/benchmark waveform for 6G — while explicitly leaving the door open to enhancements (e.g. spectral shaping) for specific use cases such as sensing or sub-THz. This narrows the field but is not a frozen specification.</p>
+  <span class="src"><a href="https://the-mobile-network.com/2025/08/6g-meeting-settles-on-same-old-air-interface/" target="_blank" rel="noopener">the-mobile-network.com</a> <span class="src-date">2025-08</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Alternative waveforms remain study items, not the baseline</span></div>
+  <p>Waveforms like OTFS (delay-Doppler domain) and AFDM (affine frequency-division multiplexing) are attractive for very high mobility and joint sensing, and continue to be studied and benchmarked against the OFDM baseline. Presenting them is fair; presenting any of them as "the 6G waveform" would not be — none has been selected.</p>
+  <span class="src"><a href="https://www.keysight.com/blogs/en/keys/thought-leadership/2025/07/considerations-for-a-new-waveform-in-6g" target="_blank" rel="noopener">keysight.com</a> <span class="src-date">2025-07</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<p>
+  Why keep OFDM? Three practical reasons recur in the literature: it composes cleanly with massive MIMO; the ecosystem (chips, test, algorithms) is mature; and a familiar waveform makes a <em>unified 5G/6G frame</em> — and therefore smooth coexistence and migration — far easier.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — OFDM numerology explorer</span>
+    <span class="ds-ref">foundation (5G) · extended in 6G study</span>
+  </div>
+  <div class="ds-body">
+    <div class="ctrl-row">
+      <label>Subcarrier spacing (SCS):</label>
+      <select id="scs" onchange="drawNum()">
+        <option value="15">15 kHz (μ=0)</option>
+        <option value="30" selected>30 kHz (μ=1)</option>
+        <option value="60">60 kHz (μ=2)</option>
+        <option value="120">120 kHz (μ=3)</option>
+        <option value="240">240 kHz (μ=4)</option>
+        <option value="480">480 kHz — 6G-range study</option>
+        <option value="960">960 kHz — 6G-range study</option>
+      </select>
+    </div>
+    <canvas id="numcv" width="900" height="220" style="width:100%;background:#040610;border-radius:6px;"></canvas>
+    <div id="numout" class="result-box" style="margin-top:14px;"></div>
+    <div class="note-box" style="margin-top:12px;"><strong>Foundation vs candidate.</strong> 15–240 kHz are real 5G NR numerologies (SCS = 15·2<sup>μ</sup> kHz). The 480/960 kHz options illustrate the <em>direction</em> of 6G study toward wider-bandwidth numerologies for upper-mid-band and sub-THz; exact 6G numerologies are not specified.</div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Numerology, concretely</h2>
+<p>
+  5G NR's flexibility comes from one simple scaling rule. The basic subcarrier spacing is 15 kHz; each numerology <code>μ</code> doubles it. Doubling the spacing halves the OFDM symbol duration, which shortens latency but also shortens the cyclic prefix — so wider spacing suits short-range, high-frequency, low-delay-spread deployments. This is exactly the lever 6G reaches for when it moves into wider bandwidths at higher frequencies.
+</p>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">SCS = 15 × 2<sup>μ</sup> kHz; symbol time scales inversely</span></div>
+  <p>For numerology μ, subcarrier spacing Δf = 15·2<sup>μ</sup> kHz and the useful OFDM symbol duration is 1/Δf. A slot always holds 14 OFDM symbols, so higher μ packs more slots into a millisecond. This established 5G relationship is the template 6G extends.</p>
+  <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-06-15</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">A unified 5G/6G frame structure</span></div>
+  <p>A recurring 6G study goal is a frame structure that reuses 5G's slot/symbol concepts so the two generations can share spectrum and hardware and migrate gracefully. Wider-bandwidth numerologies, the exact slot timing, and how 6G coexists with 5G in the same band are open questions inside the 6GR study and TR 38.914.</p>
+  <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/ran-6g-study1" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-01</span></span>
+</div>
+
+<h2>Channel coding, initial access — direction, not detail</h2>
+<p>
+  Two more physical-layer pillars carry over conceptually. 5G NR uses LDPC codes for data and Polar codes for control; whether 6G keeps, tunes, or augments these is under study, so we teach the <em>roles</em> (a foundation) without asserting 6G specifics. Likewise initial access — synchronisation signals and broadcast — has a fixed job (let a cold UE find and read a cell) that 6G must still perform; its 6G design is being shaped now.
+</p>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">Coding and initial access have stable <em>roles</em></span></div>
+  <p>The jobs are generation-independent: forward error correction protects the bits; synchronisation + broadcast lets a UE acquire timing, frequency and the minimum system information. 6G will need both. The exact 6G codes and sync design are not specified — learn the mechanism in Foundations and watch the tracker for the 6G choices.</p>
+  <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/ran-6g-study1" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-01</span></span>
+</div>
+</div>
+
+<!-- TRACKER:radio-phy -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">RP-251881</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">Study on 6G Radio (6GR)</div>
+          <div class="ti-notes">Investigates the 6G radio physical layer: waveform, frame structure, numerology for wider bandwidths, channel coding direction, and initial access. Plenary doc ID per secondary catalog; treat as indicative until confirmed on the 3GPP portal.</div>
+          <span class="src"><a href="https://wirelessbrew.com/6g/6G-Study-Items-Rel-20/" target="_blank" rel="noopener">wirelessbrew.com</a> <span class="src-date">2026-03</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Study Item underway in RAN</span><span class="progress-na">no % published</span></div>
+      </div>
+      <div class="titem">
+        <div>
+          <span class="ti-id">RAN1 working assumption</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">6G baseline waveform: CP-OFDM and DFT-s-OFDM</div>
+          <div class="ti-notes">RAN1 has agreed to use CP-OFDM and DFT-s-OFDM as the baseline/benchmark waveform for 6G, while leaving the door open to enhancements. This is a study-phase working assumption, not a frozen specification. Reported via secondary sources.</div>
+          <span class="src"><a href="https://the-mobile-network.com/2025/08/6g-meeting-settles-on-same-old-air-interface/" target="_blank" rel="noopener">the-mobile-network.com</a> <span class="src-date">2025-08</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-agreed">RAN1 working assumption (study phase)</span><span class="progress-na">no % published</span></div>
+      </div>
+      <div class="titem">
+        <div>
+          <span class="ti-id">TR 38.914</span> <span class="clabel clabel-req">requirement</span>
+          <div class="ti-title">Study on 6G Scenarios and Requirements</div>
+          <div class="ti-notes">High-level scenarios and requirements for 6G Radio; guides 3GPP RAN working groups and is an initial input to ITU-R IMT-2030. Covers deployment scenarios (dense urban, industrial, high mobility, NTN), KPIs, spectrum, device types and 5G-to-6G migration.</div>
+          <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/ran-6g-study1" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-01</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-progress">~60% complete (Mar 2026); approval targeted ~Jun 2026</span><div class="progress-track" title="60% complete"><div class="progress-fill" style="width:60%"></div></div></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:radio-phy -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  The physical layer is shaped from above and below: the targets on the <a href="vision-requirements.html" style="color:var(--blue);">vision page</a> say how fast and how low-latency it must be, and the bands on the <a href="spectrum.html" style="color:var(--blue);">spectrum page</a> say where it operates — wider bandwidth at higher frequency is exactly why numerology matters. <a href="ai-native-air-interface.html" style="color:var(--blue);">AI-native</a> processing and <a href="isac.html" style="color:var(--blue);">sensing</a> then ride on top of this waveform.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">The OFDM, SSB and synchronisation mechanics here are taught in full, with worked 5G numbers, in the Foundations course — the best way to make the 6G additions concrete.</span>
+  <a class="fb-link" href="../module2/2-2-ssb.html">5G SSB structure →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="vision-requirements.html"><span class="pn-label">← Previous</span><span class="pn-title">6G Vision &amp; Requirements</span></a>
+  <a href="spectrum.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">6G Spectrum</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('radio-physical-layer.html');
+
+function drawNum(){
+  const scs = +document.getElementById('scs').value;
+  const mu = Math.log2(scs/15);
+  const Tsym = 1000/scs;                  // useful symbol duration, µs (1/Δf)
+  const slotsPerMs = Math.pow(2, mu);     // 5G: 2^µ slots per 1ms subframe
+  const slotDur = 1000/slotsPerMs;        // µs
+  const cv = document.getElementById('numcv'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.clearRect(0,0,W,H);
+  // draw a 1 ms timeline divided into slots, each slot = 14 symbols
+  const padL=20, padR=20, y0=40, h=70, axW=W-padL-padR;
+  ctx.fillStyle='#616994'; ctx.font='11px IBM Plex Mono'; ctx.textAlign='left';
+  ctx.fillText('1 ms subframe  →  '+slotsPerMs+' slot'+(slotsPerMs>1?'s':'')+'  ·  14 OFDM symbols / slot', padL, 24);
+  const slotW = axW/slotsPerMs;
+  for(let s=0;s<slotsPerMs;s++){
+    const x = padL + s*slotW;
+    ctx.fillStyle = s%2? 'rgba(91,156,246,0.12)':'rgba(45,212,170,0.10)';
+    ctx.fillRect(x, y0, slotW-2, h);
+    ctx.strokeStyle='#1d2440'; ctx.strokeRect(x, y0, slotW-2, h);
+    // symbols
+    const symW = (slotW-2)/14;
+    for(let i=0;i<14 && slotsPerMs<=8;i++){
+      ctx.fillStyle='rgba(91,156,246,0.5)';
+      ctx.fillRect(x+i*symW+0.5, y0+18, Math.max(1,symW-1.2), h-26);
+    }
+  }
+  ctx.fillStyle='#2a3a5a'; ctx.textAlign='center'; ctx.font='10px IBM Plex Mono';
+  ctx.fillText('0 ms', padL, y0+h+16); ctx.fillText('1 ms', W-padR, y0+h+16);
+  const labelCard = (mu>4) ? 'beyond 5G — 6G-range study' : 'μ = '+mu+'  (5G NR numerology)';
+  document.getElementById('numout').innerHTML =
+    '<div class="rb-title">'+labelCard+'</div>'+
+    '<div class="rb-line">Subcarrier spacing &nbsp;→ <span class="rb-val">'+scs+' kHz</span></div>'+
+    '<div class="rb-line">Useful symbol time &nbsp;→ <span class="rb-val">'+Tsym.toFixed(3)+' µs</span> &nbsp;(= 1 / Δf)</div>'+
+    '<div class="rb-line">Slots per 1 ms &nbsp;&nbsp;&nbsp;&nbsp;→ <span class="rb-val">'+slotsPerMs+'</span> &nbsp;(slot ≈ '+slotDur.toFixed(2)+' µs)</div>';
+}
+drawNum();
+</script>
+</body>
+</html>

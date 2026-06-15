@@ -1,0 +1,14 @@
+# Daily-updater run artifacts (regenerated each run; not published)
+scripts/.fetch-report.json
+scripts/.fetch-report.md
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Local Claude Code config (machine-specific)
+.claude/

@@ -106,6 +106,27 @@ const COMPLETE_FILES = [
 ];
 
 // ═══════════════════════════════════════════
+// 6G — PRIMARY NAV (the original 5G course below is "Foundations")
+// ═══════════════════════════════════════════
+const SIXG_NAV = [
+  { label: 'Start here', items: [
+    { title: 'Home', href: '../index.html' },
+    { title: '6G Tracker — live status', href: '../tracker/index.html' },
+  ]},
+  { label: '6G Topics', items: [
+    { title: '6G Vision & Requirements', href: '../6g/vision-requirements.html' },
+    { title: '6G Radio (6GR) Physical Layer', href: '../6g/radio-physical-layer.html' },
+    { title: '6G Spectrum', href: '../6g/spectrum.html' },
+    { title: 'AI/ML-Native Air Interface', href: '../6g/ai-native-air-interface.html' },
+    { title: 'Integrated Sensing (ISAC)', href: '../6g/isac.html' },
+    { title: 'Reconfigurable Intelligent Surfaces', href: '../6g/ris.html' },
+    { title: 'Non-Terrestrial Networks', href: '../6g/ntn.html' },
+    { title: '6G Core & Architecture', href: '../6g/core-architecture.html' },
+    { title: 'Security & Quantum-Era', href: '../6g/security.html' },
+  ]},
+];
+
+// ═══════════════════════════════════════════
 // BUILD VERTICAL SIDE NAV
 // ═══════════════════════════════════════════
 function buildSidebar(currentFile) {
@@ -127,16 +148,32 @@ function buildSidebar(currentFile) {
   nav.setAttribute('aria-label', 'Site navigation');
 
   let html = `<a href="../index.html" class="side-nav-logo">
-    <span class="wordmark">5G From Scratch</span>
-    <span class="sub">Complete NR Guide</span>
+    <span class="wordmark">ranbits</span>
+    <span class="sub">Tracking 3GPP 6G</span>
   </a>`;
+
+  // 6G — primary section (all live)
+  SIXG_NAV.forEach(group => {
+    html += `<div class="nav-group">
+      <span class="nav-group-label">${group.label}</span>`;
+    group.items.forEach(item => {
+      const isCurrent = item.href.endsWith(currentFile);
+      const cls = 'nav-item' + (isCurrent ? ' active' : '');
+      const aria = isCurrent ? ' aria-current="page"' : '';
+      html += `<a href="${item.href}" class="${cls}"${aria}>${item.title}</a>`;
+    });
+    html += `</div>`;
+  });
+
+  // Foundations — the original 5G NR course (kept, same URLs)
+  html += `<div class="nav-group"><span class="nav-group-label" style="color:var(--teal);">▸ Foundations — 5G NR</span></div>`;
 
   MODULES.forEach(mod => {
     html += `<div class="nav-group">
       <span class="nav-group-label">Module ${mod.num} — ${mod.label}</span>`;
     mod.items.forEach(item => {
       const file = item.href.split('/').pop();
-      const isCurrent = file === currentFile;
+      const isCurrent = item.href.endsWith(currentFile);
       const isDone = COMPLETE_FILES.includes(file);
       let cls = 'nav-item';
       if (isCurrent) cls += ' active';

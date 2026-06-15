@@ -1,0 +1,81 @@
+name: 6G tracker — daily update
+
+# Runs the safe-by-construction updater once a day, renders the static
+# output, commits only high-confidence sourced changes, and opens an
+# audit issue listing anything that was skipped or uncertain.
+#
+# Manual run (from the GitHub UI): Actions → "6G tracker — daily update"
+#   → "Run workflow".
+# Manual run (locally):
+#   npm run update     # fetch --write + build
+#   npm run build      # render only
+
+on:
+  schedule:
+    - cron: '17 6 * * *'   # 06:17 UTC daily
+  workflow_dispatch: {}
+
+permissions:
+  contents: write   # commit tracker/render changes
+  issues: write     # open the audit issue
+
+concurrency:
+  group: 6g-daily-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch 3GPP/ITU status (safe, never fails the job)
+        run: node scripts/fetch-3gpp-status.js --write || echo "fetch step returned non-zero — continuing (updater is non-fatal by design)"
+
+      - name: Render static output from tracker data
+        run: node scripts/build.js
+
+      - name: Commit high-confidence changes
+        id: commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Stage only published artifacts (report files are git-ignored).
+          git add data/6g-tracker.json tracker/ 6g/ feed.xml sitemap.xml index.html 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No published changes today."
+          else
+            git commit -m "6G tracker: daily update ($(date -u +%Y-%m-%d))"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Decide whether to open an audit issue
+        id: audit
+        if: always()
+        run: |
+          node -e '
+            const fs = require("fs");
+            let r = { applied: [], skipped: [], errors: [] };
+            try { r = JSON.parse(fs.readFileSync("scripts/.fetch-report.json", "utf8")); } catch (e) {}
+            const open = (r.skipped && r.skipped.length) || (r.errors && r.errors.length);
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, "open=" + (open ? "true" : "false") + "\n");
+          '
+
+      - name: Open audit issue for skipped/uncertain items
+        if: always() && steps.audit.outputs.open == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="6G tracker audit — $(date -u +%Y-%m-%d): items skipped/uncertain"
+          BODY_FILE="scripts/.fetch-report.md"
+          if [ ! -f "$BODY_FILE" ]; then echo "No report file; nothing to do."; exit 0; fi
+          gh issue create --title "$TITLE" --body-file "$BODY_FILE" --label "6g-tracker,automated" \
+            || gh issue create --title "$TITLE" --body-file "$BODY_FILE"

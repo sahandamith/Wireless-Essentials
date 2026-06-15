@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI/ML-Native Air Interface — CSI, beam management, two-sided models | ranbits</title>
+<meta name="description" content="What an AI-native 6G air interface means from first principles: machine learning inside the radio for CSI feedback compression, beam management and positioning, the two-sided model problem, and what 3GPP has actually studied. Labelled and sourced.">
+<meta name="keywords" content="AI native air interface, 6G AI, machine learning 6G, CSI compression, beam management, two-sided model, AI/ML for air interface, TR 38.843, RAN1, IMT-2030 AI">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/ai-native-air-interface.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="AI/ML-Native Air Interface — CSI, beams, two-sided models">
+<meta property="og:description" content="ML inside the 6G radio: CSI compression, beam management, two-sided models. Decided vs under study, sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/ai-native-air-interface.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI/ML-Native Air Interface">
+<meta name="twitter:description" content="ML inside the 6G radio — CSI, beams, two-sided models. Sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "AI/ML-Native Air Interface for 6G",
+  "description": "First-principles guide to an AI-native 6G air interface: CSI feedback compression, beam management, positioning and the two-sided model problem.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/ai-native-air-interface.html",
+  "about": ["AI native air interface", "6G", "machine learning", "CSI", "beam management"]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> AI/ML-Native Air Interface</div>
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid rgba(245,166,35,0.25);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    6G Topic 04 — AI/ML-Native Air Interface
+  </div>
+  <h1>Putting <em>learning</em> inside the radio</h1>
+  <p class="hero-lead">
+    In 5G, AI lives mostly in the network's brain — scheduling, optimisation, operations. The 6G idea is more radical: build machine learning into the air interface itself, so the link between phone and tower learns. The honest status is that this is a direction with real, completed study work behind specific functions — not a finished, AI-first radio.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">AI/ML for Air Interface</span>
+    <span class="spec-pill">IMT-2030 — AI &amp; Communication</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> "AI-native" is an aspiration and an active study area, not a delivered design. Concrete progress exists for specific functions (CSI, beam management, positioning); the degree to which 6G is fundamentally AI-first is still under study.
+</div>
+
+<h2>Why the radio is a good place for ML</h2>
+<p>
+  Classical radio algorithms are hand-designed from models — a channel estimator assumes a certain channel, a codebook assumes certain antenna geometry. Reality is messier than the models. Machine learning offers algorithms that adapt to the <em>actual</em> deployment from data. Three jobs are especially ripe, because they are high-volume, pattern-rich, and expensive to do optimally by hand: channel state feedback, beam management, and positioning.
+</p>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">"AI &amp; Communication" is one of the six IMT-2030 scenarios</span></div>
+  <p>ITU-R M.2160 names Artificial Intelligence and Communication as a headline 6G usage scenario — the network as a distributed compute/AI fabric. That makes AI a requirement-level driver for 6G, not an optional extra.</p>
+  <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int — IMT-2030</a> <span class="src-date">2023-11</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">3GPP has studied ML for CSI, beams and positioning</span></div>
+  <p>The 6G AI/ML-for-air-interface direction builds directly on completed and ongoing 3GPP work (the Rel-18 study captured in TR 38.843, continued in Rel-19) covering CSI feedback/compression, beam management and positioning. These are the proving grounds; how much carries into normative 6G is a Release 21 question.</p>
+  <span class="src"><a href="https://wirelessbrew.com/6g/6G-Study-Items-Rel-20/" target="_blank" rel="noopener">wirelessbrew.com</a> <span class="src-date">2026-03</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<h2>The hard part: two-sided models</h2>
+<p>
+  Channel-state-information (CSI) feedback is the flagship example. Today a phone measures the channel and reports a compressed summary so the tower can beamform. Replace the compressor with a neural <em>encoder</em> on the phone and a neural <em>decoder</em> at the tower and you can shrink the report dramatically. But now two different vendors' models — one in the phone, one in the base station — must agree, like two halves of a codec built by strangers. That "two-sided model" coordination (training, versioning, interoperability) is the genuinely novel standardisation problem 6G must solve.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — CSI feedback as a two-sided model</span>
+    <span class="ds-ref">illustrative concept — not a 6G spec value</span>
+  </div>
+  <div class="ds-body">
+    <div class="ctrl-row">
+      <label>Latent size (compression):</label>
+      <input type="range" id="comp" min="8" max="256" value="64" step="8" oninput="drawCsi()">
+      <span class="ctrl-val" id="compv">64</span>
+      <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">of 512 raw coefficients</span>
+    </div>
+    <canvas id="csi" width="900" height="200" style="width:100%;background:#040610;border-radius:6px;"></canvas>
+    <div id="csiout" class="result-box" style="margin-top:14px;"></div>
+    <div class="note-box" style="margin-top:12px;"><strong>Illustrative only.</strong> The 512→latent numbers are a teaching example of the encode→feedback→decode idea, not a standardised 6G configuration. The real, hard, unsolved part is making the phone's encoder and the tower's decoder interoperate across vendors.</div>
+  </div>
+</div>
+
+<div class="prose">
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">CSI feedback and beam management already exist in 5G</span></div>
+  <p>The functions ML aims to improve are not new — 5G NR already has CSI reporting and a beam-management framework (SSB/CSI-RS beam sweeping, reporting, indication). Understanding the 5G versions is the fastest way to see precisely what ML changes and what stays the same.</p>
+  <span class="src"><a href="../module2/2-2-ssb.html">ranbits — Foundations (5G beam sweep)</a> <span class="src-date">2025</span></span>
+</div>
+</div>
+
+<!-- TRACKER:ai-air-interface -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">AI/ML for Air Interface (6G)</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">AI/ML-native air interface (CSI, beam management, two-sided models)</div>
+          <div class="ti-notes">Builds on the Rel-18 study (TR 38.843) and Rel-19 work on AI/ML for the air interface — CSI feedback/compression, beam management, positioning, and two-sided models — toward an AI-native 6G design. The degree of AI-native design in 6G is still under study.</div>
+          <span class="src"><a href="https://wirelessbrew.com/6g/6G-Study-Items-Rel-20/" target="_blank" rel="noopener">wirelessbrew.com</a> <span class="src-date">2026-03</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Study direction carried from Rel-18/19 AI/ML</span><span class="progress-na">no % published</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:ai-air-interface -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  AI rides on the <a href="radio-physical-layer.html" style="color:var(--blue);">physical layer</a> (it learns the waveform's channel) and is pulled by the <a href="vision-requirements.html" style="color:var(--blue);">requirements</a> (AI &amp; Communication is a named scenario). It also overlaps <a href="isac.html" style="color:var(--blue);">sensing</a>, where ML interprets the echoes the radio collects.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">Beam management — the most ML-ready 6G function — is concrete 5G NR today. See how SSB beam sweeping and TCI work before layering ML on top.</span>
+  <a class="fb-link" href="../module10/10-2-beam-sweep.html">5G beam sweep →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="spectrum.html"><span class="pn-label">← Previous</span><span class="pn-title">6G Spectrum</span></a>
+  <a href="isac.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Integrated Sensing &amp; Communication</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('ai-native-air-interface.html');
+
+function drawCsi(){
+  const latent = +document.getElementById('comp').value;
+  document.getElementById('compv').textContent = latent;
+  const RAW=512, ratio=(RAW/latent);
+  const cv=document.getElementById('csi'), ctx=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  // pipeline: UE encoder -> latent -> decoder gNB
+  function box(x,w,label,sub,col){
+    ctx.fillStyle=col+'22'; ctx.strokeStyle=col; ctx.lineWidth=1.5;
+    roundRect(ctx,x,60,w,80,8); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=col; ctx.font='12px DM Sans'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(label,x+w/2,92); ctx.fillStyle='#8fa8c8'; ctx.font='10px IBM Plex Mono'; ctx.fillText(sub,x+w/2,112);
+  }
+  box(30,150,'UE encoder','512 → '+latent,'#5b9cf6');
+  // latent channel
+  const lx0=200, lx1=560;
+  ctx.strokeStyle='#2dd4aa'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(lx0,100); ctx.lineTo(lx1,100); ctx.stroke();
+  const dots=Math.min(latent/8,30);
+  for(let i=0;i<dots;i++){ ctx.fillStyle='#2dd4aa'; ctx.beginPath(); ctx.arc(lx0+10+i*((lx1-lx0-20)/Math.max(1,dots-1)),100,3,0,7); ctx.fill(); }
+  ctx.fillStyle='#2dd4aa'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='center'; ctx.fillText('feedback over the air ('+latent+' values)',(lx0+lx1)/2,82);
+  box(580,150,'gNB decoder',latent+' → 512','#f5a623');
+  ctx.fillStyle='#2a3a5a'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='left'; ctx.fillText('two vendors, two models — must interoperate',30,176);
+  document.getElementById('csiout').innerHTML =
+    '<div class="rb-title">illustrative compression</div>'+
+    '<div class="rb-line">Latent size &nbsp;→ <span class="rb-val">'+latent+'</span> of 512 coefficients</div>'+
+    '<div class="rb-line">Feedback reduction &nbsp;→ <span class="rb-val">'+ratio.toFixed(1)+'×</span> smaller report (illustrative)</div>'+
+    '<div class="rb-line">Trade-off &nbsp;→ smaller report, more reconstruction error &amp; tighter model coupling</div>';
+}
+drawCsi();
+</script>
+</body>
+</html>

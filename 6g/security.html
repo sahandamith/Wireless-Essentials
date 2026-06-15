@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6G Security &amp; Quantum-Era Considerations | ranbits</title>
+<meta name="description" content="6G security from first principles: what 5G already established (mutual authentication, identifier concealment), why the quantum era forces a move to post-quantum cryptography, and the AI-era threat model. What's a requirement vs a research direction. Labelled and sourced.">
+<meta name="keywords" content="6G security, quantum-era, post-quantum cryptography, PQC, harvest now decrypt later, 6G resilience, AI security, SUPI SUCI, IMT-2030 security, SA3">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/security.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="6G Security &amp; Quantum-Era Considerations">
+<meta property="og:description" content="What 5G established, why the quantum era forces post-quantum crypto, and the AI-era threat model. Requirement vs research, sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/security.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="6G Security & Quantum-Era">
+<meta name="twitter:description" content="6G security and the move to post-quantum cryptography — sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "6G Security & Quantum-Era Considerations",
+  "description": "First-principles guide to 6G security: 5G's established security, post-quantum cryptography migration, and the AI-era threat model.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/security.html",
+  "about": ["6G security", "post-quantum cryptography", "quantum era", "resilience"]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Security &amp; Quantum-Era</div>
+  <div class="module-tag" style="background:var(--coral-l);border:1px solid rgba(240,107,107,0.25);color:var(--coral);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--coral);display:inline-block;"></span>
+    6G Topic 09 — Security &amp; Quantum-Era
+  </div>
+  <h1>Security for a <em>quantum</em> decade</h1>
+  <p class="hero-lead">
+    6G will be deployed into the 2030s — the decade where large-scale quantum computers move from "if" to "when". A network that will carry traffic for fifteen years has to assume tomorrow's attacker, not today's. This page separates what 5G already locks down, what the quantum era genuinely forces, and what is still research.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">IMT-2030 — security &amp; resilience</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> ITU-R lists security and resilience as a (qualitative) 6G capability. Post-quantum migration and AI-era threat models are active research directions; concrete 6G security specification is future Release 21+ work in 3GPP SA3. No 6G security spec exists yet.
+</div>
+
+<h2>Foundation: 5G security is already strong</h2>
+<p>
+  Start from what is solid. 5G introduced real improvements over earlier generations: mutual authentication (the network proves itself to the device, not just the reverse), and concealment of the permanent subscriber identity — the SUPI is encrypted into a SUCI before it ever crosses the air, defeating the classic "IMSI catcher". 6G inherits this architecture; the job is to extend it, not rebuild it.
+</p>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">Mutual authentication &amp; identifier concealment are established</span></div>
+  <p>5G's security architecture (mutual auth, encrypted subscriber identity, integrity protection of signalling) is the baseline 6G starts from. These mechanisms are well specified and carry forward conceptually.</p>
+  <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-06-15</span></span>
+</div>
+
+<h2>Why the quantum era changes the maths</h2>
+<p>
+  Today's key exchange relies on problems (factoring, discrete logs) that a large quantum computer could break with Shor's algorithm. The threat is not only future: an attacker can <em>harvest now, decrypt later</em> — record encrypted traffic today and decrypt it once a quantum computer exists. For a network whose data must stay secret for a decade-plus, that makes post-quantum cryptography (PQC) a design-time concern, not a later patch.
+</p>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Post-quantum cryptography migration is a 6G research direction</span></div>
+  <p>Moving key exchange and signatures to quantum-resistant algorithms (the kind standardised by NIST's PQC programme) is widely expected to shape 6G security, but the specific 6G mechanisms are not defined — this is direction-setting research, not a 3GPP specification yet.</p>
+  <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int — IMT-2030</a> <span class="src-date">2023-11</span></span>
+</div>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">Security &amp; resilience is a named (qualitative) IMT-2030 capability</span></div>
+  <p>ITU-R M.2160 lists security and resilience among the 15 IMT-2030 capabilities — but as a qualitative one, with no numeric target. So it is a genuine requirement-level expectation that 6G be secure and resilient, without a specific number attached.</p>
+  <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int — IMT-2030</a> <span class="src-date">2023-11</span></span>
+</div>
+
+<h2>The AI-era threat model</h2>
+<p>
+  6G's embrace of AI is double-edged. The same ML that optimises the network becomes an attack surface: poisoned training data, adversarial inputs that fool a model, and the privacy of the data models are trained on. An AI-native network has to defend its models, not just its traffic. This is new territory the security community is actively mapping.
+</p>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Securing AI/ML in the network is an open problem</span></div>
+  <p>Model integrity, adversarial robustness and training-data privacy for an AI-native air interface and core are recognised challenges without settled 6G answers. Flag the risk; do not imply it is solved.</p>
+  <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int — IMT-2030</a> <span class="src-date">2023-11</span></span>
+</div>
+</div>
+
+<!-- TRACKER:security -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">6G security / quantum-era</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">Security, resilience &amp; quantum-era considerations</div>
+          <div class="ti-notes">ITU-R M.2160 lists security and resilience as a (qualitative) capability. Post-quantum cryptography migration and AI-era threat models are active research themes; concrete 6G security specification is future Rel-21+ work.</div>
+          <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int</a> <span class="src-date">2023-11</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Direction-setting; no 6G security specs yet</span><span class="progress-na">no % published</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:security -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  Security spans the whole stack: it protects the <a href="ai-native-air-interface.html" style="color:var(--blue);">AI</a> functions, lives mostly in the <a href="core-architecture.html" style="color:var(--blue);">core</a>, and underwrites the trust that the <a href="vision-requirements.html" style="color:var(--blue);">requirements</a> assume.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">6G security extends 5G's. The identity and connection setup it protects are exactly what the Foundations course walks through, message by message.</span>
+  <a class="fb-link" href="../module7/7-2-rrc-setup.html">5G RRC setup →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="core-architecture.html"><span class="pn-label">← Previous</span><span class="pn-title">6G Core &amp; Architecture</span></a>
+  <a href="../tracker/index.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Back to the 6G Tracker</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>buildSidebar('security.html');</script>
+</body>
+</html>

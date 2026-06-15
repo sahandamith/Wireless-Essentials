@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Non-Terrestrial Networks (NTN) &amp; Ubiquitous Connectivity for 6G | ranbits</title>
+<meta name="description" content="6G non-terrestrial networks from first principles: satellites (LEO/MEO/GEO) and aerial platforms integrated with the ground network for ubiquitous connectivity. Orbit trade-offs, the convergence idea, and what's agreed vs under study. Labelled and sourced.">
+<meta name="keywords" content="6G NTN, non-terrestrial networks, ubiquitous connectivity, LEO satellite 6G, direct-to-device, satellite integration, IMT-2030, TR 38.914, 3GPP NTN">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/ntn.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="Non-Terrestrial Networks (NTN) for 6G">
+<meta property="og:description" content="Satellites and aerial platforms integrated with the ground network for ubiquitous 6G connectivity. Orbit trade-offs, sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/ntn.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Non-Terrestrial Networks (NTN) for 6G">
+<meta name="twitter:description" content="6G NTN and ubiquitous connectivity — orbit trade-offs, sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Non-Terrestrial Networks (NTN) and Ubiquitous Connectivity for 6G",
+  "description": "First-principles guide to 6G NTN: orbit trade-offs, terrestrial/non-terrestrial convergence and ubiquitous connectivity.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/ntn.html",
+  "about": ["NTN", "non-terrestrial networks", "6G", "ubiquitous connectivity", "satellite"]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Non-Terrestrial Networks</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid rgba(91,156,246,0.25);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    6G Topic 07 — NTN &amp; Ubiquitous Connectivity
+  </div>
+  <h1>Coverage <em>everywhere</em></h1>
+  <p class="hero-lead">
+    Half the planet — oceans, mountains, deserts, disaster zones — has no economic case for a cell tower. 6G's answer is to fold satellites and high-altitude platforms into the same network as the ground, so a phone roams from tower to satellite without caring which it's on. "Ubiquitous connectivity" is a headline 6G goal; seamless convergence is the part still being built.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">IMT-2030 — Ubiquitous Connectivity</span>
+    <span class="spec-pill">TR 38.914</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> Ubiquitous connectivity is an agreed 6G usage scenario (requirement) and NTN appears in 3GPP's 6G deployment scenarios. Native terrestrial/NTN convergence in the 6G core and radio is a candidate under study.
+</div>
+
+<h2>Foundation: orbit sets everything</h2>
+<p>
+  A satellite's altitude decides its physics, and the physics decides the service. Geostationary (GEO, ~35,786 km) satellites hover over one spot but impose a long round trip; low-Earth-orbit (LEO, ~300–1,200 km) satellites are close — low delay, strong signal — but scream across the sky in minutes, so you need a moving constellation and constant handovers. There is no free lunch; 6G NTN designs around this trade-off rather than escaping it.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — orbit altitude vs propagation delay</span>
+    <span class="ds-ref">real physics (c) — illustrative one-way delay</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="orbit" width="900" height="300" style="width:100%;background:#040610;border-radius:6px;cursor:pointer;"></canvas>
+    <div id="orbitout" class="result-box" style="margin-top:14px;"></div>
+    <div class="note-box" style="margin-top:12px;"><strong>Click a layer.</strong> One-way delay ≈ altitude ÷ c (straight-down, best case). Real slant paths are longer. Altitudes are standard orbital figures; delays are illustrative physics, not a 6G latency spec.</div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>What 6G adds beyond 5G NTN</h2>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">5G already standardised NTN</span></div>
+  <p>This does not start from zero. 3GPP introduced NTN support in 5G (from Release 17), including direct-to-device satellite access. The mechanisms for huge propagation delay and Doppler — timing advance, frequency pre-compensation — already exist and are the foundation 6G refines.</p>
+  <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-06-15</span></span>
+</div>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">Ubiquitous connectivity is a named 6G scenario</span></div>
+  <p>ITU-R IMT-2030 lists Ubiquitous Connectivity as one of the six usage scenarios, and 3GPP's 6G scenario study (TR 38.914) includes non-terrestrial deployments. Coverage everywhere is a requirement-level ambition for 6G, not a niche add-on.</p>
+  <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/ran-6g-study1" target="_blank" rel="noopener">3gpp.org — TR 38.914</a> <span class="src-date">2026-03-01</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Native terrestrial/NTN convergence is under study</span></div>
+  <p>The 6G goal is deeper than "satellites can connect too": a single architecture where terrestrial and non-terrestrial access are managed together, with seamless mobility between them. How the 6G core models this convergence is part of the architecture study, and is not yet specified.</p>
+  <span class="src"><a href="https://wirelessbrew.com/6g/6G-Study-Items-Rel-20/" target="_blank" rel="noopener">wirelessbrew.com</a> <span class="src-date">2026-03</span> <span class="src-tier">secondary</span></span>
+</div>
+</div>
+
+<!-- TRACKER:ntn -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">NTN / Ubiquitous Connectivity</span> <span class="clabel clabel-req">requirement</span>
+          <div class="ti-title">Non-Terrestrial Networks &amp; ubiquitous connectivity</div>
+          <div class="ti-notes">Ubiquitous connectivity is an IMT-2030 usage scenario (requirement) and NTN appears across TR 22.870 and TR 38.914 deployment scenarios. Native terrestrial/NTN convergence in the 6G core and radio is a candidate under study.</div>
+          <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/ran-6g-study1" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-01</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Usage scenario agreed; 6G integration under study</span><span class="progress-na">no % published</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:ntn -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  NTN realises a <a href="vision-requirements.html" style="color:var(--blue);">requirement</a> (ubiquitous connectivity), depends on the <a href="core-architecture.html" style="color:var(--blue);">core architecture</a> to make convergence seamless, and shares the high-delay/high-Doppler challenges that shape the <a href="radio-physical-layer.html" style="color:var(--blue);">physical layer</a>.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">A satellite is still a cell a UE must find and synchronise to — the cell-search and timing mechanics in Foundations apply directly, just with bigger delays.</span>
+  <a class="fb-link" href="../module2/2-1-gscn.html">5G cell search →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="ris.html"><span class="pn-label">← Previous</span><span class="pn-title">Reconfigurable Intelligent Surfaces</span></a>
+  <a href="core-architecture.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">6G Core &amp; Architecture</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('ntn.html');
+
+(function(){
+  const cv=document.getElementById('orbit'), ctx=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const layers=[
+    { n:'LEO', alt:550, col:'#2dd4aa', y:70, desc:'Low Earth orbit — low delay, strong link, but fast-moving constellations and frequent handovers.' },
+    { n:'MEO', alt:8000, col:'#5b9cf6', y:130, desc:'Medium Earth orbit — a middle ground in delay and coverage; fewer satellites than LEO.' },
+    { n:'GEO', alt:35786, col:'#f5a623', y:190, desc:'Geostationary — fixed over one spot, wide coverage, but long round-trip delay.' }
+  ];
+  let active=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // ground
+    ctx.fillStyle='#0d1a14'; ctx.fillRect(0,260,W,40);
+    ctx.fillStyle='#2dd4aa'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='left'; ctx.fillText('Earth surface · UE', 20, 282);
+    ctx.fillStyle='#5b9cf6'; ctx.beginPath(); ctx.arc(140,260,6,0,7); ctx.fill();
+    layers.forEach((L,i)=>{
+      ctx.strokeStyle = i===active? L.col : L.col+'44'; ctx.lineWidth = i===active?2:1; ctx.setLineDash([4,4]);
+      ctx.beginPath(); ctx.moveTo(20,L.y); ctx.lineTo(W-20,L.y); ctx.stroke(); ctx.setLineDash([]);
+      // satellite
+      ctx.fillStyle=L.col; roundRect(ctx,300+i*120,L.y-9,26,18,3); ctx.fill();
+      // link to UE
+      if(i===active){ ctx.strokeStyle=L.col; ctx.lineWidth=1.5; ctx.beginPath(); ctx.moveTo(313+i*120,L.y); ctx.lineTo(140,260); ctx.stroke(); }
+      ctx.fillStyle=L.col; ctx.textAlign='left'; ctx.font='11px DM Sans'; ctx.fillText(L.n+'  ~'+L.alt.toLocaleString()+' km', W-200, L.y-8);
+    });
+    ctx.fillStyle='#616994'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='left'; ctx.fillText('click a layer', 20, 24);
+  }
+  cv.addEventListener('click',e=>{ const r=cv.getBoundingClientRect(); const y=(e.clientY-r.top)*(H/r.height);
+    let best=0,bd=1e9; layers.forEach((L,i)=>{ if(Math.abs(L.y-y)<bd){bd=Math.abs(L.y-y);best=i;} }); active=best; render(); });
+  function render(){
+    draw(); const L=layers[active];
+    const d=(L.alt*1000)/3e8*1000; // ms one-way straight down
+    document.getElementById('orbitout').innerHTML =
+      '<div class="rb-title">'+L.n+' — illustrative one-way delay</div>'+
+      '<div class="rb-line">Altitude &nbsp;→ <span class="rb-val">~'+L.alt.toLocaleString()+' km</span></div>'+
+      '<div class="rb-line">Best-case one-way delay = alt / c &nbsp;→ <span class="rb-val">~'+d.toFixed(1)+' ms</span></div>'+
+      '<div class="rb-line" style="color:#8fa8c8">'+L.desc+'</div>';
+  }
+  render();
+})();
+</script>
+</body>
+</html>

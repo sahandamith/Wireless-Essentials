@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6G Vision &amp; Requirements — IMT-2030, TR 22.870, TR 38.914 | ranbits</title>
+<meta name="description" content="What 6G is required to do, from first principles: the six ITU-R IMT-2030 usage scenarios and capability targets, and the 3GPP Stage-1 (TR 22.870) and RAN (TR 38.914) requirement studies. Every figure labelled and sourced.">
+<meta name="keywords" content="6G requirements, IMT-2030, ITU-R M.2160, TR 22.870, TR 38.914, 6G usage scenarios, 6G KPI, 6G peak data rate, 6G latency, immersive communication, HRLLC, ISAC">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/vision-requirements.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="6G Vision &amp; Requirements — IMT-2030, TR 22.870, TR 38.914">
+<meta property="og:description" content="The six IMT-2030 usage scenarios and capability targets, and the 3GPP requirement studies. Decided vs under study, every figure sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/vision-requirements.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="6G Vision &amp; Requirements — IMT-2030 & 3GPP">
+<meta name="twitter:description" content="The six IMT-2030 usage scenarios and capability targets, sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "6G Vision & Requirements — IMT-2030, TR 22.870 and TR 38.914",
+  "description": "The six ITU-R IMT-2030 usage scenarios and capability targets, and the 3GPP Stage-1 and RAN requirement studies for 6G.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/vision-requirements.html",
+  "about": ["6G", "IMT-2030", "3GPP", "TR 22.870", "TR 38.914"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What are the six 6G usage scenarios?",
+      "acceptedAnswer": { "@type": "Answer", "text": "ITU-R Recommendation M.2160 (the IMT-2030 Framework, 2023) defines six usage scenarios: Immersive Communication, Hyper Reliable and Low-Latency Communication (HRLLC), Massive Communication, Ubiquitous Connectivity, Artificial Intelligence and Communication, and Integrated Sensing and Communication (ISAC)." }
+    },
+    {
+      "@type": "Question",
+      "name": "Are the 6G performance numbers final?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The numbers in the IMT-2030 Framework (M.2160) are example targets, not minimum requirements. The binding minimum technical performance requirements were still in draft at ITU-R Working Party 5D as of early 2026, with Study Group 5 approval scheduled for around December 2026, and the values were restricted to ITU-R members until then." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a 6G specification yet?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No normative 6G specification exists as of mid-2026. 3GPP Release 20 contains 6G study work only; the first 6G specifications are expected in Release 21, around 2029." }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Vision &amp; Requirements</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid rgba(91,156,246,0.25);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    6G Topic 01 — Vision &amp; Requirements
+  </div>
+  <h1>What 6G is <em>required</em> to do</h1>
+  <p class="hero-lead">
+    Every generation starts as a list of things it must do before anyone designs a radio. For 6G that list lives in two places: the ITU-R <strong>IMT-2030</strong> vision, and the 3GPP requirement studies <strong>TR 22.870</strong> (services) and <strong>TR 38.914</strong> (radio). This page reads them honestly — what is agreed, and what is still just a target.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">ITU-R M.2160</span>
+    <span class="spec-pill">TR 22.870</span>
+    <span class="spec-pill">TR 38.914</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Read this first.</strong> There are no normative 6G specifications yet. Numbers below are either an ITU-R <em>framework example target</em>, a published <em>study assumption</em>, or a <em>5G baseline</em> being reused for comparison — never a 6G "spec value". Each is labelled and sourced.
+</div>
+
+<h2>Requirements come before radios</h2>
+<p>
+  It is tempting to start 6G with waveforms and antennas. Standards bodies do the opposite. First they agree <em>what the network must achieve</em> — the usage scenarios and the capability targets — and only then do engineering groups choose technologies that can hit those targets. Getting the requirements wrong is expensive, so this phase is deliberate and, for 6G, it is the phase we are in right now.
+</p>
+<p>
+  There are two requirement tracks, and they feed each other:
+</p>
+<ul style="color:var(--text2);line-height:1.8;margin:0 0 20px 22px;">
+  <li><strong>ITU-R IMT-2030</strong> — the global, vendor-neutral vision and the capability framework that any "6G" must satisfy to be recognised as an IMT-2030 radio interface.</li>
+  <li><strong>3GPP</strong> — the body that writes the actual specifications, working to its own service requirements (SA1, <code>TR 22.870</code>) and radio requirements (RAN, <code>TR 38.914</code>), which it also submits as input to ITU-R.</li>
+</ul>
+
+<h2>The six IMT-2030 usage scenarios</h2>
+<p>
+  In November 2023, ITU-R approved Recommendation <strong>M.2160</strong> — the "IMT-2030 Framework". It defines six usage scenarios. Three extend familiar 5G scenarios (the inner ring below); three are genuinely new to 6G (the outer wedges).
+</p>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">6G has six agreed usage scenarios</span></div>
+  <p>Immersive Communication, Hyper Reliable &amp; Low-Latency Communication (HRLLC), Massive Communication, Ubiquitous Connectivity, Artificial Intelligence &amp; Communication, and Integrated Sensing &amp; Communication (ISAC). The first three generalise 5G's eMBB/URLLC/mMTC; the last three are new.</p>
+  <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int — IMT-2030</a> <span class="src-date">2023-11</span></span>
+</div>
+
+</div><!-- prose -->
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — the six IMT-2030 usage scenarios</span>
+    <span class="ds-ref">Click a scenario · ITU-R M.2160</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="scenarios" width="900" height="420" style="width:100%;background:#040610;border-radius:6px;cursor:pointer;"></canvas>
+    <div id="scenario-info" style="margin-top:14px;font-size:13.5px;color:var(--text2);line-height:1.6;min-height:42px;font-family:var(--sans);">Click a wedge to read what the scenario means and whether it is new in 6G.</div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Capability targets — and why they are not "specs"</h2>
+<p>
+  M.2160 also lists 15 <em>capabilities</em>. About nine carry example numeric targets; the rest are described qualitatively (security, sustainability, interoperability, sensing accuracy, AI). The crucial nuance, repeated by ITU-R itself: <strong>these numbers are example targets in the framework, not the minimum requirements 6G will be tested against.</strong> Those minimum technical performance requirements were still in draft in 2026.
+</p>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">The binding 6G minimum requirements are not public yet</span></div>
+  <p>ITU-R Working Party 5D adopted a draft of the IMT-2030 minimum technical performance requirements and evaluation methodology in February 2026; Study Group 5 approval was scheduled for around December 2026, and the draft values were restricted to ITU-R members until then. So the only public numbers are the M.2160 framework <em>examples</em>.</p>
+  <span class="src"><a href="https://www.itu.int/hub/2026/03/imt-2030-technical-requirements-for-the-6g-future/" target="_blank" rel="noopener">itu.int</a> <span class="src-date">2026-03</span></span>
+</div>
+
+<p>
+  With that caveat front of mind, here is how the framework's example targets compare with the 5G (IMT-2020) baseline they build on. Toggle between the conservative and ambitious ends of each 6G example range.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — IMT-2030 example targets vs the 5G baseline</span>
+    <span class="ds-ref">M.2160 (example) · M.2410 (5G baseline)</span>
+  </div>
+  <div class="ds-body">
+    <div class="ctrl-row">
+      <label>6G example target:</label>
+      <button id="btn-cons" onclick="setAmbition('low')" style="background:var(--blue-l);border:1px solid var(--blue);color:var(--blue);padding:5px 14px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;">Conservative</button>
+      <button id="btn-amb" onclick="setAmbition('high')" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;">Ambitious</button>
+    </div>
+    <canvas id="kpis" width="900" height="360" style="width:100%;background:#040610;border-radius:6px;"></canvas>
+    <div class="note-box" style="margin-top:14px;"><strong>How to read it.</strong> Bar length is the 6G example target expressed as a multiple of the 5G baseline. Latency improves by getting <em>smaller</em>, so its bar shows the inverse (how much lower 6G could go). All 6G values are <span class="clabel clabel-req" style="font-size:9px;">framework example target</span>, never spec values.</div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Worked example — the peak data rate target</h2>
+<p>
+  A worked number, done honestly. 5G's IMT-2020 peak data rate requirement is a real, published value; 6G's is a framework example. We are allowed to compute the ratio, as long as we label both ends correctly.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">Peak data rate — headroom over 5G</span><span class="ds-ref">M.2410 · M.2160</span></div>
+  <div class="ds-body">
+    <div class="code-block" style="margin:0;">
+      <div class="cb-header"><span>Peak data rate (downlink)</span></div>
+<pre><span class="c">// 5G baseline — ITU-R M.2410, a real published requirement</span>
+R_5G  = <span class="n">20</span> Gbit/s        <span class="c">// label: 5G baseline</span>
+
+<span class="c">// 6G framework example — ITU-R M.2160, an EXAMPLE target, not a spec</span>
+R_6G  ∈ { <span class="n">50</span>, <span class="n">100</span>, <span class="n">200</span> } Gbit/s   <span class="c">// label: framework example target</span>
+
+<span class="c">// headroom = R_6G / R_5G</span>
+low   = <span class="n">50</span>  / <span class="n">20</span> = <span class="r">2.5×</span>
+mid   = <span class="n">100</span> / <span class="n">20</span> = <span class="r">5×</span>
+high  = <span class="n">200</span> / <span class="n">20</span> = <span class="r">10×</span></pre>
+    </div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>The 3GPP requirement studies</h2>
+<p>
+  3GPP turns the vision into its own engineering requirements. Two reports matter most right now, and their status is very different — one is finished, one is roughly half-written.
+</p>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">TR 22.870 — Stage-1 6G service requirements — is approved</span></div>
+  <p>The Stage-1 study on 6G use cases and service requirements was approved at 3GPP TSG SA#111 in Fukuoka (March 2026). At roughly 590 pages it is deliberately broad: immersive communication, hyper-reliable low-latency, more-massive IoT, ubiquitous connectivity, AI/ML services and ISAC. It becomes the Stage-1 anchor for Release 21 normative work.</p>
+  <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/fukuoka-tsg111" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-13</span></span>
+</div>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">TR 38.914 — RAN 6G scenarios &amp; requirements — is ~60% complete</span></div>
+  <p>The RAN study on 6G scenarios and requirements was reported about 60% complete in March 2026, with approval targeted around June 2026. It sets deployment scenarios (dense urban, industrial, high-mobility, NTN), KPIs, spectrum and device assumptions, and the high-level 5G-to-6G migration story, and is an initial input to ITU-R's IMT-2030 work.</p>
+  <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/ran-6g-study1" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-01</span></span>
+</div>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">The requirement → study → specification pipeline is unchanged from 5G</span></div>
+  <p>The machinery is the same one that produced 5G NR: SA1 service requirements, then RAN scenario/requirement studies, then normative Stage-2/Stage-3 specifications. If you understand how 5G's requirements drove its design, you already understand the shape of 6G's process — only the contents are new.</p>
+  <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org — Release 20</a> <span class="src-date">2026-06-15</span></span>
+</div>
+</div>
+
+<!-- TRACKER:vision-requirements -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">ITU-R M.2160-0</span> <span class="clabel clabel-req">requirement</span>
+          <div class="ti-title">Framework and overall objectives of the future development of IMT for 2030 and beyond (IMT-2030)</div>
+          <div class="ti-notes">Defines six usage scenarios and 15 capabilities (≈9 with example numeric targets). Numbers in M.2160 are framework example targets, not minimum requirements.</div>
+          <span class="src"><a href="https://www.itu.int/en/ITU-R/study-groups/rsg5/rwp5d/imt-2030/pages/default.aspx" target="_blank" rel="noopener">itu.int</a> <span class="src-date">2023-11</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-approved">Approved (2023) — the &#39;IMT-2030 Framework&#39;</span><div class="progress-track" title="100% complete"><div class="progress-fill" style="width:100%"></div></div></div>
+      </div>
+      <div class="titem">
+        <div>
+          <span class="ti-id">IMT-2030 minimum technical performance requirements (draft)</span> <span class="clabel clabel-req">requirement</span>
+          <div class="ti-title">IMT-2030 Minimum Technical Performance Requirements &amp; Evaluation Methodology</div>
+          <div class="ti-notes">The binding minimum performance numbers for 6G evaluation. Draft values remain restricted to ITU-R members until approval, so no minimum-requirement numbers are published here.</div>
+          <span class="src"><a href="https://www.itu.int/hub/2026/03/imt-2030-technical-requirements-for-the-6g-future/" target="_blank" rel="noopener">itu.int</a> <span class="src-date">2026-03</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-draft">Draft adopted by WP 5D (Feb 2026); SG5 approval scheduled ~Dec 2026</span><span class="progress-na">no % published</span></div>
+      </div>
+      <div class="titem">
+        <div>
+          <span class="ti-id">TR 22.870</span> <span class="clabel clabel-req">requirement</span>
+          <div class="ti-title">Study on 6G Use Cases and Service Requirements (Stage 1)</div>
+          <div class="ti-notes">Stage-1 study (~590 pages). Broad and exploratory: immersive communication, hyper-reliable low-latency, more massive IoT, ubiquitous connectivity, AI/ML services, and ISAC. Acts as the Stage-1 anchor for Rel-21 normative work.</div>
+          <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/fukuoka-tsg111" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-13</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-approved">Approved — TSG SA#111 (Fukuoka, Mar 2026)</span><div class="progress-track" title="100% complete"><div class="progress-fill" style="width:100%"></div></div></div>
+      </div>
+      <div class="titem">
+        <div>
+          <span class="ti-id">TR 38.914</span> <span class="clabel clabel-req">requirement</span>
+          <div class="ti-title">Study on 6G Scenarios and Requirements</div>
+          <div class="ti-notes">High-level scenarios and requirements for 6G Radio; guides 3GPP RAN working groups and is an initial input to ITU-R IMT-2030. Covers deployment scenarios (dense urban, industrial, high mobility, NTN), KPIs, spectrum, device types and 5G-to-6G migration.</div>
+          <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/ran-6g-study1" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-03-01</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-progress">~60% complete (Mar 2026); approval targeted ~Jun 2026</span><div class="progress-track" title="60% complete"><div class="progress-fill" style="width:60%"></div></div></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:vision-requirements -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  These requirements set the bar that every other 6G topic must clear. The capability targets drive the <a href="radio-physical-layer.html" style="color:var(--blue);">radio physical layer</a> and the <a href="spectrum.html" style="color:var(--blue);">spectrum</a> choices; the new usage scenarios are why <a href="ai-native-air-interface.html" style="color:var(--blue);">AI-native</a>, <a href="isac.html" style="color:var(--blue);">sensing</a> and <a href="ntn.html" style="color:var(--blue);">non-terrestrial</a> work exists at all.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">5G's own requirements were expressed the same way — usage scenarios (eMBB/URLLC/mMTC) and KPIs. The cell-search machinery a UE uses to act on them is in the Foundations course.</span>
+  <a class="fb-link" href="../module2/2-1-gscn.html">5G cell search →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="../tracker/index.html"><span class="pn-label">← Back</span><span class="pn-title">6G Tracker</span></a>
+  <a href="radio-physical-layer.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">6G Radio (6GR) Physical Layer</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('vision-requirements.html');
+
+// ── Usage-scenario wheel ──────────────────────────────────────────────
+(function(){
+  const cv = document.getElementById('scenarios'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, cx = W/2, cy = H/2;
+  const scen = [
+    { name:'Immersive\\nCommunication', col:'#5b9cf6', kind:'extends 5G eMBB', desc:'Immersive XR, holographic and multi-sensory media. Extends 5G enhanced mobile broadband.' },
+    { name:'Massive\\nCommunication', col:'#2dd4aa', kind:'extends 5G mMTC', desc:'Even denser device populations than 5G massive machine-type communication — sensors, tags, ambient IoT.' },
+    { name:'HRLLC', col:'#f5a623', kind:'extends 5G URLLC', desc:'Hyper Reliable & Low-Latency Communication — tighter reliability and latency than 5G URLLC for industrial and safety use.' },
+    { name:'Ubiquitous\\nConnectivity', col:'#a78bfa', kind:'NEW in 6G', desc:'Coverage everywhere, including via non-terrestrial networks. A new headline scenario for 6G.' },
+    { name:'AI &\\nCommunication', col:'#f06b6b', kind:'NEW in 6G', desc:'The network as a distributed compute and AI fabric — joint communication and AI/ML processing. New in 6G.' },
+    { name:'Integrated Sensing\\n& Communication', col:'#4ade80', kind:'NEW in 6G', desc:'ISAC — the radio senses its environment (range, velocity, presence) while it communicates. New in 6G.' }
+  ];
+  const R = 150, n = scen.length;
+  let active = -1;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<n;i++){
+      const a0 = (i/n)*Math.PI*2 - Math.PI/2 - Math.PI/n;
+      const a1 = a0 + (Math.PI*2/n);
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,R,a0,a1); ctx.closePath();
+      ctx.fillStyle = (i===active)? scen[i].col : scen[i].col+'33';
+      ctx.fill();
+      ctx.strokeStyle='#040610'; ctx.lineWidth=3; ctx.stroke();
+      // label
+      const am = (a0+a1)/2, lr = R+44;
+      ctx.fillStyle = (i===active)? scen[i].col : '#8fa8c8';
+      ctx.font = '12px DM Sans'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      const lines = scen[i].name.split('\\n');
+      lines.forEach((ln,k)=> ctx.fillText(ln, cx+Math.cos(am)*lr, cy+Math.sin(am)*lr + (k-(lines.length-1)/2)*15));
+    }
+    ctx.beginPath(); ctx.arc(cx,cy,52,0,Math.PI*2); ctx.fillStyle='#0d0f1c'; ctx.fill();
+    ctx.strokeStyle='#1d2440'; ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle='#dde1f0'; ctx.font='bold 15px Fraunces, serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('IMT-2030', cx, cy-8); ctx.fillStyle='#616994'; ctx.font='10px IBM Plex Mono';
+    ctx.fillText('6 scenarios', cx, cy+10);
+  }
+  cv.addEventListener('click', e=>{
+    const r = cv.getBoundingClientRect();
+    const x = (e.clientX-r.left)*(W/r.width)-cx, y=(e.clientY-r.top)*(H/r.height)-cy;
+    if(Math.hypot(x,y)>R) { active=-1; document.getElementById('scenario-info').textContent='Click a wedge to read what the scenario means.'; draw(); return; }
+    let ang = Math.atan2(y,x)+Math.PI/2+Math.PI/n;
+    if(ang<0) ang+=Math.PI*2; if(ang>=Math.PI*2) ang-=Math.PI*2;
+    active = Math.floor(ang/(Math.PI*2/n))%n;
+    const s = scen[active];
+    document.getElementById('scenario-info').innerHTML =
+      '<strong style="color:'+s.col+'">'+s.name.replace(/\\n/g,' ')+'</strong> &nbsp;<span class="clabel '+(s.kind.indexOf('NEW')>=0?'clabel-cand':'clabel-found')+'" style="font-size:9px;">'+s.kind+'</span><br>'+s.desc;
+    draw();
+  });
+  draw();
+})();
+
+// ── KPI headroom chart ────────────────────────────────────────────────
+(function(){
+  const cv = document.getElementById('kpis'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  // [name, 5G baseline label, 6G low, 6G high, unit, ratioLow, ratioHigh]
+  const k = [
+    { name:'Peak data rate',    g5:'20 Gbit/s',   lo:'50 Gbit/s', hi:'200 Gbit/s', rl:2.5, rh:10 },
+    { name:'User-exp. rate',    g5:'100 Mbit/s',  lo:'300 Mbit/s',hi:'500 Mbit/s', rl:3,   rh:5 },
+    { name:'Area capacity',     g5:'10 Mbit/s/m²',lo:'30',        hi:'50 Mbit/s/m²',rl:3,  rh:5 },
+    { name:'Connection density',g5:'1e6 /km²',    lo:'1e6',       hi:'1e8 /km²',   rl:1,   rh:100 },
+    { name:'Mobility',          g5:'500 km/h',    lo:'500',       hi:'1000 km/h',  rl:1,   rh:2 },
+    { name:'Spectral eff.',     g5:'1× (IMT-2020)',lo:'1.5×',     hi:'3×',         rl:1.5, rh:3 },
+    { name:'Latency (lower=better)', g5:'1 ms',   lo:'1 ms',      hi:'0.1 ms',     rl:1,   rh:10 }
+  ];
+  let mode = 'low';
+  window.setAmbition = function(m){
+    mode = m;
+    document.getElementById('btn-cons').style.cssText = m==='low'
+      ? 'background:var(--blue-l);border:1px solid var(--blue);color:var(--blue);padding:5px 14px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;'
+      : 'background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;';
+    document.getElementById('btn-amb').style.cssText = m==='high'
+      ? 'background:var(--blue-l);border:1px solid var(--blue);color:var(--blue);padding:5px 14px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;'
+      : 'background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:5px 14px;border-radius:5px;font-family:var(--mono);font-size:12px;cursor:pointer;';
+    draw();
+  };
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const padL=160, padR=120, top=18, rowH=(H-top-14)/k.length, maxR=10, axW=W-padL-padR;
+    const scale = v => Math.min(1, Math.log10(v*9+1)/Math.log10(maxR*9+1)); // log-ish so 100× still fits
+    for(let i=0;i<k.length;i++){
+      const y = top + i*rowH + rowH/2;
+      ctx.fillStyle='#8fa8c8'; ctx.font='12px DM Sans'; ctx.textAlign='right'; ctx.textBaseline='middle';
+      ctx.fillText(k[i].name, padL-12, y);
+      const ratio = mode==='low'? k[i].rl : k[i].rh;
+      const w = Math.max(3, scale(ratio)*axW);
+      // baseline tick at 1x
+      const x1 = padL + scale(1)*axW;
+      ctx.strokeStyle='#2a2f52'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(x1,y-rowH/2+6); ctx.lineTo(x1,y+rowH/2-6); ctx.stroke();
+      ctx.fillStyle='rgba(91,156,246,0.85)';
+      roundRect(ctx, padL, y-9, w, 18, 4); ctx.fill();
+      ctx.fillStyle='#0b0c12'; ctx.font='bold 11px IBM Plex Mono'; ctx.textAlign='left';
+      ctx.fillText((ratio===1?'≈1':ratio+'×'), padL+8, y);
+      const v6 = mode==='low'? k[i].lo : k[i].hi;
+      ctx.fillStyle='#616994'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='left';
+      ctx.fillText('5G '+k[i].g5+'  →  6G '+v6, padL+w+10, y);
+    }
+    ctx.fillStyle='#2a3a5a'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='left';
+    ctx.fillText('bar = 6G example target ÷ 5G baseline (log-scaled)', padL, H-2);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

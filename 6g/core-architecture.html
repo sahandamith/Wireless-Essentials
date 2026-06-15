@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6G Core &amp; Architecture — service-based, intent-driven, AI-native | ranbits</title>
+<meta name="description" content="The 6G core network from first principles: a service-based architecture extended toward intent-driven operation and an AI-native control plane, with terrestrial/NTN convergence. What 5G established, and what 3GPP's 6G architecture study is exploring. Labelled and sourced.">
+<meta name="keywords" content="6G core, 6G architecture, service-based architecture, SBA, intent-driven network, AI-native core, TR 23.801, SA2, network functions, 6G system architecture">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/core-architecture.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="6G Core &amp; Architecture — service-based, intent-driven, AI-native">
+<meta property="og:description" content="The 6G core: service-based, intent-driven, AI-native, with terrestrial/NTN convergence. What's established vs under study, sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/core-architecture.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="6G Core & Architecture">
+<meta name="twitter:description" content="Service-based, intent-driven, AI-native 6G core — sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "6G Core & Architecture",
+  "description": "First-principles guide to the 6G core: service-based architecture, intent-driven operation, AI-native control plane and NTN convergence.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/core-architecture.html",
+  "about": ["6G core", "service-based architecture", "intent-driven", "AI-native", "TR 23.801"]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Core &amp; Architecture</div>
+  <div class="module-tag" style="background:var(--blue-l);border:1px solid rgba(91,156,246,0.25);color:var(--blue);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block;"></span>
+    6G Topic 08 — Core &amp; Architecture
+  </div>
+  <h1>The 6G <em>core</em></h1>
+  <p class="hero-lead">
+    The radio gets the attention, but the core network is where a generation's "intelligence" actually lives — authentication, mobility, sessions, policy. 5G already rebuilt the core as cloud-native software services. 6G's architecture study asks the next question: can the core be driven by <em>intent</em> and run an <em>AI-native</em> control plane, while folding satellites into the same fabric?
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">6G architecture study (SA2)</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> The 6G architecture study is underway in 3GPP SA2. Everything 6G-specific here is a candidate direction; the service-based foundation is established 5G.
+</div>
+
+<h2>Foundation: the core is already software services</h2>
+<p>
+  5G replaced the rigid, box-per-function core of earlier generations with a <strong>Service-Based Architecture (SBA)</strong>: each network function (authentication, session management, mobility, policy) is a software service exposing an API over a shared bus, so functions can be deployed, scaled and updated independently in the cloud. This is the platform 6G builds on — and it means much of "6G core" is evolution, not revolution.
+</p>
+</div>
+
+<div class="diagram-section reveal">
+  <div class="ds-header"><span class="ds-title">Service-based core — established in 5G, evolving in 6G</span><span class="ds-ref">conceptual</span></div>
+  <div class="ds-body">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-family:var(--mono);font-size:12px;color:var(--blue);">AMF</div><div style="font-size:10px;color:var(--muted);">mobility</div></div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-family:var(--mono);font-size:12px;color:var(--blue);">SMF</div><div style="font-size:10px;color:var(--muted);">sessions</div></div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-family:var(--mono);font-size:12px;color:var(--blue);">AUSF</div><div style="font-size:10px;color:var(--muted);">auth</div></div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-family:var(--mono);font-size:12px;color:var(--blue);">PCF</div><div style="font-size:10px;color:var(--muted);">policy</div></div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;text-align:center;"><div style="font-family:var(--mono);font-size:12px;color:var(--blue);">UDM</div><div style="font-size:10px;color:var(--muted);">data</div></div>
+        <div style="background:var(--purple-l);border:1px dashed var(--purple);border-radius:7px;padding:12px;text-align:center;"><div style="font-family:var(--mono);font-size:12px;color:var(--purple);">AI-NF?</div><div style="font-size:10px;color:var(--muted);">6G candidate</div></div>
+      </div>
+      <div style="background:linear-gradient(90deg,var(--teal-l),var(--blue-l));border:1px solid var(--border);border-radius:7px;padding:10px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--teal);">Service-Based Interface (API bus) — functions call each other as services</div>
+    </div>
+    <div class="note-box" style="margin-top:14px;">Solid boxes are established 5G network functions on the service bus. The dashed box hints at the 6G candidate direction — an AI-native function/control plane — which is under study, not defined.</div>
+  </div>
+</div>
+
+<div class="prose">
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">Service-Based Architecture is 5G, and it works</span></div>
+  <p>The cloud-native, API-driven core with independent network functions is established 5G technology. 6G inherits it wholesale — the question is what to add, not whether to keep it.</p>
+  <span class="src"><a href="https://www.3gpp.org/specifications-technologies/releases/release-20" target="_blank" rel="noopener">3gpp.org</a> <span class="src-date">2026-06-15</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">3GPP is studying a 6G system architecture (SA2)</span></div>
+  <p>A 6G system architecture study is underway in SA2, exploring a service-based, intent-driven core, an AI-native control plane, and terrestrial/NTN convergence ("system of systems"). The document identifier reported by secondary catalogs is TR 23.801; treat it as indicative until confirmed on the 3GPP portal.</p>
+  <span class="src"><a href="https://wirelessbrew.com/6g/6G-Study-Items-Rel-20/" target="_blank" rel="noopener">wirelessbrew.com</a> <span class="src-date">2026-03</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<h2>What "intent-driven" and "AI-native" actually mean</h2>
+<p>
+  <strong>Intent-driven</strong>: instead of configuring thousands of parameters, an operator states an outcome ("guarantee 10 ms for this factory slice") and the network plans and enforces it. <strong>AI-native</strong>: machine learning is a first-class architectural element — for operations, optimisation, and the AI-as-a-service that the "AI &amp; Communication" scenario implies — rather than bolted on afterwards. Both are genuine candidate directions with momentum, and neither is a finished 6G specification.
+</p>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Intent-driven, AI-native operation are directions, not specs</span></div>
+  <p>These concepts shape the architecture debate and appear across vendor and study material, but the normative design lands in Release 21. Present them as where 6G is heading, clearly distinct from what is decided.</p>
+  <span class="src"><a href="https://www.qualcomm.com/news/onq/2025/06/3gpp-release-20-completing-5g-advanced-evolution-preparing-for-global-6g-standardization" target="_blank" rel="noopener">qualcomm.com</a> <span class="src-date">2025-06</span> <span class="src-tier">secondary</span></span>
+</div>
+</div>
+
+<!-- TRACKER:core-architecture -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">TR 23.801</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">Study on Architecture for the 6G System</div>
+          <div class="ti-notes">Investigates the 6G system architecture: a service-based, intent-driven core, an AI-native control plane and NTN/terrestrial convergence. Document number per secondary catalog; treat as indicative until confirmed on the 3GPP portal.</div>
+          <span class="src"><a href="https://wirelessbrew.com/6g/6G-Study-Items-Rel-20/" target="_blank" rel="noopener">wirelessbrew.com</a> <span class="src-date">2026-03</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Architecture study underway in SA2</span><span class="progress-na">no % published</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:core-architecture -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  The core makes <a href="ntn.html" style="color:var(--blue);">NTN convergence</a> seamless, hosts the <a href="ai-native-air-interface.html" style="color:var(--blue);">AI</a> functions, and enforces the slices that meet the <a href="vision-requirements.html" style="color:var(--blue);">requirement</a> targets. It is also where most <a href="security.html" style="color:var(--blue);">security</a> lives.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">Before the new ideas, understand what the core does for one UE — RRC connection setup and the protocol stack are in the Foundations course.</span>
+  <a class="fb-link" href="../module7/7-1-rrc-states.html">5G RRC connection →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="ntn.html"><span class="pn-label">← Previous</span><span class="pn-title">Non-Terrestrial Networks</span></a>
+  <a href="security.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Security &amp; Quantum-Era</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>buildSidebar('core-architecture.html');</script>
+</body>
+</html>

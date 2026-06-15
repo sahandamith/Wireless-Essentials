@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6G Spectrum — upper mid-band (FR3), cmWave, sub-THz, WRC-27 | ranbits</title>
+<meta name="description" content="Where 6G will live in the radio spectrum, from first principles: the upper mid-band (FR3, 7.125–24.25 GHz) and cmWave (7–15 GHz), sub-THz (100–300 GHz), and the WRC-27 candidate bands. The coverage-vs-bandwidth trade-off, labelled and sourced.">
+<meta name="keywords" content="6G spectrum, upper mid-band, FR3, cmWave, 7-15 GHz, sub-THz, 100-300 GHz, WRC-27, IMT bands, 6G frequency, propagation">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/spectrum.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="6G Spectrum — upper mid-band, cmWave, sub-THz, WRC-27">
+<meta property="og:description" content="Where 6G will live: FR3 upper mid-band, cmWave, sub-THz and WRC-27 candidates. The coverage-vs-bandwidth trade-off, sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/spectrum.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="6G Spectrum">
+<meta name="twitter:description" content="FR3 upper mid-band, cmWave, sub-THz and WRC-27 candidate bands — sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "6G Spectrum — upper mid-band, cmWave and sub-THz",
+  "description": "First-principles guide to 6G spectrum: the upper mid-band (FR3), cmWave, sub-THz and the WRC-27 candidate bands, framed around the coverage-vs-bandwidth trade-off.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/spectrum.html",
+  "about": ["6G spectrum", "FR3", "cmWave", "sub-THz", "WRC-27"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What frequencies will 6G use?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No 6G bands are standardized yet. The leading candidate for initial 6G is the upper mid-band / cmWave (roughly 7–15 GHz within FR3, 7.125–24.25 GHz), which balances coverage and bandwidth. Sub-THz (100–300 GHz) is widely framed as a later-phase target. New IMT/6G bands are under study for WRC-27." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is FR3?",
+      "acceptedAnswer": { "@type": "Answer", "text": "FR3, the upper mid-band, refers to roughly 7.125–24.25 GHz. It sits between 5G's FR1 (sub-7 GHz, good coverage) and FR2 (mmWave, large bandwidth but fragile), and is attractive for 6G because it offers multi-gigabit capacity with more usable coverage than mmWave." }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Spectrum</div>
+  <div class="module-tag" style="background:var(--amber-l);border:1px solid rgba(245,166,35,0.25);color:var(--amber);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;"></span>
+    6G Topic 03 — Spectrum
+  </div>
+  <h1>Where 6G will <em>live</em></h1>
+  <p class="hero-lead">
+    Spectrum is the one 6G ingredient that cannot be invented — it has to be found, cleared and shared globally. The whole debate reduces to one trade-off you can feel intuitively: lower frequencies travel far but carry little; higher frequencies carry a lot but barely reach. 6G's answer is to lean on a new "sweet spot" band while keeping the extremes for special jobs.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">FR3 / upper mid-band</span>
+    <span class="spec-pill">WRC-27</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> No 6G bands are standardized. Band ranges below are candidates under study (3GPP/regional) or items on the ITU-R WRC-27 agenda — not allocations you can deploy on today.
+</div>
+
+<h2>Foundation: the coverage–bandwidth trade-off</h2>
+<p>
+  Two pieces of physics govern everything. First, free-space path loss grows with the square of frequency — double the frequency and, all else equal, you lose ~6 dB, so high bands cover less area. Second, the absolute bandwidth available tends to grow with frequency — there is simply more room up high — and data rate scales with bandwidth. You cannot have maximum coverage and maximum capacity from the same band; you choose where on the curve to sit.
+</p>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">Coverage falls and bandwidth rises with frequency</span></div>
+  <p>This is the same physics that gave 5G its FR1 (sub-7 GHz: wide coverage, modest bandwidth) and FR2 (mmWave: huge bandwidth, short, fragile links). 6G inherits the trade-off unchanged — only the chosen operating points are new.</p>
+  <span class="src"><a href="https://www.ericsson.com/en/6g/spectrum" target="_blank" rel="noopener">ericsson.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+</div>
+
+</div><!-- prose -->
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — the 6G spectrum landscape</span>
+    <span class="ds-ref">hover/click a band · log frequency axis</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="spectrum" width="920" height="300" style="width:100%;background:#040610;border-radius:6px;cursor:pointer;"></canvas>
+    <div id="band-info" style="margin-top:14px;font-size:13.5px;color:var(--text2);line-height:1.6;min-height:46px;">Click a band to read its role in 6G, its status, and the source.</div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>The upper mid-band — 6G's centre of gravity</h2>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">cmWave (7–15 GHz) within FR3 is the leading initial-6G band</span></div>
+  <p>The upper mid-band, informally FR3 (≈7.125–24.25 GHz in 3GPP), and especially the cmWave range 7–15 GHz, is widely seen as the leading candidate for initial 6G deployments: enough new bandwidth for multi-gigabit capacity, without the severe propagation fragility of mmWave. It is the band most studies expect 6G to "live" in first.</p>
+  <span class="src"><a href="https://www.nokia.com/6g/6g-mid-band-spectrum-technology-explained/" target="_blank" rel="noopener">nokia.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">WRC-27 is studying specific new IMT/6G bands</span></div>
+  <p>Following WRC-23 (Resolution 256), WRC-27 agenda item 1.2 studies new IMT bands including ranges around <strong>4.4–4.8 GHz, 7.125–8.4 GHz and 14.8–15.35 GHz</strong>, with regional candidates such as 6.425–7.125 GHz and 10–10.5 GHz. These studies — not 3GPP — decide what spectrum is legally available; 6G band specs follow the WRC outcome.</p>
+  <span class="src"><a href="https://www.ericsson.com/en/6g/spectrum" target="_blank" rel="noopener">ericsson.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Sub-THz (100–300 GHz) is a later-phase target</span></div>
+  <p>Sub-THz bands offer enormous bandwidth — attractive for short-range, fixed, or sensing-heavy use — but propagation, hardware and power challenges put mass deployment well after 2030, often framed around 2035+. Treat sub-THz as a research/early-phase candidate, not part of first-wave 6G.</p>
+  <span class="src"><a href="https://arxiv.org/pdf/2406.18391" target="_blank" rel="noopener">arxiv.org</a> <span class="src-date">2024-06</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<h2>Why not just use mmWave again?</h2>
+<p>
+  5G already opened mmWave (FR2). 6G's interest in 7–15 GHz is a direct response to what operators learned: mmWave's bandwidth is real but its coverage economics are punishing — many small cells, line-of-sight sensitivity, indoor penetration problems. The upper mid-band keeps a large slice of the capacity while restoring enough range to reuse existing macro grids. It is, deliberately, a compromise band.
+</p>
+</div>
+
+<!-- TRACKER:spectrum -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">FR3 / upper mid-band</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">Upper mid-band (FR3, 7.125–24.25 GHz) and cmWave (7–15 GHz)</div>
+          <div class="ti-notes">The 7–15 GHz cmWave range within FR3 is widely seen as the leading candidate for initial 6G coverage-plus-capacity deployments, complementing FR1 (coverage) and FR2 (bandwidth).</div>
+          <span class="src"><a href="https://www.nokia.com/6g/6g-mid-band-spectrum-technology-explained/" target="_blank" rel="noopener">nokia.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Leading initial-6G band under study</span><span class="progress-na">no % published</span></div>
+      </div>
+      <div class="titem">
+        <div>
+          <span class="ti-id">WRC-27 AI 1.2 / Res. 256</span> <span class="clabel clabel-req">requirement</span>
+          <div class="ti-title">WRC-27 IMT/6G spectrum studies</div>
+          <div class="ti-notes">WRC-23 (Resolution 256) set WRC-27 agenda item 1.2 to study new IMT bands including ranges around 4.4–4.8 GHz, 7.125–8.4 GHz and 14.8–15.35 GHz, with regional candidates such as 6.425–7.125 GHz and 10–10.5 GHz.</div>
+          <span class="src"><a href="https://www.ericsson.com/en/6g/spectrum" target="_blank" rel="noopener">ericsson.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Under study for WRC-27</span><span class="progress-na">no % published</span></div>
+      </div>
+      <div class="titem">
+        <div>
+          <span class="ti-id">Sub-THz (100–300 GHz)</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">Sub-THz spectrum (100–300 GHz)</div>
+          <div class="ti-notes">Sub-THz bands offer very large bandwidth but severe propagation limits; widely framed as a later-phase 6G target (closer to 2035+) rather than initial 2030 deployment.</div>
+          <span class="src"><a href="https://arxiv.org/pdf/2406.18391" target="_blank" rel="noopener">arxiv.org</a> <span class="src-date">2024-06</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Later-phase 6G candidate</span><span class="progress-na">no % published</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:spectrum -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  Spectrum and the <a href="radio-physical-layer.html" style="color:var(--blue);">physical layer</a> are inseparable: wider bandwidth at higher frequency is exactly why 6G studies wider-bandwidth numerologies. The bands you pick also shape <a href="ris.html" style="color:var(--blue);">RIS</a> (which helps where high-band links are blocked) and <a href="isac.html" style="color:var(--blue);">sensing</a> (which loves the wide bandwidth up high).
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">5G's frequency rasters and band machinery (how a UE even knows which frequency to search) are the concrete groundwork — see GSCN in the Foundations course.</span>
+  <a class="fb-link" href="../module2/2-1-gscn.html">5G GSCN &amp; raster →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="radio-physical-layer.html"><span class="pn-label">← Previous</span><span class="pn-title">6G Radio (6GR) Physical Layer</span></a>
+  <a href="ai-native-air-interface.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">AI/ML-Native Air Interface</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('spectrum.html');
+
+(function(){
+  const cv = document.getElementById('spectrum'), ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height, padL=20, padR=20, axW=W-padL-padR;
+  const fmin=0.6, fmax=300; // GHz, log scale
+  const lx = f => padL + (Math.log10(f)-Math.log10(fmin))/(Math.log10(fmax)-Math.log10(fmin))*axW;
+  // bands: [label, f0, f1, color, label class, info]
+  const bands = [
+    { n:'FR1 (5G)', a:0.6, b:7.125, c:'#2dd4aa', cls:'found', y:150, info:'5G sub-7 GHz: best coverage, modest bandwidth. The 6G coverage layer. <span class="clabel clabel-found" style="font-size:9px;">foundation</span>' },
+    { n:'Upper mid-band / cmWave', a:7, b:15, c:'#5b9cf6', cls:'cand', y:96, info:'≈7–15 GHz (within FR3 7.125–24.25 GHz). Leading candidate for initial 6G — coverage + multi-gigabit capacity. <span class="clabel clabel-cand" style="font-size:9px;">candidate</span> &nbsp;source: nokia.com 2026-01' },
+    { n:'FR3 upper', a:15, b:24.25, c:'#5b9cf6', cls:'cand', y:150, info:'Upper part of FR3 (to 24.25 GHz). Under study for 6G capacity. <span class="clabel clabel-cand" style="font-size:9px;">candidate</span>' },
+    { n:'FR2 (5G mmWave)', a:24.25, b:71, c:'#f5a623', cls:'cand', y:96, info:'5G mmWave: huge bandwidth, fragile links. 6G reuses lessons rather than leading here. <span class="clabel clabel-found" style="font-size:9px;">foundation</span>' },
+    { n:'sub-THz', a:100, b:300, c:'#f06b6b', cls:'cand', y:150, info:'100–300 GHz: enormous bandwidth, later-phase 6G (~2035+). <span class="clabel clabel-cand" style="font-size:9px;">candidate</span> &nbsp;source: arxiv 2024-06' }
+  ];
+  // WRC-27 markers
+  const wrc = [ [4.4,4.8],[7.125,8.4],[14.8,15.35],[10,10.5] ];
+  let active=-1;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // axis
+    ctx.strokeStyle='#1d2440'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(padL,210); ctx.lineTo(W-padR,210); ctx.stroke();
+    [1,3,7,15,30,100,300].forEach(f=>{
+      const x=lx(f); ctx.strokeStyle='#12152a'; ctx.beginPath(); ctx.moveTo(x,40); ctx.lineTo(x,210); ctx.stroke();
+      ctx.fillStyle='#2a3a5a'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='center'; ctx.fillText(f+'G', x, 226);
+    });
+    ctx.fillStyle='#616994'; ctx.textAlign='left'; ctx.font='10px IBM Plex Mono'; ctx.fillText('frequency (GHz, log)', padL, 244);
+    // WRC-27 candidate ranges
+    wrc.forEach(([a,b])=>{ const x0=lx(a),x1=lx(b); ctx.fillStyle='rgba(167,139,250,0.18)'; ctx.fillRect(x0,40,x1-x0,170); });
+    ctx.fillStyle='#a78bfa'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='left'; ctx.fillText('▰ WRC-27 study ranges', padL, 36);
+    // bands
+    bands.forEach((bd,i)=>{
+      const x0=lx(bd.a), x1=lx(bd.b);
+      ctx.fillStyle = i===active? bd.c : bd.c+'66';
+      roundRect(ctx, x0, bd.y, Math.max(6,x1-x0), 36, 5); ctx.fill();
+      ctx.fillStyle= i===active? '#0b0c12':'#cdd3ec'; ctx.font='11px DM Sans'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      if(x1-x0>70) ctx.fillText(bd.n, (x0+x1)/2, bd.y+18);
+    });
+  }
+  cv.addEventListener('click', e=>{
+    const r=cv.getBoundingClientRect(); const x=(e.clientX-r.left)*(W/r.width), y=(e.clientY-r.top)*(H/r.height);
+    active=-1;
+    bands.forEach((bd,i)=>{ if(x>=lx(bd.a)&&x<=lx(bd.b)&&y>=bd.y&&y<=bd.y+36) active=i; });
+    document.getElementById('band-info').innerHTML = active>=0
+      ? '<strong style="color:'+bands[active].c+'">'+bands[active].n+'</strong> &nbsp;'+bands[active].a+'–'+bands[active].b+' GHz<br>'+bands[active].info
+      : 'Click a band to read its role in 6G, its status, and the source.';
+    draw();
+  });
+  draw();
+})();
+</script>
+</body>
+</html>

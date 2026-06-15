@@ -3,48 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>5G NR From Scratch — Complete 5G Cellular Guide with 3GPP References</title>
-<meta name="description" content="Learn 5G NR from first principles. Every concept explained with exact 3GPP specification references, real numerical examples, and interactive diagrams. Cell search, RACH, HARQ, beamforming, and more — all 10 modules free.">
-<meta name="keywords" content="5G NR tutorial, 5G NR explained, 3GPP 5G guide, learn 5G NR, PDCCH 5G, cell search 5G, RACH 5G NR, beamforming 5G">
+
+<title>ranbits — Learn 6G from first principles | Tracking 3GPP as it's standardized</title>
+<meta name="description" content="A spec-grounded, honest 6G resource. Learn 6G from first principles and track 3GPP Release 21 as it is standardized — every claim labelled a decided requirement, a candidate under study, or a 5G foundation, with sources. Plus the complete 5G NR course as Foundations.">
+<meta name="keywords" content="3GPP 6G, 6G Release 21, 6G radio, 6GR, 6G physical layer, TR 38.914, TR 22.870, IMT-2030, 6G spectrum, FR3, sub-THz, AI-native air interface, ISAC, RIS, 6G tracker, 5G NR">
+<meta name="author" content="ranbits.com">
 <meta name="robots" content="index, follow">
-<meta name="author" content="5G NR From Scratch">
 <link rel="canonical" href="https://ranbits.com/">
+
 <meta property="og:type" content="website">
-<meta property="og:title" content="5G NR From Scratch — Complete Cellular Guide">
-<meta property="og:description" content="Learn 5G NR from first principles with exact 3GPP references and interactive diagrams. Free, complete, spec-accurate.">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="Learn 6G from first principles — tracking 3GPP as it's standardized">
+<meta property="og:description" content="The spec-grounded, honest 6G resource. Decided vs under study, every claim sourced. Live 3GPP 6G / Release 21 tracker, plus the full 5G NR foundations course.">
 <meta property="og:url" content="https://ranbits.com/">
-<meta property="og:site_name" content="5G NR From Scratch">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="5G NR From Scratch — Complete Cellular Guide">
-<meta name="twitter:description" content="Learn 5G NR from first principles with exact 3GPP references. Free, complete, 33 pages.">
+<meta name="twitter:title" content="Learn 6G from first principles — tracking 3GPP">
+<meta name="twitter:description" content="Spec-grounded 6G. Decided vs under study, every claim sourced. Live 3GPP Release 21 tracker.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
 <link rel="stylesheet" href="css/main.css">
-<style>
-/* Index-specific: no sidebar */
-body { margin: 0; }
 
-/* Mobile top bar for index */
-.index-topbar {
-  display: none;
-  position: sticky;
-  top: 0;
-  background: rgba(255,255,255,0.96);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 20px;
-  z-index: 100;
-  align-items: center;
-  justify-content: space-between;
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "Organization", "@id": "https://ranbits.com/#org", "name": "ranbits", "url": "https://ranbits.com/", "description": "A spec-grounded resource for learning 6G from first principles and tracking 3GPP standardization." },
+    { "@type": "WebSite", "@id": "https://ranbits.com/#website", "url": "https://ranbits.com/", "name": "ranbits — Learn 6G from first principles", "publisher": { "@id": "https://ranbits.com/#org" }, "inLanguage": "en" }
+  ]
 }
-.index-topbar .logo { font-family: var(--serif); font-size: 16px; font-weight: 700; color: var(--text); text-decoration: none; }
-.index-topbar .cta { font-family: var(--mono); font-size: 12px; color: var(--blue); text-decoration: none; background: var(--blue-l); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--blue-m); }
+</script>
 
+<style>
+body { margin: 0; }
+.index-topbar { display: none; position: sticky; top: 0; background: rgba(255,255,255,0.96); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 14px 20px; z-index: 100; align-items: center; justify-content: space-between; }
+.index-topbar .logo { font-family: var(--serif); font-size: 16px; font-weight: 700; color: var(--text); text-decoration: none; }
+.index-topbar .logo span { color: var(--blue); }
+.index-topbar .cta { font-family: var(--mono); font-size: 12px; color: var(--blue); text-decoration: none; background: var(--blue-l); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--blue-m); }
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.start-btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); }
+.start-btn.ghost:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-l); }
+.foundations-cta { display: block; text-decoration: none; background: var(--teal-l); border: 1px solid var(--teal-m); border-radius: 10px; padding: 18px 20px; margin-top: 10px; transition: background 0.15s; }
+.foundations-cta:hover { background: var(--bg2); }
+.foundations-cta .fc-title { font-family: var(--serif); font-size: 17px; font-weight: 600; color: var(--text); }
+.foundations-cta .fc-desc { font-size: 13px; color: var(--text3); line-height: 1.5; margin-top: 4px; }
+.foundations-cta .fc-link { font-family: var(--mono); font-size: 12px; color: var(--teal); margin-top: 8px; display: inline-block; }
 @media (max-width: 768px) {
   .index-topbar { display: flex; }
   .index-hero { grid-template-columns: 1fr !important; min-height: auto !important; }
   .index-left { padding: 32px 20px 28px !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
   .index-right { padding: 24px 20px !important; min-height: auto !important; }
   .index-left h1 { font-size: 32px !important; }
-  .start-btn { font-size: 14px; padding: 11px 20px; }
 }
 @media (max-width: 480px) {
   .index-left { padding: 24px 16px 24px !important; }
@@ -54,10 +64,9 @@ body { margin: 0; }
 </head>
 <body>
 
-<!-- Mobile topbar (shown only on small screens) -->
 <div class="index-topbar">
-  <a href="index.html" class="logo">5G From Scratch</a>
-  <a href="module1/1-1-ofdm.html" class="cta">Start →</a>
+  <a href="index.html" class="logo">ran<span>bits</span></a>
+  <a href="tracker/index.html" class="cta">● 6G Tracker</a>
 </div>
 
 <div class="index-hero" style="display:grid;grid-template-columns:1fr 1fr;min-height:100vh;">
@@ -66,170 +75,115 @@ body { margin: 0; }
   <div class="index-left" style="padding:72px 64px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--border);">
 
     <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;">
-      Cellular · 3GPP · From First Principles
+      3GPP 6G · IMT-2030 · Release 21
     </div>
 
     <h1 style="font-family:var(--serif);font-size:clamp(32px,4vw,52px);font-weight:700;letter-spacing:-1px;line-height:1.06;margin-bottom:20px;color:var(--text);">
-      Learn 5G NR<br><em style="font-style:italic;font-weight:300;color:var(--blue);">from scratch.</em>
+      Learn <em style="font-style:italic;font-weight:300;color:var(--blue);">6G</em><br>from first principles.
     </h1>
 
-    <p style="font-size:17px;color:var(--text2);line-height:1.65;max-width:460px;margin-bottom:28px;">
-      Every concept explained with exact 3GPP specification references, real numerical examples, and interactive diagrams. No hand-waving — you will be able to derive every number yourself.
+    <p style="font-size:17px;color:var(--text2);line-height:1.65;max-width:480px;margin-bottom:24px;">
+      6G is being written right now — there are no normative specs yet (Release 21, the first, is expected ~2029). This is the resource that teaches what we <strong>do</strong> know, honestly: every claim labelled a <strong>decided requirement</strong>, a <strong>candidate under study</strong>, or a carried-over <strong>5G foundation</strong>, each with a source.
     </p>
 
-    <div class="index-badges" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;">
-      <span class="badge badge-teal">3GPP Release 17</span>
-      <span class="badge badge-blue">33 pages · free</span>
-      <span class="badge badge-amber">TS 38.211 · 38.212 · 38.213</span>
+    <div class="index-badges" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;">
+      <span class="badge badge-blue">3GPP Release 20 / 21</span>
+      <span class="badge badge-teal">ITU-R IMT-2030</span>
+      <span class="badge badge-amber">TR 38.914 · TR 22.870</span>
     </div>
 
-    <a href="module1/1-1-ofdm.html" class="start-btn">Start with Module 1 →</a>
-
-    <div style="margin-top:36px;padding-top:28px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:11px;">
-      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">What makes this different</div>
-      <div style="display:flex;gap:10px;font-size:14px;color:var(--text2);line-height:1.5;align-items:flex-start;">
-        <span style="color:var(--teal);flex-shrink:0;">✓</span>
-        Every claim linked to an exact 3GPP TS section and equation number
-      </div>
-      <div style="display:flex;gap:10px;font-size:14px;color:var(--text2);line-height:1.5;align-items:flex-start;">
-        <span style="color:var(--teal);flex-shrink:0;">✓</span>
-        Worked examples with real numbers — not "e.g." but exact computed values
-      </div>
-      <div style="display:flex;gap:10px;font-size:14px;color:var(--text2);line-height:1.5;align-items:flex-start;">
-        <span style="color:var(--teal);flex-shrink:0;">✓</span>
-        Interactive diagrams — adjust RSRP, watch the S-criterion update live
-      </div>
-      <div style="display:flex;gap:10px;font-size:14px;color:var(--text2);line-height:1.5;align-items:flex-start;">
-        <span style="color:var(--teal);flex-shrink:0;">✓</span>
-        Sequential — each section builds on the previous, no knowledge gaps
-      </div>
+    <div class="btn-row">
+      <a href="6g/vision-requirements.html" class="start-btn">Start with 6G Vision →</a>
+      <a href="tracker/index.html" class="start-btn ghost">See the live tracker</a>
     </div>
 
+    <div style="margin-top:34px;padding-top:26px;border-top:1px solid var(--border);">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">How every claim on this site is labelled</div>
+      <div class="legend" style="margin:0;">
+        <div class="legend-item">
+          <div class="li-head"><span class="clabel clabel-req">requirement</span></div>
+          <div class="li-desc">An agreed use case, scenario or target (ITU-R IMT-2030, TR 22.870, TR 38.914). Sourced and dated.</div>
+        </div>
+        <div class="legend-item">
+          <div class="li-head"><span class="clabel clabel-cand">candidate</span></div>
+          <div class="li-desc">A technology option under study — waveforms, sub-THz, AI-native, RIS, ISAC. Shown neutrally.</div>
+        </div>
+        <div class="legend-item">
+          <div class="li-head"><span class="clabel clabel-found">foundation</span></div>
+          <div class="li-desc">An established 5G fundamental 6G builds on — taught concretely in the Foundations course.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- RIGHT: MODULE LIST -->
+  <!-- RIGHT: TOPIC LIST -->
   <div class="index-right" style="overflow-y:auto;padding:48px 40px;background:var(--bg2);">
-    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">All modules</div>
-    <nav class="module-list" aria-label="Course modules">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;">6G Topics</div>
+    <nav class="module-list" aria-label="6G topics" style="display:flex;flex-direction:column;gap:2px;">
 
-      <a href="module0/0-1-intro.html" class="module-row live">
-        <div class="mr-num">00</div>
-        <div class="mr-content">
-          <div class="mr-title">Introduction &amp; Architecture</div>
-          <div class="mr-topics"><span class="mr-topic">5G NR</span><span class="mr-topic">Architecture</span><span class="mr-topic">FR1/FR2</span></div>
-        </div>
-        <div class="mr-status status-live">● Live</div>
-      </a>
-
-      <a href="module1/1-1-ofdm.html" class="module-row live">
+      <a href="6g/vision-requirements.html" class="module-row live">
         <div class="mr-num">01</div>
-        <div class="mr-content">
-          <div class="mr-title">OFDM &amp; Frame Structure</div>
-          <div class="mr-topics"><span class="mr-topic">OFDM</span><span class="mr-topic">Numerology</span><span class="mr-topic">Resource Grid</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">6G Vision &amp; Requirements</div>
+          <div class="mr-topics"><span class="mr-topic">IMT-2030</span><span class="mr-topic">TR 22.870</span><span class="mr-topic">TR 38.914</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module2/2-1-gscn.html" class="module-row live">
+      <a href="6g/radio-physical-layer.html" class="module-row live">
         <div class="mr-num">02</div>
-        <div class="mr-content">
-          <div class="mr-title">Cell Search &amp; Synchronisation</div>
-          <div class="mr-topics"><span class="mr-topic">GSCN</span><span class="mr-topic">SSB</span><span class="mr-topic">PSS</span><span class="mr-topic">SSS</span><span class="mr-topic">PCI</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">6G Radio (6GR) Physical Layer</div>
+          <div class="mr-topics"><span class="mr-topic">Waveform</span><span class="mr-topic">Numerology</span><span class="mr-topic">Frame</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module3/3-1-pbch.html" class="module-row live">
+      <a href="6g/spectrum.html" class="module-row live">
         <div class="mr-num">03</div>
-        <div class="mr-content">
-          <div class="mr-title">PBCH &amp; MIB</div>
-          <div class="mr-topics"><span class="mr-topic">Polar codes</span><span class="mr-topic">MIB fields</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">6G Spectrum</div>
+          <div class="mr-topics"><span class="mr-topic">Upper mid-band</span><span class="mr-topic">cmWave</span><span class="mr-topic">sub-THz</span><span class="mr-topic">WRC-27</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module4/4-1-coreset.html" class="module-row live">
+      <a href="6g/ai-native-air-interface.html" class="module-row live">
         <div class="mr-num">04</div>
-        <div class="mr-content">
-          <div class="mr-title">CORESET &amp; Search Space</div>
-          <div class="mr-topics"><span class="mr-topic">CORESET#0</span><span class="mr-topic">SS#0</span><span class="mr-topic">Blind decoding</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">AI/ML-Native Air Interface</div>
+          <div class="mr-topics"><span class="mr-topic">CSI</span><span class="mr-topic">Beam mgmt</span><span class="mr-topic">Two-sided models</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module5/5-1-sib1.html" class="module-row live">
+      <a href="6g/isac.html" class="module-row live">
         <div class="mr-num">05</div>
-        <div class="mr-content">
-          <div class="mr-title">SIB1 &amp; Cell Selection</div>
-          <div class="mr-topics"><span class="mr-topic">SIB1</span><span class="mr-topic">S-criterion</span><span class="mr-topic">PLMN</span><span class="mr-topic">UAC</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">Integrated Sensing &amp; Communication</div>
+          <div class="mr-topics"><span class="mr-topic">ISAC</span><span class="mr-topic">Sensing</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module6/6-1-rach-overview.html" class="module-row live">
+      <a href="6g/ris.html" class="module-row live">
         <div class="mr-num">06</div>
-        <div class="mr-content">
-          <div class="mr-title">Random Access (RACH)</div>
-          <div class="mr-topics"><span class="mr-topic">Preamble</span><span class="mr-topic">RAR</span><span class="mr-topic">Msg3/4</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">Reconfigurable Intelligent Surfaces</div>
+          <div class="mr-topics"><span class="mr-topic">RIS</span><span class="mr-topic">Smart radio env</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module7/7-1-rrc-states.html" class="module-row live">
+      <a href="6g/ntn.html" class="module-row live">
         <div class="mr-num">07</div>
-        <div class="mr-content">
-          <div class="mr-title">RRC Connection</div>
-          <div class="mr-topics"><span class="mr-topic">RRC states</span><span class="mr-topic">DRX</span><span class="mr-topic">Measurements</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">Non-Terrestrial Networks</div>
+          <div class="mr-topics"><span class="mr-topic">NTN</span><span class="mr-topic">Ubiquitous connectivity</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module8/8-1-dci.html" class="module-row live">
+      <a href="6g/core-architecture.html" class="module-row live">
         <div class="mr-num">08</div>
-        <div class="mr-content">
-          <div class="mr-title">Scheduling &amp; Data</div>
-          <div class="mr-topics"><span class="mr-topic">DCI</span><span class="mr-topic">PDSCH</span><span class="mr-topic">PUSCH</span><span class="mr-topic">HARQ</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">6G Core &amp; Architecture</div>
+          <div class="mr-topics"><span class="mr-topic">Service-based</span><span class="mr-topic">AI-native</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
-
-      <a href="module9/9-1-mac.html" class="module-row live">
+      <a href="6g/security.html" class="module-row live">
         <div class="mr-num">09</div>
-        <div class="mr-content">
-          <div class="mr-title">Protocol Stack</div>
-          <div class="mr-topics"><span class="mr-topic">MAC</span><span class="mr-topic">RLC</span><span class="mr-topic">PDCP</span><span class="mr-topic">SDAP</span></div>
-        </div>
-        <div class="mr-status status-live">● Live</div>
-      </a>
-
-      <a href="module10/10-1-mimo.html" class="module-row live">
-        <div class="mr-num">10</div>
-        <div class="mr-content">
-          <div class="mr-title">Beamforming &amp; MIMO</div>
-          <div class="mr-topics"><span class="mr-topic">Massive MIMO</span><span class="mr-topic">Beam sweep</span><span class="mr-topic">TCI</span></div>
-        </div>
-        <div class="mr-status status-live">● Live</div>
-      </a>
-
-      <a href="module11/11-1-nas.html" class="module-row live">
-        <div class="mr-num">11</div>
-        <div class="mr-content">
-          <div class="mr-title">NAS &amp; Core Network</div>
-          <div class="mr-topics"><span class="mr-topic">NAS</span><span class="mr-topic">Registration</span><span class="mr-topic">PDU session</span></div>
-        </div>
-        <div class="mr-status status-live">● Live</div>
-      </a>
-
-      <a href="module12/12-1-handover.html" class="module-row live">
-        <div class="mr-num">12</div>
-        <div class="mr-content">
-          <div class="mr-title">Mobility</div>
-          <div class="mr-topics"><span class="mr-topic">Handover</span><span class="mr-topic">TDD formats</span><span class="mr-topic">Carrier aggregation</span></div>
-        </div>
+        <div class="mr-content"><div class="mr-title">Security &amp; Quantum-Era</div>
+          <div class="mr-topics"><span class="mr-topic">Resilience</span><span class="mr-topic">Post-quantum</span></div></div>
         <div class="mr-status status-live">● Live</div>
       </a>
 
     </nav>
+
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:32px 0 14px;">Foundations — 5G NR</div>
+    <a href="module0/0-1-intro.html" class="foundations-cta">
+      <div class="fc-title">The complete 5G NR course</div>
+      <div class="fc-desc">Modules 0–12, all live — cell search, OFDM, RACH, HARQ, beamforming, NAS, mobility. The established basis 6G builds on; each 6G topic links back to it.</div>
+      <span class="fc-link">Start the 5G foundations →</span>
+    </a>
   </div>
 
 </div><!-- index-hero -->

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08090f"/>
+      <stop offset="1" stop-color="#0d0f1c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.8" cy="0.15" r="0.6">
+      <stop offset="0" stop-color="#5b9cf6" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#5b9cf6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <text x="80" y="120" font-family="'IBM Plex Mono', monospace" font-size="22" letter-spacing="4" fill="#616994">3GPP 6G · IMT-2030 · TRACKING THE STANDARD</text>
+  <text x="78" y="270" font-family="Georgia, 'Fraunces', serif" font-size="92" font-weight="700" fill="#eef0f8">Learn <tspan fill="#5b9cf6" font-style="italic" font-weight="300">6G</tspan> from</text>
+  <text x="78" y="370" font-family="Georgia, 'Fraunces', serif" font-size="92" font-weight="700" fill="#eef0f8">first principles.</text>
+  <text x="80" y="450" font-family="'DM Sans', sans-serif" font-size="30" fill="#8fa8c8">The spec-grounded, honest 6G resource — decided vs under study,</text>
+  <text x="80" y="492" font-family="'DM Sans', sans-serif" font-size="30" fill="#8fa8c8">every claim sourced.</text>
+  <g font-family="'IBM Plex Mono', monospace" font-size="22">
+    <rect x="80" y="540" width="180" height="44" rx="6" fill="#0d2045" stroke="#5b9cf6" stroke-opacity="0.3"/>
+    <text x="100" y="568" fill="#5b9cf6">requirement</text>
+    <rect x="280" y="540" width="160" height="44" rx="6" fill="#2d1d04" stroke="#f5a623" stroke-opacity="0.3"/>
+    <text x="300" y="568" fill="#f5a623">candidate</text>
+    <rect x="460" y="540" width="175" height="44" rx="6" fill="#062820" stroke="#2dd4aa" stroke-opacity="0.3"/>
+    <text x="480" y="568" fill="#2dd4aa">foundation</text>
+  </g>
+  <text x="1120" y="585" text-anchor="end" font-family="Georgia, 'Fraunces', serif" font-size="34" font-weight="700" fill="#dde1f0">ranbits.com</text>
+</svg>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reconfigurable Intelligent Surfaces (RIS) for 6G | ranbits</title>
+<meta name="description" content="RIS from first principles: programmable surfaces that reshape the radio environment by steering reflections. How they work, why 6G wants them (especially at high bands), and what 3GPP has actually studied. Labelled and sourced.">
+<meta name="keywords" content="RIS, reconfigurable intelligent surface, intelligent reflecting surface, IRS, smart radio environment, 6G RIS, beam steering, Rel-19 RIS, 3GPP">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/ris.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="Reconfigurable Intelligent Surfaces (RIS) for 6G">
+<meta property="og:description" content="Programmable surfaces that steer reflections to reshape the radio environment. How they work and 6G status, sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/ris.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Reconfigurable Intelligent Surfaces (RIS)">
+<meta name="twitter:description" content="Programmable surfaces that reshape 6G propagation — sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Reconfigurable Intelligent Surfaces (RIS) for 6G",
+  "description": "First-principles guide to RIS: steering reflections to reshape the radio environment, and the 6G study status.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/ris.html",
+  "about": ["RIS", "reconfigurable intelligent surface", "6G", "smart radio environment"]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Reconfigurable Intelligent Surfaces</div>
+  <div class="module-tag" style="background:var(--purple-l);border:1px solid rgba(167,139,250,0.25);color:var(--purple);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--purple);display:inline-block;"></span>
+    6G Topic 06 — RIS
+  </div>
+  <h1>Programming the <em>environment</em></h1>
+  <p class="hero-lead">
+    Every wireless system so far has treated the environment as fixed — walls reflect, corners block, and the radio copes. RIS flips that: a thin surface of hundreds of cheap, tunable elements becomes a mirror you can <em>aim</em>, bending a beam around a blockage toward a user. It is one of 6G's most striking candidate enablers — and still firmly a candidate.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">RIS — studied in Rel-19</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> RIS is a candidate 6G enabler, studied by 3GPP in Release 19. No normative 6G RIS specification exists; deployment economics and control are open questions.
+</div>
+
+<h2>Foundation: a phased array without the radio</h2>
+<p>
+  Recall how a phased array steers a beam: it feeds each antenna element the same signal with a controlled <em>phase shift</em>, so the wavefronts add up in one chosen direction. RIS borrows exactly this idea but for <em>reflection</em>. Each surface element re-radiates the wave that hits it with a tunable phase; choose the phases so the reflected wavefronts combine toward the user, and a dumb wall becomes a steerable relay — with no power amplifier and no baseband, just controllable phase.
+</p>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">Constructive interference steers beams — same physics as MIMO</span></div>
+  <p>RIS is beamforming by controlled phase, the same principle behind massive-MIMO beam steering already in 5G. If you understand why per-element phase shifts point a beam, you understand the core of RIS. The novelty is doing it on a passive reflector, not the antenna.</p>
+  <span class="src"><a href="../module10/10-1-mimo.html">ranbits — Foundations (5G MIMO basics)</a> <span class="src-date">2025</span></span>
+</div>
+
+</div><!-- prose -->
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — steer the reflection</span>
+    <span class="ds-ref">illustrative — move the user</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="ris" width="900" height="300" style="width:100%;background:#040610;border-radius:6px;cursor:pointer;"></canvas>
+    <div class="note-box" style="margin-top:12px;"><strong>Click to move the user.</strong> The direct path from gNB to user is blocked. The RIS retunes its element phases so the reflected beam lands on wherever the user is. Geometry is illustrative, not a coverage prediction.</div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Why 6G is interested</h2>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">RIS targets the high-band coverage problem</span></div>
+  <p>6G's interest in the upper mid-band and sub-THz creates a coverage problem: high-frequency links break on blockage. RIS offers a low-power way to create a controllable secondary path around obstacles, extending coverage without a full relay or base station. That is its main 6G value proposition.</p>
+  <span class="src"><a href="https://www.ericsson.com/en/6g" target="_blank" rel="noopener">ericsson.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">3GPP studied RIS in Release 19; 6G role undecided</span></div>
+  <p>RIS was the subject of 3GPP study in Release 19. Whether and how it becomes a normative 6G feature — control signalling, channel estimation through a passive surface, deployment and ownership models — remains open. Present RIS as promising and unsettled, never as a delivered 6G capability.</p>
+  <span class="src"><a href="https://www.ericsson.com/en/6g" target="_blank" rel="noopener">ericsson.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<h2>The honest caveats</h2>
+<p>
+  RIS demos dazzle, but the hard problems are practical: estimating the channel <em>through</em> a passive surface (it has no receiver to measure with), signalling phase updates fast enough as users move, powering and siting thousands of panels, and proving the cost beats simply adding a small cell. These are why RIS sits in the candidate column, not the requirement column.
+</p>
+</div>
+
+<!-- TRACKER:ris -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">RIS</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">Reconfigurable Intelligent Surfaces</div>
+          <div class="ti-notes">RIS (smart reflecting surfaces to shape propagation) was studied in 3GPP Rel-19 and is a candidate 6G deployment enabler. No normative 6G RIS specification exists.</div>
+          <span class="src"><a href="https://www.ericsson.com/en/6g" target="_blank" rel="noopener">ericsson.com</a> <span class="src-date">2026-01</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Studied in Rel-19; candidate 6G enabler</span><span class="progress-na">no % published</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:ris -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  RIS exists mainly to rescue links in 6G's higher <a href="spectrum.html" style="color:var(--blue);">bands</a>, it is beamforming built on the <a href="radio-physical-layer.html" style="color:var(--blue);">physical layer</a>, and it leans on <a href="ai-native-air-interface.html" style="color:var(--blue);">ML</a> to estimate and control passive-surface channels.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">RIS is phased-array beamforming on a reflector — start from how 5G massive MIMO points beams and the rest follows.</span>
+  <a class="fb-link" href="../module10/10-1-mimo.html">5G MIMO basics →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="isac.html"><span class="pn-label">← Previous</span><span class="pn-title">Integrated Sensing &amp; Communication</span></a>
+  <a href="ntn.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Non-Terrestrial Networks</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('ris.html');
+
+(function(){
+  const cv=document.getElementById('ris'), ctx=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const gnb={x:80,y:230}, ris={x:450,y:50}; let user={x:760,y:230};
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // blockage
+    ctx.fillStyle='#1d2440'; roundRect(ctx,380,150,40,120,4); ctx.fill();
+    ctx.fillStyle='#616994'; ctx.font='10px IBM Plex Mono'; ctx.textAlign='center'; ctx.fillText('blockage',400,285);
+    // direct path (blocked)
+    ctx.strokeStyle='rgba(240,107,107,0.5)'; ctx.setLineDash([5,5]); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(gnb.x,gnb.y); ctx.lineTo(user.x,user.y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#f06b6b'; ctx.fillText('direct path blocked ✕',420,225);
+    // RIS surface
+    ctx.fillStyle='#a78bfa'; for(let i=0;i<14;i++){ ctx.fillRect(ris.x-70+i*10, ris.y-8, 7, 16); }
+    ctx.fillStyle='#a78bfa'; ctx.fillText('RIS',ris.x,ris.y-16);
+    // steered path gNB->RIS->user
+    ctx.strokeStyle='#2dd4aa'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(gnb.x,gnb.y); ctx.lineTo(ris.x,ris.y); ctx.lineTo(user.x,user.y); ctx.stroke();
+    // nodes
+    ctx.fillStyle='#5b9cf6'; roundRect(ctx,gnb.x-14,gnb.y-26,28,52,4); ctx.fill();
+    ctx.fillStyle='#5b9cf6'; ctx.fillText('gNB',gnb.x,gnb.y+40);
+    ctx.fillStyle='#f5a623'; ctx.beginPath(); ctx.arc(user.x,user.y,11,0,7); ctx.fill();
+    ctx.fillStyle='#f5a623'; ctx.fillText('user',user.x,user.y+30);
+    // angle readout
+    const ang=Math.atan2(user.y-ris.y,user.x-ris.x)*180/Math.PI;
+    ctx.fillStyle='#2dd4aa'; ctx.textAlign='left'; ctx.fillText('reflected beam steered to '+ang.toFixed(0)+'°',ris.x+90,ris.y+6);
+  }
+  cv.addEventListener('click',e=>{ const r=cv.getBoundingClientRect();
+    user.x=Math.max(560,Math.min(860,(e.clientX-r.left)*(W/r.width)));
+    user.y=Math.max(120,Math.min(250,(e.clientY-r.top)*(H/r.height))); draw(); });
+  draw();
+})();
+</script>
+</body>
+</html>

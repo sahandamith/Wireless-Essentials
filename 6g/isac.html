@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrated Sensing &amp; Communication (ISAC) for 6G | ranbits</title>
+<meta name="description" content="ISAC from first principles: how a 6G network can sense its surroundings — range, velocity, presence — while it communicates. Radar basics, monostatic vs bistatic, waveform reuse, and what 3GPP and ITU-R have actually agreed. Labelled and sourced.">
+<meta name="keywords" content="ISAC, integrated sensing and communication, 6G sensing, joint communication and sensing, JCAS, monostatic, bistatic, radar, IMT-2030, TR 22.870">
+<meta name="author" content="ranbits.com">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ranbits.com/6g/isac.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ranbits">
+<meta property="og:title" content="Integrated Sensing &amp; Communication (ISAC) for 6G">
+<meta property="og:description" content="How a 6G network senses while it communicates — radar basics, monostatic vs bistatic, waveform reuse. Sourced.">
+<meta property="og:url" content="https://ranbits.com/6g/isac.html">
+<meta property="og:image" content="https://ranbits.com/assets/og-image.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Integrated Sensing & Communication (ISAC)">
+<meta name="twitter:description" content="6G sensing from first principles — sourced and labelled.">
+<meta name="twitter:image" content="https://ranbits.com/assets/og-image.svg">
+<link rel="alternate" type="application/atom+xml" title="ranbits 6G tracker — changelog" href="/feed.xml">
+<link rel="stylesheet" href="../css/main.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Integrated Sensing & Communication (ISAC) for 6G",
+  "description": "First-principles guide to ISAC: sensing range and velocity, monostatic vs bistatic, waveform reuse, and 6G status.",
+  "author": { "@type": "Organization", "name": "ranbits" },
+  "publisher": { "@type": "Organization", "name": "ranbits" },
+  "mainEntityOfPage": "https://ranbits.com/6g/isac.html",
+  "about": ["ISAC", "6G sensing", "radar", "joint communication and sensing"]
+}
+</script>
+</head>
+<body>
+<div class="page-body">
+
+<div class="hero">
+  <div class="breadcrumb">6G Topics <span>›</span> Integrated Sensing &amp; Communication</div>
+  <div class="module-tag" style="background:var(--green-l);border:1px solid rgba(74,222,128,0.25);color:var(--green);">
+    <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+    6G Topic 05 — ISAC
+  </div>
+  <h1>The network that <em>sees</em></h1>
+  <p class="hero-lead">
+    A radio signal that bounces off a wall, a car, or a hand already carries information about that object — radar has exploited this for a century. ISAC's idea is to let the <em>same</em> 6G waveform that carries your data also act as radar, so the network senses range, velocity and presence as a built-in service. Sensing as a use case is agreed; how the radio does it is still being designed.
+  </p>
+  <div class="spec-pills">
+    <span class="spec-pill">IMT-2030 — ISAC</span>
+    <span class="spec-pill">TR 22.870</span>
+  </div>
+</div>
+
+<div class="content">
+<div class="prose">
+
+<div class="study-note">
+  <strong>Status.</strong> ISAC is an agreed 6G usage scenario (requirement). The radio realisation — waveform reuse, sensing modes, architecture — is a candidate under study; no normative 6G sensing design exists.
+</div>
+
+<h2>Foundation: range from delay, velocity from Doppler</h2>
+<p>
+  The physics is old and exact. Transmit a pulse; if it reflects off an object at distance <code>R</code>, the echo returns after a round-trip delay <code>τ = 2R/c</code>. Measure the delay, recover the range. If the object is moving, the echo's frequency is shifted by the Doppler effect, proportional to its radial velocity. A radio that can measure delay and frequency precisely — which a wideband OFDM system can — is already a radar.
+</p>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">R = c·τ/2; velocity from Doppler shift</span></div>
+  <p>Range comes from round-trip time-of-flight; radial velocity from the Doppler frequency shift of the echo. Range <em>resolution</em> improves with bandwidth, which is one reason sensing pairs naturally with 6G's wide upper-mid-band and sub-THz channels. This is established radar theory, reused — not invented for 6G.</p>
+  <span class="src"><a href="https://arxiv.org/pdf/2508.13736" target="_blank" rel="noopener">arxiv.org — ISAC architecture</a> <span class="src-date">2025-08</span> <span class="src-tier">secondary</span></span>
+</div>
+
+</div><!-- prose -->
+
+<div class="diagram-section reveal">
+  <div class="ds-header">
+    <span class="ds-title">Interactive — monostatic sensing (range from echo delay)</span>
+    <span class="ds-ref">illustrative physics — drag the target</span>
+  </div>
+  <div class="ds-body">
+    <canvas id="radar" width="900" height="260" style="width:100%;background:#040610;border-radius:6px;cursor:ew-resize;"></canvas>
+    <div id="radarout" class="result-box" style="margin-top:14px;"></div>
+    <div class="note-box" style="margin-top:12px;"><strong>Drag the target.</strong> The base station transmits and listens for the echo on the same site (monostatic). Delay τ = 2R/c gives range. Numbers are real physics (c = 3×10⁸ m/s) used illustratively, not a 6G performance claim.</div>
+  </div>
+</div>
+
+<div class="prose">
+<h2>Where it stops being simple</h2>
+
+<div class="claim req">
+  <div class="claim-head"><span class="clabel clabel-req">requirement</span><span class="ch-text">ISAC is an agreed 6G usage scenario</span></div>
+  <p>Both the ITU-R IMT-2030 framework and 3GPP's Stage-1 study (TR 22.870) name integrated sensing and communication as a target 6G capability — covering use cases from intrusion detection and traffic monitoring to gesture and environment mapping.</p>
+  <span class="src"><a href="https://www.3gpp.org/news-events/3gpp-news/fukuoka-tsg111" target="_blank" rel="noopener">3gpp.org — TR 22.870</a> <span class="src-date">2026-03-13</span></span>
+</div>
+
+<div class="claim cand">
+  <div class="claim-head"><span class="clabel clabel-cand">candidate</span><span class="ch-text">Sensing mode and waveform are still under study</span></div>
+  <p>Open design questions: monostatic (transmit and receive at one node) vs bistatic/multistatic (separate nodes) sensing; whether to reuse the communication waveform unchanged or add sensing-friendly shaping; how to schedule sensing without starving data; and how results flow through the architecture. Early study work leans toward reusing OFDM with a monostatic option, but nothing is decided.</p>
+  <span class="src"><a href="https://arxiv.org/pdf/2508.13736" target="_blank" rel="noopener">arxiv.org</a> <span class="src-date">2025-08</span> <span class="src-tier">secondary</span></span>
+</div>
+
+<div class="claim found">
+  <div class="claim-head"><span class="clabel clabel-found">foundation</span><span class="ch-text">OFDM is already a good radar waveform</span></div>
+  <p>Wideband OFDM — 6G's baseline — supports accurate delay and Doppler estimation, which is exactly why "reuse the comms waveform for sensing" is plausible rather than fanciful. The continuity argument from the radio page applies here too.</p>
+  <span class="src"><a href="radio-physical-layer.html">ranbits — 6G radio physical layer</a> <span class="src-date">2026</span></span>
+</div>
+</div>
+
+<!-- TRACKER:isac -->
+<div class="diagram-section">
+    <div class="ds-header">
+      <span class="ds-title">Tracker — what 3GPP / ITU-R is doing here</span>
+      <span class="ds-ref"><a href="../tracker/index.html" style="color:var(--teal);text-decoration:none;">full tracker ↗</a></span>
+    </div>
+    <div class="ds-body" style="padding:0;">
+      <div class="titems" style="margin:0;border:none;border-radius:0;">
+      <div class="titem">
+        <div>
+          <span class="ti-id">ISAC (6G)</span> <span class="clabel clabel-cand">candidate</span>
+          <div class="ti-title">Integrated Sensing and Communication</div>
+          <div class="ti-notes">ISAC is one of the six IMT-2030 usage scenarios (requirement) and appears in TR 22.870. The RAN realization — waveform reuse, monostatic/bistatic modes, architecture — is a candidate still under study.</div>
+          <span class="src"><a href="https://arxiv.org/pdf/2508.13736" target="_blank" rel="noopener">arxiv.org</a> <span class="src-date">2025-08</span> <span class="src-tier">secondary</span></span>
+        </div>
+        <div class="ti-right"><span class="status-pill sp-study">Use case agreed (IMT-2030/TR 22.870); RAN design under study</span><span class="progress-na">no % published</span></div>
+      </div>
+      </div>
+    </div>
+  </div>
+<!-- /TRACKER:isac -->
+
+<div class="prose">
+<h2>Where this connects</h2>
+<p>
+  ISAC depends on the <a href="radio-physical-layer.html" style="color:var(--blue);">waveform</a> (it senses with it) and the <a href="spectrum.html" style="color:var(--blue);">spectrum</a> (wide bandwidth = fine range resolution), and leans on <a href="ai-native-air-interface.html" style="color:var(--blue);">ML</a> to interpret cluttered echoes. It is one of the three genuinely new IMT-2030 scenarios.
+</p>
+<div class="foundations-banner">
+  <span class="fb-tag">Foundations</span>
+  <span class="fb-text">The correlation and timing machinery sensing relies on is the same maths a 5G UE uses to detect PSS — taught with worked numbers in Foundations.</span>
+  <a class="fb-link" href="../module2/2-3-pss.html">5G PSS detection →</a>
+</div>
+</div>
+
+</div><!-- content -->
+
+<div class="page-nav">
+  <a href="ai-native-air-interface.html"><span class="pn-label">← Previous</span><span class="pn-title">AI/ML-Native Air Interface</span></a>
+  <a href="ris.html" class="next"><span class="pn-label">Next →</span><span class="pn-title">Reconfigurable Intelligent Surfaces</span></a>
+</div>
+
+</div>
+
+<script src="../js/main.js"></script>
+<script>
+buildSidebar('isac.html');
+
+(function(){
+  const cv=document.getElementById('radar'), ctx=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const bsX=60, bsY=H/2; let tx=620; const maxX=860;
+  const mPerPx = 1.5; // 1px ≈ 1.5 m (illustrative scale)
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // ground line
+    ctx.strokeStyle='#12152a'; ctx.beginPath(); ctx.moveTo(40,bsY+60); ctx.lineTo(W-20,bsY+60); ctx.stroke();
+    // base station
+    ctx.fillStyle='#5b9cf6'; roundRect(ctx,bsX-16,bsY-30,32,60,4); ctx.fill();
+    ctx.fillStyle='#5b9cf6'; ctx.font='11px DM Sans'; ctx.textAlign='center'; ctx.fillText('gNB',bsX,bsY+48);
+    // wave out
+    ctx.strokeStyle='rgba(45,212,170,0.5)'; ctx.lineWidth=1.5;
+    for(let i=0;i<4;i++){ ctx.beginPath(); ctx.arc(bsX,bsY,(tx-bsX)*0.25*(i+1),-0.5,0.5); ctx.stroke(); }
+    // echo back
+    ctx.strokeStyle='rgba(245,166,35,0.45)'; ctx.setLineDash([4,4]);
+    for(let i=0;i<3;i++){ ctx.beginPath(); ctx.arc(tx,bsY,(tx-bsX)*0.3*(i+1),Math.PI-0.5,Math.PI+0.5); ctx.stroke(); }
+    ctx.setLineDash([]);
+    // target
+    ctx.fillStyle='#f5a623'; ctx.beginPath(); ctx.arc(tx,bsY,12,0,7); ctx.fill();
+    ctx.fillStyle='#f5a623'; ctx.font='11px DM Sans'; ctx.fillText('target',tx,bsY+48);
+    // range line
+    ctx.strokeStyle='#2a3a5a'; ctx.setLineDash([2,3]); ctx.beginPath(); ctx.moveTo(bsX,bsY-44); ctx.lineTo(tx,bsY-44); ctx.stroke(); ctx.setLineDash([]);
+    const R=(tx-bsX)*mPerPx;
+    const tau=2*R/3e8*1e6; // µs
+    const fd_factor = 2/ (3e8) * 13e9; // illustrative: 13 GHz carrier, per m/s of velocity → Hz
+    document.getElementById('radarout').innerHTML =
+      '<div class="rb-title">monostatic range estimate</div>'+
+      '<div class="rb-line">Range R &nbsp;&nbsp;&nbsp;→ <span class="rb-val">'+R.toFixed(0)+' m</span></div>'+
+      '<div class="rb-line">Round-trip delay τ = 2R/c &nbsp;→ <span class="rb-val">'+tau.toFixed(2)+' µs</span></div>'+
+      '<div class="rb-line">Doppler sensitivity @13 GHz &nbsp;→ <span class="rb-val">'+fd_factor.toFixed(0)+' Hz</span> per m/s of radial velocity</div>';
+  }
+  function setFromEvent(e){
+    const r=cv.getBoundingClientRect(); const x=(e.clientX-r.left)*(W/r.width);
+    tx=Math.max(bsX+120,Math.min(maxX,x)); draw();
+  }
+  let down=false;
+  cv.addEventListener('mousedown',e=>{down=true;setFromEvent(e);});
+  window.addEventListener('mousemove',e=>{if(down)setFromEvent(e);});
+  window.addEventListener('mouseup',()=>down=false);
+  cv.addEventListener('click',setFromEvent);
+  draw();
+})();
+</script>
+</body>
+</html>
